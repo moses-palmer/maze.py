@@ -25,6 +25,15 @@ def Wall_fields():
 
 
 @test
+def Wall_get_opposite():
+    """Tests Wall.get_opposite"""
+    assert_eq(Wall.get_opposite(Wall.LEFT), Wall.RIGHT)
+    assert_eq(Wall.get_opposite(Wall.UP), Wall.DOWN)
+    assert_eq(Wall.get_opposite(Wall.RIGHT), Wall.LEFT)
+    assert_eq(Wall.get_opposite(Wall.DOWN), Wall.UP)
+
+
+@test
 def Maze_width_and_height():
     """Tests that the width and height properties are correct"""
     maze1 = Maze(10, 20)

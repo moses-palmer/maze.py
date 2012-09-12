@@ -27,6 +27,17 @@ class Wall(object):
         self.room_pos = room_pos
         self.wall = wall
 
+    @classmethod
+    def get_opposite(self, wall_index):
+        """
+        Returns the opposite wall.
+
+        @param wall_index
+            The index of the wall for which to find the opposite.
+        @return the index of the opposite wall
+        """
+        return (wall_index + len(self.WALLS) / 2) % len(self.WALLS)
+
 
 class Room(object):
     """
