@@ -38,6 +38,18 @@ class Wall(object):
         """
         return (wall_index + len(self.WALLS) / 2) % len(self.WALLS)
 
+    @classmethod
+    def get_direction(self, wall_index):
+        """
+        Returns a direction vector to move in when going through the wall.
+
+        @param wall_index
+            The index of the wall.
+        @return a direction vector though the wall
+        @raise IndexError if wall_index is invalid
+        """
+        return self.DIRECTIONS[wall_index]
+
 
 class Room(object):
     """
