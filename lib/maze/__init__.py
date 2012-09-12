@@ -50,6 +50,25 @@ class Wall(object):
         """
         return self.DIRECTIONS[wall_index]
 
+    @classmethod
+    def get_wall(self, direction):
+        """
+        Returns the index of the wall in the given direction.
+
+        @param direction
+            A direction vector. Its length does not matter; only the direction
+            is used.
+        @return the index of the wall in the specified direction
+        @raise ValueError if the wall cannot be determined by the vector
+        """
+        return self.DIRECTIONS.index((
+            (0 if direction[0] == 0 else
+                1 if direction[0] > 0 else
+                    -1),
+            (0 if direction[1] == 0 else
+                1 if direction[1] > 0 else
+                    -1)))
+
 
 class Room(object):
     """

@@ -43,6 +43,32 @@ def Wall_get_direction():
 
 
 @test
+def Wall_get_wall():
+    """Tests Wall.get_wall"""
+    assert_eq(Wall.get_wall((-1, 0)), Wall.LEFT)
+    assert_eq(Wall.get_wall((-2, 0)), Wall.LEFT)
+    assert_eq(Wall.get_wall((10, 0)), Wall.RIGHT)
+    assert_eq(Wall.get_wall((20, 0)), Wall.RIGHT)
+
+    assert_eq(Wall.get_wall((0, 1)), Wall.UP)
+    assert_eq(Wall.get_wall((0, -10)), Wall.DOWN)
+
+    try:
+        Wall.get_wall((1, 1))
+        assert False, \
+            'Invalid direction did not raise ValueError'
+    except ValueError:
+        pass
+
+    try:
+        Wall.get_wall((0, 0))
+        assert False, \
+            'Invalid direction did not raise ValueError'
+    except ValueError:
+        pass
+
+
+@test
 def Maze_width_and_height():
     """Tests that the width and height properties are correct"""
     maze1 = Maze(10, 20)
