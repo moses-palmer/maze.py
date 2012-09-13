@@ -69,6 +69,17 @@ class Wall(object):
                 1 if direction[1] > 0 else
                     -1)))
 
+    @classmethod
+    def get_walls(self, room_pos):
+        """
+        Generates all walls of a room.
+
+        @param room_pos
+            The room coordinates.
+        """
+        for wall in self.WALLS:
+            yield self(room_pos, wall)
+
 
 class Room(object):
     """

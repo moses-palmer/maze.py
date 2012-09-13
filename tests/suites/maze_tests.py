@@ -69,6 +69,20 @@ def Wall_get_wall():
 
 
 @test
+def Wall_get_walls():
+    """Tests Wall.get_wall"""
+    walls = set()
+
+    for wall in Wall.get_walls((10, 20)):
+        assert_eq(wall.room_pos, (10, 20))
+
+        if wall.wall in walls:
+            assert False, \
+                '%s was found twice' % Wall.NAMES[wall]
+        walls.add(wall.wall)
+
+
+@test
 def Maze_width_and_height():
     """Tests that the width and height properties are correct"""
     maze1 = Maze(10, 20)
