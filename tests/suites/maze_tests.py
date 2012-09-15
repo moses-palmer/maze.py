@@ -153,3 +153,19 @@ def Maze_index_tuple():
 
     assert isinstance(maze[3, 4], Room), \
         'Maze[x, y] did not yield a Room'
+
+
+@test
+def Maze_adjacent():
+    """Tests that Maze.adjacent works"""
+    maze = Maze(10, 20)
+
+    for x in (-1, 0, 1):
+        for y in (-1, 0, 1):
+            adjacent1 = maze.adjacent((4, 4), (4 + x, 4 + y))
+            adjacent2 = abs(x) + abs(y) == 1
+            assert adjacent1 == adjacent2, \
+                '(4, 4) %s be adjacent to (%d, %d)' % (
+                    'should' if adjacent2 else 'should not',
+                    4 + x,
+                    4 + y)

@@ -204,3 +204,16 @@ class Maze(object):
         """The width of the maze."""
         return len(self.rooms[0])
 
+    def adjacent(self, room1_pos, room2_pos):
+        """
+        Returns whether two rooms are adjacent.
+
+        The rooms are adjacent if the room at room1_pos has a wall that leads to
+        the room at room2_pos.
+
+        @param room1_pos, room2_pos
+            The coordinates of the rooms to check.
+        @return whether there is a wall between the two rooms
+        """
+        return any((room1_pos[0] + d[0], room1_pos[1] + d[1]) == room2_pos
+            for d in Wall.DIRECTIONS)
