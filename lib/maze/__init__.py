@@ -94,6 +94,52 @@ class Room(object):
         """
         self.doors = set()
 
+    def has_door(self, wall_index):
+        """
+        Returns whether a wall has a door.
+
+        @param wall_index
+            The wall to check.
+        @return whether the wall has a door
+        @raise IndexError if wall is not a valid wall
+        """
+        return wall_index in self.doors
+
+    def add_door(self, wall_index):
+        """
+        Adds a door.
+
+        @param wall_index
+            The wall to which to add a door.
+        @raise IndexError if wall_index is not a valid wall
+        """
+        self.doors.add(wall_index)
+
+    def remove_door(self, wall_index):
+        """
+        Removes a door.
+
+        @param wall_index
+            The wall from which to remove a door.
+        @raise IndexError if wall_index is not a valid wall
+        """
+        self.doors.discard(wall_index)
+
+    def set_door(self, wall_index, has_door):
+        """
+        Adds or removes a door depending on has_door.
+
+        @param wall_index
+            The wall to modify.
+        @param has_door
+            Whether to add or remove the door.
+        @raise IndexError if wall_index is not a valid wall
+        """
+        if has_door:
+            self.add_door(wall_index)
+        else:
+            self.remove_door(wall_index)
+
 
 class Maze(object):
     """

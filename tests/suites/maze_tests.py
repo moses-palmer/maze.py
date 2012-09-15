@@ -83,6 +83,30 @@ def Wall_get_walls():
 
 
 @test
+def Room_door_functions():
+    """Tests that Room.add_door, remove_door and has_door work"""
+    room = Room()
+
+    assert all(not room.has_door(wall)
+            for wall in Wall.WALLS), \
+        'Not all walls were empty when Room was created'
+
+    room.add_door(Wall.LEFT)
+    assert all(not room.has_door(wall) or wall == Wall.LEFT
+            for wall in Wall.WALLS), \
+        'Adding left door did not have the expected effect (doors = %d)' % (
+            room.doors)
+
+    for wall in Wall.WALLS:
+        room.add_door(wall)
+    assert_eq(room.doors, set(Wall.WALLS))
+
+    room.remove_door(Wall.RIGHT)
+    assert all(room.has_door(wall) or wall == Wall.RIGHT
+            for wall in Wall.WALLS), \
+        'Removing right door did not have the expected effect (doors = %d)' % (
+            room.doors)
+
 def Maze_width_and_height():
     """Tests that the width and height properties are correct"""
     maze1 = Maze(10, 20)
