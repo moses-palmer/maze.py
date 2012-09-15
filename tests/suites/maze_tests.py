@@ -107,6 +107,34 @@ def Room_door_functions():
         'Removing right door did not have the expected effect (doors = %d)' % (
             room.doors)
 
+
+@test
+def Room_door_operators():
+    """Tests that the operator overloads work"""
+    room = Room()
+
+    assert all(not wall in room and not room[wall]
+            for wall in Wall.WALLS), \
+        'Not all walls were empty when Room was created'
+
+    room[Wall.LEFT] = True
+    assert all(not wall in room and not room[wall] or wall == Wall.LEFT
+            for wall in Wall.WALLS), \
+        'Adding left door did not have the expected effect (doors = %d)' % (
+            room.doors)
+
+    for wall in Wall.WALLS:
+        room += wall
+    assert_eq(room.doors, set(Wall.WALLS))
+
+    room -= Wall.RIGHT
+    assert all(wall in room and room[wall] or wall == Wall.RIGHT
+            for wall in Wall.WALLS), \
+        'Removing right door did not have the expected effect (doors = %d)' % (
+            room.doors)
+
+
+@test
 def Maze_width_and_height():
     """Tests that the width and height properties are correct"""
     maze1 = Maze(10, 20)

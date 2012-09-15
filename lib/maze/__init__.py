@@ -86,7 +86,32 @@ class Room(object):
     A room is a part of the maze.
 
     A room has all walls defined in Wall, and a concept of doors on the walls.
+
+    In addition to the methods defined for Room, the following constructs are
+    allowed:
+        if wall in room: => if wall.has_door(wall):
+        if room[Wall.LEFT]: => if room.has_door(wall):
+        room[Wall.LEFT] = True => room.set_door(Wall.LEFT, True)
+        room += Wall.LEFT => room.add_door(Wall.LEFT)
+        room -= Wall.LEFT => room_remove_door(Wall.LEFT)
     """
+
+    def __contains__(self, wall_index):
+        return self.has_door(wall_index)
+
+    def __getitem__(self, wall_index):
+        return self.has_door(wall_index)
+
+    def __setitem__(self, wall_index, has_door):
+        self.set_door(wall_index, has_door)
+
+    def __iadd__(self, wall_index):
+        self.add_door(wall_index)
+        return self
+
+    def __isub__(self, wall_index):
+        self.remove_door(wall_index)
+        return self
 
     def __init__(self):
         """
