@@ -169,7 +169,19 @@ class Room(object):
 class Maze(object):
     """
     A maze is a grid of rooms.
+
+    In addition to the methods defined for Room, the following constructs are
+    allowed:
+        maze[room_pos] => maze.rooms[room_pos[1]][room_pos[0]]
     """
+
+    def __getitem__(self, room_pos):
+        if isinstance(room_pos, tuple) and len(room_pos) == 2:
+            # A request for a specific room
+            room_x, room_y = room_pos
+            return self.rooms[room_y][room_x]
+
+        raise TypeError()
 
     def __init__(self, width, height):
         """

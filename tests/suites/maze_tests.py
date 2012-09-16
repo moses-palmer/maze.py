@@ -145,3 +145,11 @@ def Maze_width_and_height():
     assert_eq(maze2.width, 200)
     assert_eq(maze2.height, 100)
 
+
+@test
+def Maze_index_tuple():
+    """Tests that indexing Maze with a tuple yields a Room"""
+    maze = Maze(10, 20)
+
+    assert isinstance(maze[3, 4], Room), \
+        'Maze[x, y] did not yield a Room'
