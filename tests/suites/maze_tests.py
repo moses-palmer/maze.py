@@ -219,3 +219,38 @@ def Maze_add_door():
             'Maze.add_door did not raise IndexError for rooms outside of maze'
     except IndexError:
         pass
+
+
+@test
+def Maze_remove_door():
+    """Tests that Maze.remove_door works"""
+    maze = Maze(10, 20)
+
+    room1 = maze[3, 4]
+    room2 = maze[4, 4]
+
+    maze.add_door((3, 4), (4, 4))
+
+    maze.remove_door((3, 4), (4, 4))
+
+    assert not Wall.RIGHT in room1, \
+        'Maze.remove_door did not close the left door'
+    assert not Wall.LEFT in room2, \
+        'Maze.remove_door did not close the right door'
+
+    maze.remove_door((0, 0), (-1, 0))
+
+    try:
+        maze.remove_door((0, 0), (2, 0))
+        assert False, \
+            'Maze.remove_door did not raise IndexError for non-connected rooms'
+    except ValueError:
+        pass
+
+    try:
+        maze.remove_door((-1, 0), (0, 0))
+        assert False, \
+            'Maze.remove_door did not raise IndexError for rooms outside of ' \
+                'maze'
+    except IndexError:
+        pass

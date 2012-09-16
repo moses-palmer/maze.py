@@ -247,6 +247,17 @@ class Maze(object):
         """
         self._set_door(from_pos, to_pos, True)
 
+    def remove_door(self, from_pos, to_pos):
+        """
+        Removes a door between two rooms.
+
+        @param from_pos, to_pos
+            The coordinates of the rooms.
+        @raise IndexError if a room lies outside of the maze
+        @raise ValueError if the rooms are not adjacent
+        """
+        return self._set_door(from_pos, to_pos, False)
+
     def adjacent(self, room1_pos, room2_pos):
         """
         Returns whether two rooms are adjacent.
