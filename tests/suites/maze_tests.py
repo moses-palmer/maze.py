@@ -183,3 +183,39 @@ def Maze_contains():
             assert expected == actual, \
                 '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
 
+
+@test
+def Maze_add_door():
+    """Tests that Maze.add_door works"""
+    maze = Maze(10, 20)
+
+    room1 = maze[3, 4]
+    room2 = maze[4, 4]
+
+    assert not Wall.RIGHT in room1, \
+        'Right door of room was not initially missing'
+    assert not Wall.LEFT in room2, \
+        'Left door of room was not initially missing'
+
+    maze.add_door((3, 4), (4, 4))
+
+    assert Wall.RIGHT in room1, \
+        'Maze.add_door did not open the left door'
+    assert Wall.LEFT in room2, \
+        'Maze.add_door did not open the right door'
+
+    maze.add_door((0, 0), (-1, 0))
+
+    try:
+        maze.add_door((0, 0), (2, 0))
+        assert False, \
+            'Maze.add_door did not raise IndexError for non-connected rooms'
+    except ValueError:
+        pass
+
+    try:
+        maze.add_door((-1, 0), (0, 0))
+        assert False, \
+            'Maze.add_door did not raise IndexError for rooms outside of maze'
+    except IndexError:
+        pass

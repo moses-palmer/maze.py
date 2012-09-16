@@ -189,6 +189,32 @@ class Maze(object):
         return room_pos[0] >= 0 and room_pos[0] < self.width \
             and room_pos[1] >= 0 and room_pos[1] < self.height
 
+    def _set_door(self, from_pos, to_pos, has_door):
+        """
+        Adds or removes a door between two rooms.
+
+        @param from_pos, to_pos
+            The coordinates of the rooms.
+        @param has_door
+            True to add the door and False to remove it.
+        @raise IndexError if a room lies outside of the maze
+        @raise ValueError if the rooms are not adjacent
+        """
+        if not from_pos in self and to_pos in self:
+            raise IndexError()
+        if not self.adjacent(from_pos, to_pos):
+            raise ValueError('No wall between %s and %s' % (
+                str(from_pos), str(to_pos)))
+
+        wall = Wall.get_wall((to_pos[0] - from_pos[0], to_pos[1] - from_pos[1]))
+
+        from_room = self[from_pos]
+        from_room[wall] = has_door
+
+        if to_pos in self:
+            to_room = self[to_pos]
+            to_room[Wall.get_opposite(wall)] = has_door
+
     def __init__(self, width, height):
         """
         Creates a maze with no open doors.
@@ -209,6 +235,17 @@ class Maze(object):
     def width(self):
         """The width of the maze."""
         return len(self.rooms[0])
+
+    def add_door(self, from_pos, to_pos):
+        """
+        Adds a door between two rooms.
+
+        @param from_pos, to_pos
+            The coordinates of the rooms.
+        @raise IndexError if a room lies outside of the maze
+        @raise ValueError if the rooms are not adjacent
+        """
+        self._set_door(from_pos, to_pos, True)
 
     def adjacent(self, room1_pos, room2_pos):
         """
