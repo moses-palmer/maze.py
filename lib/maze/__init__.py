@@ -283,3 +283,20 @@ class Maze(object):
         """
         return any((room1_pos[0] + d[0], room1_pos[1] + d[1]) == room2_pos
             for d in Wall.DIRECTIONS)
+
+    def connected(self, room1_pos, room2_pos):
+        """
+        Returns whether two rooms are connected by a single wall containing a
+        door.
+
+        @param room1_pos, room2_pos
+            The coordinates of the rooms to check.
+        @return whether the two rooms are adjacent and have doors
+        """
+        # Make sure that they are adjacent
+        if not self.adjacent(room1_pos, room2_pos):
+            return False
+
+        # Make sure the wall has a door
+        return Wall.get_wall((room1_pos[0] - room2_pos[0],
+            room1_pos[1] - room2_pos[1])) in self[room1_pos]

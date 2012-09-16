@@ -289,3 +289,32 @@ def Maze_remove_door():
                 'maze'
     except IndexError:
         pass
+
+
+@test
+def Maze_connected():
+    """Tests that Maze.connected works"""
+    maze = Maze(10, 20)
+
+    for x in (-1, 0, 1):
+        for y in (-1, 0, 1):
+            connected1 = maze.connected((4, 4), (4 + x, 4 + y))
+            connected2 = False
+            assert connected1 == connected2, \
+                '(4, 4) %s be connected to (%d, %d)' % (
+                    'should' if adjacent2 else 'should not',
+                    4 + x,
+                    4 + y)
+
+    maze.add_door((3, 4), (4, 4))
+    maze.add_door((4, 4), (5, 4))
+
+    for x in (-1, 0, 1):
+        for y in (-1, 0, 1):
+            connected1 = maze.connected((4, 4), (4 + x, 4 + y))
+            connected2 = y == 0 and x != 0
+            assert connected1 == connected2, \
+                '(4, 4) %s be connected to (%d, %d)' % (
+                    'should' if adjacent2 else 'should not',
+                    4 + x,
+                    4 + y)
