@@ -339,3 +339,19 @@ class Maze(object):
             return result
         else:
             raise IndexError()
+
+    def walk(self, wall, require_door = False):
+        """
+        Returns the coordinates of the room through the specified wall.
+
+        @param wall
+            The wall to walk through.
+        @param require_door
+            Whether to require a door in the specified direction. If this
+            parameter is True,
+        @return the destination coordinates
+        @raise ValueError if require_door is True and there is no door on the
+            wall
+        @raise IndexError if the destination room lies outside of the maze
+        """
+        return self.walk_from(wall.room_pos, int(wall), require_door)
