@@ -300,3 +300,35 @@ class Maze(object):
         # Make sure the wall has a door
         return Wall.get_wall((room1_pos[0] - room2_pos[0],
             room1_pos[1] - room2_pos[1])) in self[room1_pos]
+
+    def walk_from(self, room_pos, wall, require_door = False):
+        """
+        Returns the coordinates of the room through the specified wall.
+
+        The starting room, room_pos, may be outside of the maze if it is
+        immediately on the edge and the movement is inside the maze.
+
+        @param room_pos
+            The room from which to walk.
+        @param wall
+            The wall to walk through.
+        @param require_door
+            Whether to require a door in the specified direction. If this
+            parameter is True,
+        @return the destination coordinates
+        @raise ValueError if require_door is True and there is no door on the
+            wall
+        @raise IndexError if the destination room lies outside of the maze
+        """
+        direction = Wall.get_direction(wall)
+        result = (room_pos[0] + direction[0], room_pos[1] + direction[1])
+
+        if require_door:
+            opposite = Wall.get_opposite(wall)
+            if not opposite in self[result]:
+                raise ValueError('(%d, %d) is not inside the maze' % room_pos)
+
+        if result in self:
+            return result
+        else:
+            raise IndexError()

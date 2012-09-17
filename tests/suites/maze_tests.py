@@ -318,3 +318,36 @@ def Maze_connected():
                     'should' if adjacent2 else 'should not',
                     4 + x,
                     4 + y)
+
+
+@test
+def Maze_walk_from():
+    """Tests that Maze.walk_from works"""
+    maze = Maze(10, 20)
+
+    assert_eq(maze.walk_from((0, 0), Wall.RIGHT), (1, 0))
+    assert_eq(maze.walk_from((1, 0), Wall.LEFT), (0, 0))
+    assert_eq(maze.walk_from((0, 1), Wall.DOWN), (0, 0))
+    assert_eq(maze.walk_from((0, 0), Wall.UP), (0, 1))
+    assert_eq(maze.walk_from((-1, 0), Wall.RIGHT), (0, 0))
+
+    try:
+        maze.walk_from((-2, 0), Wall.RIGHT)
+        assert False, \
+            'Walking from an invalid room did not raise IndexError'
+    except IndexError:
+        pass
+
+    try:
+        maze.walk_from((0, 0), Wall.RIGHT, True)
+        assert False, \
+            'Walking through a wall without door did not raise ValueError'
+    except ValueError:
+        pass
+
+    try:
+        maze.walk_from((-1, 0), Wall.RIGHT, True)
+        assert False, \
+            'Walking through a wall without door did not raise ValueError'
+    except ValueError:
+        pass
