@@ -23,6 +23,9 @@ class Wall(object):
         NAMES.append(name.lower())
         WALLS.append(i)
 
+    def __int__(self):
+        return self.wall
+
     def __init__(self, room_pos, wall):
         self.room_pos = room_pos
         self.wall = wall

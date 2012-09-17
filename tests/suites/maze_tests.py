@@ -83,6 +83,14 @@ def Wall_get_walls():
 
 
 @test
+def Wall_int():
+    """Test that int(wall) yields the correct value"""
+    for w in Wall.WALLS:
+        wall = Wall((0, 0), w)
+        assert_eq(w, int(wall))
+
+
+@test
 def Room_door_functions():
     """Tests that Room.add_door, remove_door and has_door work"""
     room = Room()
