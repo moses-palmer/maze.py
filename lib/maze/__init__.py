@@ -173,6 +173,8 @@ class Maze(object):
     In addition to the methods defined for Room, the following constructs are
     allowed:
         maze[room_pos] => maze.rooms[room_pos[1]][room_pos[0]]
+        if room_pos in maze: => if room_pos[0] >= 0 and room_pos[1] >= 0 \
+            and room_pos[0] < maze.width and room_pos[1] < maze.height
     """
 
     def __getitem__(self, room_pos):
@@ -182,6 +184,10 @@ class Maze(object):
             return self.rooms[room_y][room_x]
 
         raise TypeError()
+
+    def __contains__(self, room_pos):
+        return room_pos[0] >= 0 and room_pos[0] < self.width \
+            and room_pos[1] >= 0 and room_pos[1] < self.height
 
     def __init__(self, width, height):
         """

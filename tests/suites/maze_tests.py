@@ -169,3 +169,17 @@ def Maze_adjacent():
                     'should' if adjacent2 else 'should not',
                     4 + x,
                     4 + y)
+
+
+@test
+def Maze_contains():
+    """Tests that room_pos in maze works"""
+    maze = Maze(10, 20)
+
+    for x in xrange(-5, maze.width + 5):
+        for y in xrange(-5, maze.height + 5):
+            expected = x >= 0 and x < maze.width and y >= 0 and y < maze.height
+            actual = (x, y) in maze
+            assert expected == actual, \
+                '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
+
