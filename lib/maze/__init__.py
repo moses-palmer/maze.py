@@ -325,6 +325,20 @@ class Maze(object):
         return Wall.get_wall((room1_pos[0] - room2_pos[0],
             room1_pos[1] - room2_pos[1])) in self[room1_pos]
 
+    def doors(self, room_pos):
+        """
+        Generates all walls with doors.
+
+        @param room_pos
+            The coordinates of the room.
+        @raise IndexError if a room lies outside of the maze
+        """
+        room = self[room_pos]
+
+        for wall in Wall.WALLS:
+            if wall in room:
+                yield Wall(room_pos, wall)
+
     def walk_from(self, room_pos, wall, require_door = False):
         """
         Returns the coordinates of the room through the specified wall.

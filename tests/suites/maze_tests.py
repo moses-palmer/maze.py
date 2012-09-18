@@ -429,3 +429,23 @@ def Maze_walk():
             'Walking through a wall without door did not raise ValueError'
     except ValueError:
         pass
+
+
+@test
+def Maze_doors():
+    """Tests that Maze.doors works"""
+    maze = Maze(10, 20)
+
+    assert_eq(
+        list(maze.doors((1, 1))),
+        [])
+
+    doors = []
+
+    for w in Wall.WALLS:
+        wall = Wall((1, 1), w)
+        doors.append(wall)
+        maze.add_door((1, 1), (1 + wall.direction[0], 1 + wall.direction[1]))
+        assert_eq(
+            sorted(list(maze.doors((1, 1)))),
+            sorted(doors))
