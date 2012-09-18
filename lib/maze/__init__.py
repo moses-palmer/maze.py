@@ -1,3 +1,5 @@
+import sys
+
 class Wall(object):
     """
     A reference to the wall of a room.
@@ -22,6 +24,11 @@ class Wall(object):
         DIRECTIONS.append((hdir, vdir))
         NAMES.append(name.lower())
         WALLS.append(i)
+
+    def __eq__(self, other):
+        return isinstance(other, Wall) \
+            and self.wall == other.wall \
+            and self.room_pos == other.room_pos
 
     def __int__(self):
         return self.wall

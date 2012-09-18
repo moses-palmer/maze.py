@@ -83,6 +83,17 @@ def Wall_get_walls():
 
 
 @test
+def Wall_eq():
+    """Tests wall1 == wall2"""
+    assert Wall((1, 1), Wall.LEFT) == Wall((1, 1), Wall.LEFT), \
+        'Equal wall did not compare equally'
+    assert Wall((1, 2), Wall.LEFT) != Wall((1, 1), Wall.LEFT), \
+        'Walls with equal wall index and different positions compared equally'
+    assert Wall((1, 2), Wall.LEFT) != Wall((1, 2), Wall.RIGHT), \
+        'Walls with different wall index and equal positions compared equally'
+
+
+@test
 def Wall_int():
     """Test that int(wall) yields the correct value"""
     for w in Wall.WALLS:
