@@ -94,6 +94,11 @@ class Wall(object):
         for wall in self.WALLS:
             yield self(room_pos, wall)
 
+    @property
+    def opposite(self):
+        """The opposite wall in the same room."""
+        return Wall(self.room_pos, Wall.get_opposite(self.wall))
+
 
 class Room(object):
     """

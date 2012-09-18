@@ -34,6 +34,23 @@ def Wall_get_opposite():
 
 
 @test
+def Wall_opposite():
+    """Tests Wall.opposite"""
+    assert_eq(
+        Wall((0, 0), Wall.LEFT).opposite,
+        Wall((0, 0), Wall.RIGHT))
+    assert_eq(
+        Wall((0, 0), Wall.UP).opposite,
+        Wall((0, 0), Wall.DOWN))
+    assert_eq(
+        Wall((0, 0), Wall.RIGHT).opposite,
+        Wall((0, 0), Wall.LEFT))
+    assert_eq(
+        Wall((0, 0), Wall.DOWN).opposite,
+        Wall((0, 0), Wall.UP))
+
+
+@test
 def Wall_get_direction():
     """Tests Wall.get_direction"""
     assert_eq(Wall.get_direction(Wall.LEFT), (-1, 0))
