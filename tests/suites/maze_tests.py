@@ -156,6 +156,41 @@ def Maze_index_tuple():
 
 
 @test
+def Maze_index_tuple():
+    """Tests that assigning to Maze[(x1, y1):(x2, y2)] works"""
+    maze = Maze(10, 20)
+
+    room1 = maze[3, 4]
+    room2 = maze[4, 4]
+
+    assert not Wall.RIGHT in room1, \
+        'Right door of room was not initially missing'
+    assert not Wall.LEFT in room2, \
+        'Left door of room was not initially missing'
+
+    maze[(3, 4):(4, 4)] = True
+
+    assert Wall.RIGHT in room1, \
+        'Maze[(x1, y1):(x2, y2)] = True did not open the left door'
+    assert Wall.LEFT in room2, \
+        'Maze[(x1, y1):(x2, y2)] = True did not open the right door'
+
+    maze[(3, 4):(4, 4)] = False
+
+    assert not Wall.RIGHT in room1, \
+        'Maze[(x1, y1):(x2, y2)] = False did not close the left door'
+    assert not Wall.LEFT in room2, \
+        'Maze[(x1, y1):(x2, y2)] = False did not close the right door'
+
+    try:
+        maze[(-1, 0):(0, 0)] = True
+        assert False, \
+            'Maze.add_door did not raise IndexError for rooms outside of maze'
+    except IndexError:
+        pass
+
+
+@test
 def Maze_adjacent():
     """Tests that Maze.adjacent works"""
     maze = Maze(10, 20)

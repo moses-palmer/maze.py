@@ -175,6 +175,9 @@ class Maze(object):
         maze[room_pos] => maze.rooms[room_pos[1]][room_pos[0]]
         if room_pos in maze: => if room_pos[0] >= 0 and room_pos[1] >= 0 \
             and room_pos[0] < maze.width and room_pos[1] < maze.height
+        maze[room_pos1:room_pos2] = True => maze.add_door(room_pos1, room_pos2)
+        maze[room_pos1:room_pos2] = True =>
+            maze.remove_door(room_pos1, room_pos2)
     """
 
     def __getitem__(self, room_pos):
@@ -182,6 +185,15 @@ class Maze(object):
             # A request for a specific room
             room_x, room_y = room_pos
             return self.rooms[room_y][room_x]
+
+        raise TypeError()
+
+    def __setitem__(self, room_pos, value):
+        if isinstance(room_pos, slice):
+            # A request to set the wall between two rooms
+            from_pos, to_pos = room_pos.start, room_pos.stop
+            self._set_door(from_pos, to_pos, value)
+            return
 
         raise TypeError()
 
