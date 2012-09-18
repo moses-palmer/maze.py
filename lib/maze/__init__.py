@@ -386,3 +386,75 @@ class Maze(object):
         @raise IndexError if the destination room lies outside of the maze
         """
         return self.walk_from(wall.room_pos, int(wall), require_door)
+
+    def walk_path(self, from_pos, to_pos):
+        """
+        Generates all rooms on the shortest path between two rooms.
+
+        @param from_pos
+            The room in which to start. This room is included.
+        @param to_pos
+            The last room to visit.
+        @raise ValueError if there is no path between the rooms
+        """
+        # Handle walking to the same room efficiently
+        if from_pos == to_pos:
+            yield from_pos
+            return
+
+        # Create the matrix of the walls we used to enter the room
+        rooms = [[list((-1, sys.maxint)) for x in xrange(self.width)]
+            for y in xrange(self.height)]
+        def get_wall(room_pos):
+            return rooms[room_pos[1]][room_pos[0]][0]
+        def set_wall(room_pos, value):
+            rooms[room_pos[1]][room_pos[0]][0] = value
+        def get_distance(room_pos):
+            return rooms[room_pos[1]][room_pos[0]][1]
+        def set_distance(room_pos, value):
+            rooms[room_pos[1]][room_pos[0]][1] = value
+
+        # Perform a breadth-first search of the maze
+        shortest = sys.maxint
+        queue = [(0, to_pos)]
+        while queue:
+            (distance, room_pos) = queue.pop()
+
+            # If we have walked further than a previously found solution, abort
+            if distance + 1 > shortest:
+                continue
+
+            for wall in self.doors(room_pos):
+                # Do not crash on doors leading out of the maze
+                try:
+                    next_pos = self.walk(wall)
+                except IndexError:
+                    continue
+
+                # If the room has been visited along a shorter path before,
+                # ignore it
+                if get_distance(next_pos) <= distance:
+                    continue
+
+                # Update the matrix, since we found the shortest path to the
+                # current room
+                set_wall(next_pos, wall.opposite.wall)
+                set_distance(next_pos, distance + 1)
+                queue.append((distance + 1, next_pos))
+
+                # Store the current shortest length so that we may ignore rooms
+                # further from the starting point
+                if next_pos == from_pos:
+                    shortest = distance + 1
+
+        # Make sure that we reached the starting room
+        if rooms[from_pos[0]][from_pos[1]][0] == -1:
+            raise ValueError()
+
+        # Walk from the starting room in the directions found in the previous
+        # step
+        current = from_pos
+        while current != to_pos:
+            yield current
+            current = self.walk_from(current, get_wall(current))
+        yield to_pos

@@ -449,3 +449,73 @@ def Maze_doors():
         assert_eq(
             sorted(list(maze.doors((1, 1)))),
             sorted(doors))
+
+
+@test
+def Maze_walk_path():
+    """Tests that walking from one room to the same room always works"""
+    maze = Maze(10, 20)
+
+    assert_eq(
+        list(maze.walk_path((2, 2), (2, 2))),
+        [(2, 2)])
+
+
+@test
+def Maze_walk_path():
+    """Tests that walking from a room outside of the maze raises ValueError"""
+    maze = Maze(10, 20)
+
+    try:
+        list(maze.walk_path((-1, -1), (0, 0)))
+        assert False, \
+            'Managed to walk from (-1, -1)'
+    except ValueError:
+        pass
+
+
+@test
+def Maze_walk_path():
+    """Tests that walking between non-connected rooms raises ValueError"""
+    maze = Maze(10, 20)
+
+    try:
+        list(maze.walk_path((0, 0), (2, 0)))
+        assert False, \
+            'Managed to walk between non-connected rooms'
+    except ValueError:
+        pass
+
+
+@test
+def Maze_walk_path():
+    """Tests that walking between adjacent rooms works as expected"""
+    maze = Maze(10, 20)
+
+    maze[(0, 0):(1, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((0, 0), (1, 0))),
+        [(0, 0), (1, 0)])
+
+
+@test
+def Maze_walk_path():
+    """Tests that the shortest path is selected"""
+    maze = Maze(10, 20)
+
+    maze[(0, 0):(0, 1)] = True
+    maze[(0, 1):(1, 1)] = True
+    maze[(1, 1):(2, 1)] = True
+    maze[(2, 1):(2, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((0, 0), (2, 0))),
+        [(0, 0), (0, 1), (1, 1), (2, 1), (2, 0)])
+
+    maze[(0, 0):(1, 0)] = True
+    maze[(1, 0):(2, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((0, 0), (2, 0))),
+        [(0, 0), (1, 0), (2, 0)])
