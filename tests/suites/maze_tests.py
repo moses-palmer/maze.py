@@ -60,6 +60,15 @@ def Wall_get_direction():
 
 
 @test
+def Wall_direction():
+    """Tests Wall.direction"""
+    assert_eq(Wall((0, 0), Wall.LEFT).direction, (-1, 0))
+    assert_eq(Wall((0, 0), Wall.UP).direction, (0, 1))
+    assert_eq(Wall((0, 0), Wall.RIGHT).direction, (1, 0))
+    assert_eq(Wall((0, 0), Wall.DOWN).direction, (0, -1))
+
+
+@test
 def Wall_get_wall():
     """Tests Wall.get_wall"""
     assert_eq(Wall.get_wall((-1, 0)), Wall.LEFT)

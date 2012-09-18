@@ -99,6 +99,11 @@ class Wall(object):
         """The opposite wall in the same room."""
         return Wall(self.room_pos, Wall.get_opposite(self.wall))
 
+    @property
+    def direction(self):
+        """The direction vector to move in when going through the wall."""
+        return Wall.get_direction(self.wall)
+
 
 class Room(object):
     """
