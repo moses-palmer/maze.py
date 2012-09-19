@@ -532,3 +532,26 @@ def Maze_walk_path():
     assert_eq(
         list(maze.walk_path((0, 0), (2, 0))),
         [(0, 0), (1, 0), (2, 0)])
+
+
+@test
+def Maze_slice():
+    """Tests that reading a slice of a maze yields the path between the two
+    rooms"""
+    maze = Maze(10, 20)
+
+    maze[(0, 0):(0, 1)] = True
+    maze[(0, 1):(1, 1)] = True
+    maze[(1, 1):(2, 1)] = True
+    maze[(2, 1):(2, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((0, 0), (2, 0))),
+        list(maze[(0, 0):(2, 0)]))
+
+    maze[(0, 0):(1, 0)] = True
+    maze[(1, 0):(2, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((0, 0), (2, 0))),
+        list(maze[(0, 0):(2, 0)]))

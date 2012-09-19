@@ -214,6 +214,7 @@ class Maze(object):
         maze[room_pos1:room_pos2] = True => maze.add_door(room_pos1, room_pos2)
         maze[room_pos1:room_pos2] = True =>
             maze.remove_door(room_pos1, room_pos2)
+        maze[room_pos1:room_pos2] => maze.walk_path(room_pos1, room_pos2)
     """
 
     def __getitem__(self, room_pos):
@@ -221,6 +222,13 @@ class Maze(object):
             # A request for a specific room
             room_x, room_y = room_pos
             return self.rooms[room_y][room_x]
+
+        if isinstance(room_pos, slice):
+            # A request for the path between two rooms
+            if not room_pos.step is None:
+                raise ValueError()
+            from_pos, to_pos = room_pos.start, room_pos.stop
+            return self.walk_path(from_pos, to_pos)
 
         raise TypeError()
 
