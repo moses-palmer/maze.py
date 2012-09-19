@@ -132,6 +132,10 @@ class Room(object):
         room -= Wall.LEFT => room_remove_door(Wall.LEFT)
     """
 
+    def __bool__(self):
+        return bool(self.doors)
+    __nonzero__ = __bool__
+
     def __contains__(self, wall_index):
         return self.has_door(wall_index)
 

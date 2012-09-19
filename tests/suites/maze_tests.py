@@ -193,6 +193,20 @@ def Room_door_operators():
 
 
 @test
+def Room_bool():
+    """Tests that truth testing with Room works"""
+    room = Room()
+
+    assert not room, \
+        'An empty room tested True'
+
+    for wall in Wall.WALLS:
+        room += wall
+        assert room, \
+            'A non-empty room tested False'
+
+
+@test
 def Maze_width_and_height():
     """Tests that the width and height properties are correct"""
     maze1 = Maze(10, 20)
