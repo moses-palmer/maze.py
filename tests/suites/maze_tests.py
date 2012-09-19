@@ -1,5 +1,9 @@
+import random
+
 from tests import *
 from maze import *
+
+import maze.randomized_prim as randomized_prim
 
 @test
 def Wall_fields():
@@ -603,3 +607,19 @@ def Maze_slice():
     assert_eq(
         list(maze.walk_path((0, 0), (2, 0))),
         list(maze[(0, 0):(2, 0)]))
+
+
+@test
+def Maze_with_randomized_prim():
+    """Tests that randomized_prim.initialize creates a valid maze"""
+    maze = Maze(10, 20)
+
+    def rand(m):
+        return random.randint(0, m - 1)
+
+    randomized_prim.initialize(maze, rand)
+
+    for x in xrange(0, maze.width):
+        for y in xrange(0, maze.height):
+            assert len(list(maze[(0, 0):(x, y)])) > 0, \
+                'Could not walk from (%d, %d) to (0, 0)' % (x, y)
