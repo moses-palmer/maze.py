@@ -69,6 +69,19 @@ def Wall_direction():
 
 
 @test
+def Wall_back():
+    """Tests that Wall.back works"""
+    assert Wall((1, 1), Wall.LEFT).back == Wall((0, 1), Wall.RIGHT), \
+        'Back of left wall in(1, 1) was incorrect'
+    assert Wall((1, 1), Wall.RIGHT).back == Wall((2, 1), Wall.LEFT), \
+        'Back of right wall in(1, 1) was incorrect'
+    assert Wall((1, 1), Wall.UP).back == Wall((1, 2), Wall.DOWN), \
+        'Back of up wall in(1, 1) was incorrect'
+    assert Wall((1, 1), Wall.DOWN).back == Wall((1, 0), Wall.UP), \
+        'Back of down wall in(1, 1) was incorrect'
+
+
+@test
 def Wall_get_wall():
     """Tests Wall.get_wall"""
     assert_eq(Wall.get_wall((-1, 0)), Wall.LEFT)

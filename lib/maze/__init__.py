@@ -104,6 +104,18 @@ class Wall(object):
         """The direction vector to move in when going through the wall."""
         return Wall.get_direction(self.wall)
 
+    @property
+    def back(self):
+        """The wall on the other side of the wall."""
+        direction = Wall.get_direction(self.wall)
+
+        other_pos = (
+            self.room_pos[0] + direction[0],
+            self.room_pos[1] + direction[1])
+        other_wall = (self.wall + len(Wall.WALLS) / 2) % len(Wall.WALLS)
+
+        return Wall(other_pos, other_wall)
+
 
 class Room(object):
     """
