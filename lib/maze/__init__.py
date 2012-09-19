@@ -345,6 +345,16 @@ class Maze(object):
         return Wall.get_wall((room1_pos[0] - room2_pos[0],
             room1_pos[1] - room2_pos[1])) in self[room1_pos]
 
+    def edge(self, wall):
+        """
+        Returns whether a wall is on the edge of the maze.
+
+        @param wall
+            The wall.
+        @return whether the wall is on the edge of the maze
+        """
+        return wall.room_pos in self and not wall.back.room_pos in self
+
     def doors(self, room_pos):
         """
         Generates all walls with doors.

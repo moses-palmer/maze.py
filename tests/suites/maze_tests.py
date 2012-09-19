@@ -465,6 +465,30 @@ def Maze_doors():
 
 
 @test
+def Maze_edge():
+    """Tests that Maze.edge works"""
+    maze = Maze(10, 20)
+
+    for x in xrange(-5, maze.width + 5):
+        for y in xrange(-5, maze.height + 5):
+            for w in Wall.WALLS:
+                expected = False
+                if w == Wall.LEFT and x == 0 and (x, y) in maze:
+                    expected = True
+                if w == Wall.DOWN and y == 0 and (x, y) in maze:
+                    expected = True
+                if w == Wall.RIGHT and x == maze.width - 1 and (x, y) in maze:
+                    expected = True
+                if w == Wall.UP and y == maze.height - 1 and (x, y) in maze:
+                    expected = True
+                actual = maze.edge(Wall((x, y), w))
+                assert expected == actual, \
+                    '((%d, %d), %s)) was incorrectly labelled as %s' % (
+                        x, y,
+                        Wall.NAMES[w],
+                        'edge' if not expected else 'non-edge')
+
+@test
 def Maze_walk_path():
     """Tests that walking from one room to the same room always works"""
     maze = Maze(10, 20)
