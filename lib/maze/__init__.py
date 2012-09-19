@@ -355,6 +355,19 @@ class Maze(object):
         """
         return wall.room_pos in self and not wall.back.room_pos in self
 
+    def walls(self, room_pos):
+        """
+        Generates all walls of a room.
+
+        @param room_pos
+            The coordinates of the room.
+        @raise IndexError if a room lies outside of the maze
+        """
+        if room_pos in self:
+            return Wall.get_walls(room_pos)
+        else:
+            raise IndexError("Room %s is not part of the maze" % str(room_pos))
+
     def doors(self, room_pos):
         """
         Generates all walls with doors.

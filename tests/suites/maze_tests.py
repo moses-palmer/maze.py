@@ -488,6 +488,16 @@ def Maze_edge():
                         Wall.NAMES[w],
                         'edge' if not expected else 'non-edge')
 
+
+@test
+def Maze_walls():
+    """Tests that Maze.doors works"""
+    maze = Maze(10, 20)
+
+    assert_eq(
+        sorted(list(maze.walls((1, 1)))),
+        sorted([Wall((1, 1), w) for w in Wall.WALLS]))
+
 @test
 def Maze_walk_path():
     """Tests that walking from one room to the same room always works"""
