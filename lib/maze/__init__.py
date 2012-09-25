@@ -219,6 +219,8 @@ class Maze(object):
         maze[room_pos1:room_pos2] = True =>
             maze.remove_door(room_pos1, room_pos2)
         maze[room_pos1:room_pos2] => maze.walk_path(room_pos1, room_pos2)
+        for room_pos in maze: => for room_pos in \
+            (rp for rp in maze.room_positions if maze[rp]):
     """
 
     def __getitem__(self, room_pos):
@@ -248,6 +250,9 @@ class Maze(object):
     def __contains__(self, room_pos):
         return room_pos[0] >= 0 and room_pos[0] < self.width \
             and room_pos[1] >= 0 and room_pos[1] < self.height
+
+    def __iter__(self):
+        return (room_pos for room_pos in self.room_positions if self[room_pos])
 
     def _set_door(self, from_pos, to_pos, has_door):
         """

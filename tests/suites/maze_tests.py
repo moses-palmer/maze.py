@@ -227,6 +227,25 @@ def Maze_room_positions():
 
 
 @test
+def Maze_iter():
+    """Tests that for room_pos in maze: works"""
+    maze = Maze(10, 20)
+
+    actual = set()
+    for room_pos in maze:
+        actual.add(room_pos)
+    assert_eq(actual, set())
+
+    maze[(5, 6):(5, 7)] = True
+    actual = set()
+    for room_pos in maze:
+        actual.add(room_pos)
+    assert_eq(actual, set((
+        (5, 6),
+        (5, 7))))
+
+
+@test
 def Maze_index_tuple():
     """Tests that indexing Maze with a tuple yields a Room"""
     maze = Maze(10, 20)
