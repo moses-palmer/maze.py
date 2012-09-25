@@ -216,6 +216,17 @@ def Maze_width_and_height():
 
 
 @test
+def Maze_room_positions():
+    maze = Maze(3, 2)
+
+    assert_eq(
+        set(maze.room_positions),
+        set((
+            (0, 0), (1, 0), (2, 0),
+            (0, 1), (1, 1), (2, 1))))
+
+
+@test
 def Maze_index_tuple():
     """Tests that indexing Maze with a tuple yields a Room"""
     maze = Maze(10, 20)

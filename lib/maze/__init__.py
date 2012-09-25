@@ -296,6 +296,13 @@ class Maze(object):
         """The width of the maze."""
         return len(self.rooms[0])
 
+    @property
+    def room_positions(self):
+        """A generator that yields the positions of all rooms"""
+        for x in xrange(0, self.width):
+            for y in xrange(0, self.height):
+                yield (x, y)
+
     def add_door(self, from_pos, to_pos):
         """
         Adds a door between two rooms.
