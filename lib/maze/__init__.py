@@ -1,26 +1,37 @@
+import math
 import sys
 
 class Wall(object):
     """
     A reference to the wall of a room.
 
-    A wall has an index and a direction.
+    A wall has an index, a direction and a span.
       * The index is its position in the list (LEFT, UP, RIGHT, DOWN).
       * The direction is a direction vector for the wall; up and right are
         positive directions.
+      * The span is the physical start and end angle of the wall.
     """
 
     # Define the walls; this will also add the class variables mapping wall name
     # to its value
+    ANGLES = []
     DIRECTIONS = []
     NAMES = []
     WALLS = []
-    for i, (name, hdir, vdir) in enumerate((
-            ('LEFT', -1, 0),
-            ('UP', 0, 1),
-            ('RIGHT', 1, 0),
-            ('DOWN', 0, -1))):
+    start_angle = (5 * math.pi) / 4
+    data = (
+        ('LEFT', -1, 0),
+        ('UP', 0, 1),
+        ('RIGHT', 1, 0),
+        ('DOWN', 0, -1))
+    for i, (name, hdir, vdir) in enumerate(data):
         locals()[name] = i
+        next_angle = ANGLES[-1] - 2 * math.pi / len(data) \
+            if ANGLES else start_angle
+
+        while next_angle < 0.0:
+            next_angle += 2 * math.pi
+        ANGLES.append(next_angle)
         DIRECTIONS.append((hdir, vdir))
         NAMES.append(name.lower())
         WALLS.append(i)
@@ -63,6 +74,29 @@ class Wall(object):
         @raise IndexError if wall_index is invalid
         """
         return self.DIRECTIONS[wall_index]
+
+    @classmethod
+    def get_span(self, wall_index):
+        """
+        Returns the span of the wall, expressed as degrees.
+
+        The start of the wall is defined as the most counter-clockwise edge of
+        the wall and the end as the start of the next wall.
+
+        The origin of the coordinate system is the center of the room; thus
+        points to the left of the center of room will have negative
+        x-coordinates and points below the center of the room negative
+        y-coordinates.
+
+        @param wall_index
+            The index of the wall.
+        @return the spas expressed as (start_angle, end_angle)
+        @raise IndexError if wall_index is invalid
+        """
+        start = self.ANGLES[wall_index]
+        end = self.ANGLES[(wall_index + 1) % len(self.ANGLES)]
+
+        return (start, end)
 
     @classmethod
     def get_wall(self, direction):

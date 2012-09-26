@@ -1,3 +1,4 @@
+import math
 import random
 
 from tests import *
@@ -51,6 +52,23 @@ def Wall_opposite():
         Wall((0, 0), Wall.DOWN).opposite,
         Wall((0, 0), Wall.UP))
 
+
+@test
+def Wall_get_span():
+    first_span = Wall.get_span(Wall.WALLS[0])
+    first_d = math.sin(first_span[1] - first_span[0])
+    last_span = first_span
+
+    for wall in Wall.WALLS[1:]:
+        span = Wall.get_span(wall)
+        assert last_span[1] == span[0], \
+            'Walls are not continuous'
+        assert first_d == math.sin(span[1] - span[0]), \
+            'Wall lengths are not uniform'
+        last_span = span
+
+    assert last_span[1] == first_span[0], \
+        'Walls do not cover entire room'
 
 @test
 def Wall_get_direction():
