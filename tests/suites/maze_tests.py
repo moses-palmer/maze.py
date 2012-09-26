@@ -30,7 +30,6 @@ def Wall_fields():
 
 @test
 def Wall_get_opposite():
-    """Tests Wall.get_opposite"""
     assert_eq(Wall.get_opposite(Wall.LEFT), Wall.RIGHT)
     assert_eq(Wall.get_opposite(Wall.UP), Wall.DOWN)
     assert_eq(Wall.get_opposite(Wall.RIGHT), Wall.LEFT)
@@ -39,7 +38,6 @@ def Wall_get_opposite():
 
 @test
 def Wall_opposite():
-    """Tests Wall.opposite"""
     assert_eq(
         Wall((0, 0), Wall.LEFT).opposite,
         Wall((0, 0), Wall.RIGHT))
@@ -56,7 +54,6 @@ def Wall_opposite():
 
 @test
 def Wall_get_direction():
-    """Tests Wall.get_direction"""
     assert_eq(Wall.get_direction(Wall.LEFT), (-1, 0))
     assert_eq(Wall.get_direction(Wall.UP), (0, 1))
     assert_eq(Wall.get_direction(Wall.RIGHT), (1, 0))
@@ -65,7 +62,6 @@ def Wall_get_direction():
 
 @test
 def Wall_direction():
-    """Tests Wall.direction"""
     assert_eq(Wall((0, 0), Wall.LEFT).direction, (-1, 0))
     assert_eq(Wall((0, 0), Wall.UP).direction, (0, 1))
     assert_eq(Wall((0, 0), Wall.RIGHT).direction, (1, 0))
@@ -74,7 +70,6 @@ def Wall_direction():
 
 @test
 def Wall_back():
-    """Tests that Wall.back works"""
     assert Wall((1, 1), Wall.LEFT).back == Wall((0, 1), Wall.RIGHT), \
         'Back of left wall in(1, 1) was incorrect'
     assert Wall((1, 1), Wall.RIGHT).back == Wall((2, 1), Wall.LEFT), \
@@ -87,7 +82,6 @@ def Wall_back():
 
 @test
 def Wall_get_wall():
-    """Tests Wall.get_wall"""
     assert_eq(Wall.get_wall((-1, 0)), Wall.LEFT)
     assert_eq(Wall.get_wall((-2, 0)), Wall.LEFT)
     assert_eq(Wall.get_wall((10, 0)), Wall.RIGHT)
@@ -113,7 +107,6 @@ def Wall_get_wall():
 
 @test
 def Wall_get_walls():
-    """Tests Wall.get_wall"""
     walls = set()
 
     for wall in Wall.get_walls((10, 20)):
@@ -268,7 +261,6 @@ def Maze_index_tuple():
 
 @test
 def Maze_adjacent():
-    """Tests that Maze.adjacent works"""
     maze = Maze(10, 20)
 
     for x in (-1, 0, 1):
@@ -297,7 +289,6 @@ def Maze_contains():
 
 @test
 def Maze_add_door():
-    """Tests that Maze.add_door works"""
     maze = Maze(10, 20)
 
     room1 = maze[3, 4]
@@ -334,7 +325,6 @@ def Maze_add_door():
 
 @test
 def Maze_remove_door():
-    """Tests that Maze.remove_door works"""
     maze = Maze(10, 20)
 
     room1 = maze[3, 4]
@@ -369,7 +359,6 @@ def Maze_remove_door():
 
 @test
 def Maze_connected():
-    """Tests that Maze.connected works"""
     maze = Maze(10, 20)
 
     for x in (-1, 0, 1):
@@ -398,7 +387,6 @@ def Maze_connected():
 
 @test
 def Maze_walk_from():
-    """Tests that Maze.walk_from works"""
     maze = Maze(10, 20)
 
     assert_eq(maze.walk_from((0, 0), Wall.RIGHT), (1, 0))
@@ -431,7 +419,6 @@ def Maze_walk_from():
 
 @test
 def Maze_walk():
-    """Tests that Maze.walk works"""
     maze = Maze(10, 20)
 
     assert_eq(maze.walk(Wall((0, 0), Wall.RIGHT)), (1, 0))
@@ -464,7 +451,6 @@ def Maze_walk():
 
 @test
 def Maze_doors():
-    """Tests that Maze.doors works"""
     maze = Maze(10, 20)
 
     assert_eq(
@@ -484,7 +470,6 @@ def Maze_doors():
 
 @test
 def Maze_edge():
-    """Tests that Maze.edge works"""
     maze = Maze(10, 20)
 
     for x in xrange(-5, maze.width + 5):
@@ -509,7 +494,6 @@ def Maze_edge():
 
 @test
 def Maze_walls():
-    """Tests that Maze.doors works"""
     maze = Maze(10, 20)
 
     assert_eq(
