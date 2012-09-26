@@ -102,13 +102,31 @@ class Suite(object):
 def test(func):
     """
     Use this decorator to mark a callable as a test.
+
+    The description of the test is determined as follows:
+        * If func.description exists, it is used.
+        * If the test function has a docstring, it is used.
+        * Otherwise the function name is split on '_' and then joined with '.'
+          before any part that begins with a capital letter followed by a lower
+          case letter and '_' for any other case.
     """
     test_name = func.name \
         if hasattr(func, 'name') \
         else func.__name__
-    test_description = func.description \
-        if hasattr(func, 'description') \
-        else ' '.join(func.__doc__.split())
+    if hasattr(func, 'description'):
+        test_description = func.description
+    elif func.__doc__:
+        test_description = ' '.join(func.__doc__.split())
+    else:
+        test_description = ''
+        was_namespace = False
+        for s in test_name.split('_'):
+            test_description += \
+                '.' + s if was_namespace else \
+                '_' + s if test_description else \
+                s
+            was_namespace = len(s) >= 2 and (
+                s[0].isupper() and s[1].islower())
 
     def inner():
         global _indent
