@@ -69,7 +69,7 @@ class BaseMaze(object):
                 The index of the wall for which to find the opposite.
             @return the index of the opposite wall
             """
-            return (wall_index + len(self.WALLS) / 2) % len(self.WALLS)
+            return (int(wall_index) + len(self.WALLS) / 2) % len(self.WALLS)
 
         @classmethod
         def get_direction(self, wall_index):
@@ -81,7 +81,7 @@ class BaseMaze(object):
             @return a direction vector though the wall
             @raise IndexError if wall_index is invalid
             """
-            return self.DIRECTIONS[wall_index]
+            return self.DIRECTIONS[int(wall_index)]
 
         @classmethod
         def get_span(self, wall_index):
@@ -101,8 +101,8 @@ class BaseMaze(object):
             @return the spas expressed as (start_angle, end_angle)
             @raise IndexError if wall_index is invalid
             """
-            start = self.ANGLES[wall_index]
-            end = self.ANGLES[(wall_index + 1) % len(self.ANGLES)]
+            start = self.ANGLES[int(wall_index)]
+            end = self.ANGLES[(int(wall_index) + 1) % len(self.ANGLES)]
 
             return (start, end)
 
@@ -185,20 +185,20 @@ class BaseMaze(object):
         __nonzero__ = __bool__
 
         def __contains__(self, wall_index):
-            return self.has_door(wall_index)
+            return self.has_door(int(wall_index))
 
         def __getitem__(self, wall_index):
-            return self.has_door(wall_index)
+            return self.has_door(int(wall_index))
 
         def __setitem__(self, wall_index, has_door):
-            self.set_door(wall_index, has_door)
+            self.set_door(int(wall_index), has_door)
 
         def __iadd__(self, wall_index):
-            self.add_door(wall_index)
+            self.add_door(int(wall_index))
             return self
 
         def __isub__(self, wall_index):
-            self.remove_door(wall_index)
+            self.remove_door(int(wall_index))
             return self
 
         def __init__(self):
@@ -216,7 +216,7 @@ class BaseMaze(object):
             @return whether the wall has a door
             @raise IndexError if wall is not a valid wall
             """
-            return wall_index in self.doors
+            return int(wall_index) in self.doors
 
         def add_door(self, wall_index):
             """
@@ -226,7 +226,7 @@ class BaseMaze(object):
                 The wall to which to add a door.
             @raise IndexError if wall_index is not a valid wall
             """
-            self.doors.add(wall_index)
+            self.doors.add(int(wall_index))
 
         def remove_door(self, wall_index):
             """
@@ -236,7 +236,7 @@ class BaseMaze(object):
                 The wall from which to remove a door.
             @raise IndexError if wall_index is not a valid wall
             """
-            self.doors.discard(wall_index)
+            self.doors.discard(int(wall_index))
 
         def set_door(self, wall_index, has_door):
             """
@@ -249,9 +249,9 @@ class BaseMaze(object):
             @raise IndexError if wall_index is not a valid wall
             """
             if has_door:
-                self.add_door(wall_index)
+                self.add_door(int(wall_index))
             else:
-                self.remove_door(wall_index)
+                self.remove_door(int(wall_index))
 
     def __getitem__(self, room_pos):
         if isinstance(room_pos, tuple) and len(room_pos) == 2:
