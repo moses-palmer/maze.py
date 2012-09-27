@@ -107,25 +107,6 @@ class BaseMaze(object):
             return (start, end)
 
         @classmethod
-        def get_wall(self, direction):
-            """
-            Returns the index of the wall in the given direction.
-
-            @param direction
-                A direction vector. Its length does not matter; only the
-                direction is used.
-            @return the index of the wall in the specified direction
-            @raise ValueError if the wall cannot be determined by the vector
-            """
-            return self.DIRECTIONS.index((
-                (0 if direction[0] == 0 else
-                    1 if direction[0] > 0 else
-                        -1),
-                (0 if direction[1] == 0 else
-                    1 if direction[1] > 0 else
-                        -1)))
-
-        @classmethod
         def get_walls(self, room_pos):
             """
             Generates all walls of a room.
@@ -301,7 +282,7 @@ class BaseMaze(object):
             raise ValueError('No wall between %s and %s' % (
                 str(from_pos), str(to_pos)))
 
-        wall = self.__class__.Wall.get_wall(
+        wall = self.__class__.Wall.from_direction(from_pos,
             (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1]))
 
         from_room = self[from_pos]
@@ -390,8 +371,9 @@ class BaseMaze(object):
             return False
 
         # Make sure the wall has a door
-        return self.__class__.Wall.get_wall((room1_pos[0] - room2_pos[0],
-            room1_pos[1] - room2_pos[1])) in self[room1_pos]
+        direction = (room1_pos[0] - room2_pos[0], room1_pos[1] - room2_pos[1])
+        return int(self.__class__.Wall.from_direction(room1_pos, direction)) \
+            in self[room1_pos]
 
     def edge(self, wall):
         """

@@ -32,11 +32,13 @@ def print_maze(maze, solution):
 
                         # The opening or top/bottom wall
                         (path_char if \
-                            maze.Wall.get_wall((0, dy)) in maze[x, y] \
+                            int(maze.Wall.from_direction((x, y), (0, dy))) \
+                                in maze[x, y] \
                             and (x, y) in solution \
                             and (x, y + dy) in solution
                         else floor_char \
-                                if maze.Wall.get_wall((0, dy)) in maze[x, y]
+                            if int(maze.Wall.from_direction((x, y), (0, dy))) \
+                                in maze[x, y]
                         else wall_char) * (room_size[0] - 2),
 
                         # The right wall
@@ -45,11 +47,13 @@ def print_maze(maze, solution):
                     # This is a line in the middle of a room
                     output(''.join((
                         # The left opening or wall
-                        path_char if maze.Wall.get_wall((-1, 0)) in maze[x, y] \
+                        path_char if int(maze.Wall.from_direction(
+                                (x, y), (-1, 0))) in maze[x, y] \
                             and (x, y) in solution \
                             and (x - 1, y) in solution
                         else floor_char if \
-                            maze.Wall.get_wall((-1, 0)) in maze[x, y]
+                            int(maze.Wall.from_direction((x, y), (-1, 0))) \
+                                in maze[x, y]
                         else wall_char,
 
                         # The center
@@ -57,11 +61,13 @@ def print_maze(maze, solution):
                         else floor_char) * (room_size[0] - 2),
 
                         # The right opening or wall
-                        path_char if maze.Wall.get_wall((1, 0)) in maze[x, y] \
+                        path_char if int(maze.Wall.from_direction(
+                                (x, y), (1, 0))) in maze[x, y] \
                             and (x, y) in solution \
                             and (x + 1, y) in solution
                         else floor_char if \
-                            maze.Wall.get_wall((1, 0)) in maze[x, y]
+                            int(maze.Wall.from_direction((x, y), (1, 0))) \
+                                in maze[x, y]
                         else wall_char)))
             output('\n')
 

@@ -130,31 +130,6 @@ def Maze_Wall_back():
 
 
 @test
-def Maze_Wall_get_wall():
-    assert_eq(Maze.Wall.get_wall((-1, 0)), Maze.Wall.LEFT)
-    assert_eq(Maze.Wall.get_wall((-2, 0)), Maze.Wall.LEFT)
-    assert_eq(Maze.Wall.get_wall((10, 0)), Maze.Wall.RIGHT)
-    assert_eq(Maze.Wall.get_wall((20, 0)), Maze.Wall.RIGHT)
-
-    assert_eq(Maze.Wall.get_wall((0, 1)), Maze.Wall.UP)
-    assert_eq(Maze.Wall.get_wall((0, -10)), Maze.Wall.DOWN)
-
-    try:
-        Maze.Wall.get_wall((1, 1))
-        assert False, \
-            'Invalid direction did not raise ValueError'
-    except ValueError:
-        pass
-
-    try:
-        Maze.Wall.get_wall((0, 0))
-        assert False, \
-            'Invalid direction did not raise ValueError'
-    except ValueError:
-        pass
-
-
-@test
 def Maze_Wall_get_walls():
     walls = set()
 
