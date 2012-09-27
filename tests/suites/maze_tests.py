@@ -30,6 +30,14 @@ def Maze_Wall_fields():
 
 
 @test
+def Maze_Wall_from_direction():
+    for w, direction in enumerate(Maze.Wall.DIRECTIONS):
+        expected = Maze.Wall((0, 0), w)
+        actual = Maze.Wall.from_direction((0, 0), direction)
+        assert_eq(expected, actual)
+
+
+@test
 def Maze_Wall_get_opposite():
     assert_eq(Maze.Wall.get_opposite(Maze.Wall.LEFT), Maze.Wall.RIGHT)
     assert_eq(Maze.Wall.get_opposite(Maze.Wall.UP), Maze.Wall.DOWN)

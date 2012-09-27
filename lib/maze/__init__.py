@@ -47,6 +47,20 @@ class BaseMaze(object):
             self.wall = wall
 
         @classmethod
+        def from_direction(self, room_pos, direction):
+            """
+            Creates a new wall from a direction.
+
+            @param room_pos
+                The position of the room.
+            @param direction
+                The direction of the wall.
+            @return a new Wall
+            @raise ValueError if the direction is invalid
+            """
+            return self(room_pos, self.DIRECTIONS.index(direction))
+
+        @classmethod
         def get_opposite(self, wall_index):
             """
             Returns the opposite wall.
