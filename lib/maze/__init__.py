@@ -150,6 +150,11 @@ class Wall(object):
 
         return Wall(other_pos, other_wall)
 
+    @property
+    def span(self):
+        """The span of this wall"""
+        return Wall.get_span(self.wall)
+
 
 class Room(object):
     """

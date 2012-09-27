@@ -70,6 +70,25 @@ def Wall_get_span():
     assert last_span[1] == first_span[0], \
         'Walls do not cover entire room'
 
+
+@test
+def Wall_span():
+    first_span = Wall((0, 0), Wall.WALLS[0]).span
+    first_d = math.sin(first_span[1] - first_span[0])
+    last_span = first_span
+
+    for wall in Wall.WALLS[1:]:
+        span = Wall((0, 0), wall).span
+        assert last_span[1] == span[0], \
+            'Walls are not continuous'
+        assert first_d == math.sin(span[1] - span[0]), \
+            'Wall lengths are not uniform'
+        last_span = span
+
+    assert last_span[1] == first_span[0], \
+        'Walls do not cover entire room'
+
+
 @test
 def Wall_get_direction():
     assert_eq(Wall.get_direction(Wall.LEFT), (-1, 0))
