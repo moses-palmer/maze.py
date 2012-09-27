@@ -2,7 +2,7 @@ import math
 import sys
 
 
-class Maze(object):
+class BaseMaze(object):
     """
     A maze is a grid of rooms.
 
@@ -29,30 +29,6 @@ class Maze(object):
             positive directions.
           * The span is the physical start and end angle of the wall.
         """
-
-        # Define the walls; this will also add the class variables mapping wall
-        # name to its value
-        ANGLES = []
-        DIRECTIONS = []
-        NAMES = []
-        WALLS = []
-        start_angle = (5 * math.pi) / 4
-        data = (
-            ('LEFT', -1, 0),
-            ('UP', 0, 1),
-            ('RIGHT', 1, 0),
-            ('DOWN', 0, -1))
-        for i, (name, hdir, vdir) in enumerate(data):
-            locals()[name] = i
-            next_angle = ANGLES[-1] - 2 * math.pi / len(data) \
-                if ANGLES else start_angle
-
-            while next_angle < 0.0:
-                next_angle += 2 * math.pi
-            ANGLES.append(next_angle)
-            DIRECTIONS.append((hdir, vdir))
-            NAMES.append(name.lower())
-            WALLS.append(i)
 
         def __eq__(self, other):
             return isinstance(other, self.__class__) \
@@ -559,3 +535,34 @@ class Maze(object):
             yield current
             current = self.walk_from(current, get_wall(current))
         yield to_pos
+
+
+class Maze(BaseMaze):
+    """
+    This is a maze with square rooms.
+    """
+    class Wall(BaseMaze.Wall):
+        # Define the walls; this will also add the class variables
+        # mapping wall name to its value
+        ANGLES = []
+        DIRECTIONS = []
+        NAMES = []
+        WALLS = []
+
+        start_angle = (5 * math.pi) / 4
+        data = (
+            ('LEFT', -1, 0),
+            ('UP', 0, 1),
+            ('RIGHT', 1, 0),
+            ('DOWN', 0, -1))
+        for i, (name, hdir, vdir) in enumerate(data):
+            locals()[name] = i
+            next_angle = ANGLES[-1] - 2 * math.pi / len(data) \
+                if ANGLES else start_angle
+
+            while next_angle < 0.0:
+                next_angle += 2 * math.pi
+            ANGLES.append(next_angle)
+            DIRECTIONS.append((hdir, vdir))
+            NAMES.append(name.lower())
+            WALLS.append(i)
