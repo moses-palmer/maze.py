@@ -175,9 +175,9 @@ def Wall_int():
 
 
 @test
-def Room_door_functions():
-    """Tests that Room.add_door, remove_door and has_door work"""
-    room = Room()
+def Maze_Room_door_functions():
+    """Tests that Maze.Room.add_door, remove_door and has_door work"""
+    room = Maze.Room()
 
     assert all(not room.has_door(wall)
             for wall in Wall.WALLS), \
@@ -201,9 +201,9 @@ def Room_door_functions():
 
 
 @test
-def Room_door_operators():
+def Maze_Room_door_operators():
     """Tests that the operator overloads work"""
-    room = Room()
+    room = Maze.Room()
 
     assert all(not wall in room and not room[wall]
             for wall in Wall.WALLS), \
@@ -227,9 +227,9 @@ def Room_door_operators():
 
 
 @test
-def Room_bool():
-    """Tests that truth testing with Room works"""
-    room = Room()
+def Maze_Room_bool():
+    """Tests that truth testing with Maze.Room works"""
+    room = Maze.Room()
 
     assert not room, \
         'An empty room tested True'
@@ -287,7 +287,7 @@ def Maze_index_tuple():
     """Tests that indexing Maze with a tuple yields a Room"""
     maze = Maze(10, 20)
 
-    assert isinstance(maze[3, 4], Room), \
+    assert isinstance(maze[3, 4], maze.Room), \
         'Maze[x, y] did not yield a Room'
 
 

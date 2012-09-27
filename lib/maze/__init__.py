@@ -156,95 +156,6 @@ class Wall(object):
         return Wall.get_span(self.wall)
 
 
-class Room(object):
-    """
-    A room is a part of the maze.
-
-    A room has all walls defined in Wall, and a concept of doors on the walls.
-
-    In addition to the methods defined for Room, the following constructs are
-    allowed:
-        if wall in room: => if wall.has_door(wall):
-        if room[Wall.LEFT]: => if room.has_door(wall):
-        room[Wall.LEFT] = True => room.set_door(Wall.LEFT, True)
-        room += Wall.LEFT => room.add_door(Wall.LEFT)
-        room -= Wall.LEFT => room_remove_door(Wall.LEFT)
-    """
-
-    def __bool__(self):
-        return bool(self.doors)
-    __nonzero__ = __bool__
-
-    def __contains__(self, wall_index):
-        return self.has_door(wall_index)
-
-    def __getitem__(self, wall_index):
-        return self.has_door(wall_index)
-
-    def __setitem__(self, wall_index, has_door):
-        self.set_door(wall_index, has_door)
-
-    def __iadd__(self, wall_index):
-        self.add_door(wall_index)
-        return self
-
-    def __isub__(self, wall_index):
-        self.remove_door(wall_index)
-        return self
-
-    def __init__(self):
-        """
-        Creates a new room.
-        """
-        self.doors = set()
-
-    def has_door(self, wall_index):
-        """
-        Returns whether a wall has a door.
-
-        @param wall_index
-            The wall to check.
-        @return whether the wall has a door
-        @raise IndexError if wall is not a valid wall
-        """
-        return wall_index in self.doors
-
-    def add_door(self, wall_index):
-        """
-        Adds a door.
-
-        @param wall_index
-            The wall to which to add a door.
-        @raise IndexError if wall_index is not a valid wall
-        """
-        self.doors.add(wall_index)
-
-    def remove_door(self, wall_index):
-        """
-        Removes a door.
-
-        @param wall_index
-            The wall from which to remove a door.
-        @raise IndexError if wall_index is not a valid wall
-        """
-        self.doors.discard(wall_index)
-
-    def set_door(self, wall_index, has_door):
-        """
-        Adds or removes a door depending on has_door.
-
-        @param wall_index
-            The wall to modify.
-        @param has_door
-            Whether to add or remove the door.
-        @raise IndexError if wall_index is not a valid wall
-        """
-        if has_door:
-            self.add_door(wall_index)
-        else:
-            self.remove_door(wall_index)
-
-
 class Maze(object):
     """
     A maze is a grid of rooms.
@@ -261,6 +172,95 @@ class Maze(object):
         for room_pos in maze: => for room_pos in \
             (rp for rp in maze.room_positions if maze[rp]):
     """
+
+    class Room(object):
+        """
+        A room is a part of the maze.
+
+        A room has all walls defined in Wall, and a concept of doors on the
+        walls.
+
+        In addition to the methods defined for Room, the following constructs
+        are allowed:
+            if wall in room: => if wall.has_door(wall):
+            if room[Wall.LEFT]: => if room.has_door(wall):
+            room[Wall.LEFT] = True => room.set_door(Wall.LEFT, True)
+            room += Wall.LEFT => room.add_door(Wall.LEFT)
+            room -= Wall.LEFT => room_remove_door(Wall.LEFT)
+        """
+
+        def __bool__(self):
+            return bool(self.doors)
+        __nonzero__ = __bool__
+
+        def __contains__(self, wall_index):
+            return self.has_door(wall_index)
+
+        def __getitem__(self, wall_index):
+            return self.has_door(wall_index)
+
+        def __setitem__(self, wall_index, has_door):
+            self.set_door(wall_index, has_door)
+
+        def __iadd__(self, wall_index):
+            self.add_door(wall_index)
+            return self
+
+        def __isub__(self, wall_index):
+            self.remove_door(wall_index)
+            return self
+
+        def __init__(self):
+            """
+            Creates a new room.
+            """
+            self.doors = set()
+
+        def has_door(self, wall_index):
+            """
+            Returns whether a wall has a door.
+
+            @param wall_index
+                The wall to check.
+            @return whether the wall has a door
+            @raise IndexError if wall is not a valid wall
+            """
+            return wall_index in self.doors
+
+        def add_door(self, wall_index):
+            """
+            Adds a door.
+
+            @param wall_index
+                The wall to which to add a door.
+            @raise IndexError if wall_index is not a valid wall
+            """
+            self.doors.add(wall_index)
+
+        def remove_door(self, wall_index):
+            """
+            Removes a door.
+
+            @param wall_index
+                The wall from which to remove a door.
+            @raise IndexError if wall_index is not a valid wall
+            """
+            self.doors.discard(wall_index)
+
+        def set_door(self, wall_index, has_door):
+            """
+            Adds or removes a door depending on has_door.
+
+            @param wall_index
+                The wall to modify.
+            @param has_door
+                Whether to add or remove the door.
+            @raise IndexError if wall_index is not a valid wall
+            """
+            if has_door:
+                self.add_door(wall_index)
+            else:
+                self.remove_door(wall_index)
 
     def __getitem__(self, room_pos):
         if isinstance(room_pos, tuple) and len(room_pos) == 2:
@@ -328,7 +328,8 @@ class Maze(object):
         @param height
             The height of the maze.
         """
-        self.rooms = [[Room() for x in xrange(width)] for y in xrange(height)]
+        self.rooms = [[self.__class__.Room() for x in xrange(width)]
+            for y in xrange(height)]
 
     @property
     def height(self):
