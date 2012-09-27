@@ -1,160 +1,6 @@
 import math
 import sys
 
-class Wall(object):
-    """
-    A reference to the wall of a room.
-
-    A wall has an index, a direction and a span.
-      * The index is its position in the list (LEFT, UP, RIGHT, DOWN).
-      * The direction is a direction vector for the wall; up and right are
-        positive directions.
-      * The span is the physical start and end angle of the wall.
-    """
-
-    # Define the walls; this will also add the class variables mapping wall name
-    # to its value
-    ANGLES = []
-    DIRECTIONS = []
-    NAMES = []
-    WALLS = []
-    start_angle = (5 * math.pi) / 4
-    data = (
-        ('LEFT', -1, 0),
-        ('UP', 0, 1),
-        ('RIGHT', 1, 0),
-        ('DOWN', 0, -1))
-    for i, (name, hdir, vdir) in enumerate(data):
-        locals()[name] = i
-        next_angle = ANGLES[-1] - 2 * math.pi / len(data) \
-            if ANGLES else start_angle
-
-        while next_angle < 0.0:
-            next_angle += 2 * math.pi
-        ANGLES.append(next_angle)
-        DIRECTIONS.append((hdir, vdir))
-        NAMES.append(name.lower())
-        WALLS.append(i)
-
-    def __eq__(self, other):
-        return isinstance(other, Wall) \
-            and self.wall == other.wall \
-            and self.room_pos == other.room_pos
-
-    def __int__(self):
-        return self.wall
-
-    def __str__(self):
-        return self.NAMES[self.wall] + '@' + str(self.room_pos)
-    __repr__ = __str__
-
-    def __init__(self, room_pos, wall):
-        self.room_pos = room_pos
-        self.wall = wall
-
-    @classmethod
-    def get_opposite(self, wall_index):
-        """
-        Returns the opposite wall.
-
-        @param wall_index
-            The index of the wall for which to find the opposite.
-        @return the index of the opposite wall
-        """
-        return (wall_index + len(self.WALLS) / 2) % len(self.WALLS)
-
-    @classmethod
-    def get_direction(self, wall_index):
-        """
-        Returns a direction vector to move in when going through the wall.
-
-        @param wall_index
-            The index of the wall.
-        @return a direction vector though the wall
-        @raise IndexError if wall_index is invalid
-        """
-        return self.DIRECTIONS[wall_index]
-
-    @classmethod
-    def get_span(self, wall_index):
-        """
-        Returns the span of the wall, expressed as degrees.
-
-        The start of the wall is defined as the most counter-clockwise edge of
-        the wall and the end as the start of the next wall.
-
-        The origin of the coordinate system is the center of the room; thus
-        points to the left of the center of room will have negative
-        x-coordinates and points below the center of the room negative
-        y-coordinates.
-
-        @param wall_index
-            The index of the wall.
-        @return the spas expressed as (start_angle, end_angle)
-        @raise IndexError if wall_index is invalid
-        """
-        start = self.ANGLES[wall_index]
-        end = self.ANGLES[(wall_index + 1) % len(self.ANGLES)]
-
-        return (start, end)
-
-    @classmethod
-    def get_wall(self, direction):
-        """
-        Returns the index of the wall in the given direction.
-
-        @param direction
-            A direction vector. Its length does not matter; only the direction
-            is used.
-        @return the index of the wall in the specified direction
-        @raise ValueError if the wall cannot be determined by the vector
-        """
-        return self.DIRECTIONS.index((
-            (0 if direction[0] == 0 else
-                1 if direction[0] > 0 else
-                    -1),
-            (0 if direction[1] == 0 else
-                1 if direction[1] > 0 else
-                    -1)))
-
-    @classmethod
-    def get_walls(self, room_pos):
-        """
-        Generates all walls of a room.
-
-        @param room_pos
-            The room coordinates.
-        """
-        for wall in self.WALLS:
-            yield self(room_pos, wall)
-
-    @property
-    def opposite(self):
-        """The opposite wall in the same room."""
-        return Wall(self.room_pos, Wall.get_opposite(self.wall))
-
-    @property
-    def direction(self):
-        """The direction vector to move in when going through the wall."""
-        return Wall.get_direction(self.wall)
-
-    @property
-    def back(self):
-        """The wall on the other side of the wall."""
-        direction = Wall.get_direction(self.wall)
-
-        other_pos = (
-            self.room_pos[0] + direction[0],
-            self.room_pos[1] + direction[1])
-        other_wall = (self.wall + len(Wall.WALLS) / 2) % len(Wall.WALLS)
-
-        return Wall(other_pos, other_wall)
-
-    @property
-    def span(self):
-        """The span of this wall"""
-        return Wall.get_span(self.wall)
-
 
 class Maze(object):
     """
@@ -172,6 +18,161 @@ class Maze(object):
         for room_pos in maze: => for room_pos in \
             (rp for rp in maze.room_positions if maze[rp]):
     """
+
+    class Wall(object):
+        """
+        A reference to the wall of a room.
+
+        A wall has an index, a direction and a span.
+          * The index is its position in the list (LEFT, UP, RIGHT, DOWN).
+          * The direction is a direction vector for the wall; up and right are
+            positive directions.
+          * The span is the physical start and end angle of the wall.
+        """
+
+        # Define the walls; this will also add the class variables mapping wall
+        # name to its value
+        ANGLES = []
+        DIRECTIONS = []
+        NAMES = []
+        WALLS = []
+        start_angle = (5 * math.pi) / 4
+        data = (
+            ('LEFT', -1, 0),
+            ('UP', 0, 1),
+            ('RIGHT', 1, 0),
+            ('DOWN', 0, -1))
+        for i, (name, hdir, vdir) in enumerate(data):
+            locals()[name] = i
+            next_angle = ANGLES[-1] - 2 * math.pi / len(data) \
+                if ANGLES else start_angle
+
+            while next_angle < 0.0:
+                next_angle += 2 * math.pi
+            ANGLES.append(next_angle)
+            DIRECTIONS.append((hdir, vdir))
+            NAMES.append(name.lower())
+            WALLS.append(i)
+
+        def __eq__(self, other):
+            return isinstance(other, self.__class__) \
+                and self.wall == other.wall \
+                and self.room_pos == other.room_pos
+
+        def __int__(self):
+            return self.wall
+
+        def __str__(self):
+            return self.NAMES[self.wall] + '@' + str(self.room_pos)
+        __repr__ = __str__
+
+        def __init__(self, room_pos, wall):
+            self.room_pos = room_pos
+            self.wall = wall
+
+        @classmethod
+        def get_opposite(self, wall_index):
+            """
+            Returns the opposite wall.
+
+            @param wall_index
+                The index of the wall for which to find the opposite.
+            @return the index of the opposite wall
+            """
+            return (wall_index + len(self.WALLS) / 2) % len(self.WALLS)
+
+        @classmethod
+        def get_direction(self, wall_index):
+            """
+            Returns a direction vector to move in when going through the wall.
+
+            @param wall_index
+                The index of the wall.
+            @return a direction vector though the wall
+            @raise IndexError if wall_index is invalid
+            """
+            return self.DIRECTIONS[wall_index]
+
+        @classmethod
+        def get_span(self, wall_index):
+            """
+            Returns the span of the wall, expressed as degrees.
+
+            The start of the wall is defined as the most counter-clockwise edge
+            of the wall and the end as the start of the next wall.
+
+            The origin of the coordinate system is the center of the room; thus
+            points to the left of the center of room will have negative
+            x-coordinates and points below the center of the room negative
+            y-coordinates.
+
+            @param wall_index
+                The index of the wall.
+            @return the spas expressed as (start_angle, end_angle)
+            @raise IndexError if wall_index is invalid
+            """
+            start = self.ANGLES[wall_index]
+            end = self.ANGLES[(wall_index + 1) % len(self.ANGLES)]
+
+            return (start, end)
+
+        @classmethod
+        def get_wall(self, direction):
+            """
+            Returns the index of the wall in the given direction.
+
+            @param direction
+                A direction vector. Its length does not matter; only the
+                direction is used.
+            @return the index of the wall in the specified direction
+            @raise ValueError if the wall cannot be determined by the vector
+            """
+            return self.DIRECTIONS.index((
+                (0 if direction[0] == 0 else
+                    1 if direction[0] > 0 else
+                        -1),
+                (0 if direction[1] == 0 else
+                    1 if direction[1] > 0 else
+                        -1)))
+
+        @classmethod
+        def get_walls(self, room_pos):
+            """
+            Generates all walls of a room.
+
+            @param room_pos
+                The room coordinates.
+            """
+            for wall in self.WALLS:
+                yield self(room_pos, wall)
+
+        @property
+        def opposite(self):
+            """The opposite wall in the same room."""
+            return self.__class__(self.room_pos, self.get_opposite(self.wall))
+
+        @property
+        def direction(self):
+            """The direction vector to move in when going through the wall."""
+            return self.get_direction(self.wall)
+
+        @property
+        def back(self):
+            """The wall on the other side of the wall."""
+            direction = self.get_direction(self.wall)
+
+            other_pos = (
+                self.room_pos[0] + direction[0],
+                self.room_pos[1] + direction[1])
+            other_wall = (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
+
+            return self.__class__(other_pos, other_wall)
+
+        @property
+        def span(self):
+            """The span of this wall"""
+            return self.get_span(self.wall)
+
 
     class Room(object):
         """
@@ -310,14 +311,15 @@ class Maze(object):
             raise ValueError('No wall between %s and %s' % (
                 str(from_pos), str(to_pos)))
 
-        wall = Wall.get_wall((to_pos[0] - from_pos[0], to_pos[1] - from_pos[1]))
+        wall = self.__class__.Wall.get_wall(
+            (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1]))
 
         from_room = self[from_pos]
         from_room[wall] = has_door
 
         if to_pos in self:
             to_room = self[to_pos]
-            to_room[Wall.get_opposite(wall)] = has_door
+            to_room[self.__class__.Wall.get_opposite(wall)] = has_door
 
     def __init__(self, width, height):
         """
@@ -382,7 +384,7 @@ class Maze(object):
         @return whether there is a wall between the two rooms
         """
         return any((room1_pos[0] + d[0], room1_pos[1] + d[1]) == room2_pos
-            for d in Wall.DIRECTIONS)
+            for d in self.__class__.Wall.DIRECTIONS)
 
     def connected(self, room1_pos, room2_pos):
         """
@@ -398,7 +400,7 @@ class Maze(object):
             return False
 
         # Make sure the wall has a door
-        return Wall.get_wall((room1_pos[0] - room2_pos[0],
+        return self.__class__.Wall.get_wall((room1_pos[0] - room2_pos[0],
             room1_pos[1] - room2_pos[1])) in self[room1_pos]
 
     def edge(self, wall):
@@ -420,7 +422,7 @@ class Maze(object):
         @raise IndexError if a room lies outside of the maze
         """
         if room_pos in self:
-            return Wall.get_walls(room_pos)
+            return self.__class__.Wall.get_walls(room_pos)
         else:
             raise IndexError("Room %s is not part of the maze" % str(room_pos))
 
@@ -434,9 +436,9 @@ class Maze(object):
         """
         room = self[room_pos]
 
-        for wall in Wall.WALLS:
+        for wall in self.__class__.Wall.WALLS:
             if wall in room:
-                yield Wall(room_pos, wall)
+                yield self.__class__.Wall(room_pos, wall)
 
     def walk_from(self, room_pos, wall, require_door = False):
         """
@@ -457,11 +459,11 @@ class Maze(object):
             wall
         @raise IndexError if the destination room lies outside of the maze
         """
-        direction = Wall.get_direction(wall)
+        direction = self.__class__.Wall.get_direction(wall)
         result = (room_pos[0] + direction[0], room_pos[1] + direction[1])
 
         if require_door:
-            opposite = Wall.get_opposite(wall)
+            opposite = self.__class__.Wall.get_opposite(wall)
             if not opposite in self[result]:
                 raise ValueError('(%d, %d) is not inside the maze' % room_pos)
 

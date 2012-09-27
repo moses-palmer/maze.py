@@ -7,60 +7,60 @@ from maze import *
 import maze.randomized_prim as randomized_prim
 
 @test
-def Wall_fields():
-    """Tests that Wall contains the expected fields"""
+def Maze_Wall_fields():
+    """Tests that Maze.Wall contains the expected fields"""
     walls = set()
 
-    assert_eq(len(Wall.NAMES), 4)
+    assert_eq(len(Maze.Wall.NAMES), 4)
 
-    for a in (name.upper() for name in Wall.NAMES):
-        assert hasattr(Wall, a), \
-            'Wall.%s is undefined' % a
+    for a in (name.upper() for name in Maze.Wall.NAMES):
+        assert hasattr(Maze.Wall, a), \
+            'Maze.Wall.%s is undefined' % a
 
-        w = getattr(Wall, a)
+        w = getattr(Maze.Wall, a)
         assert not w in walls, \
             'Wall.%s has a previously set value' % a
 
         walls.add(w)
 
-    assert_eq(len(Wall.WALLS), len(Wall.DIRECTIONS))
-    assert_eq(len(Wall.DIRECTIONS), len(set(Wall.DIRECTIONS)))
-    assert_eq(len(Wall.WALLS), len(Wall.NAMES))
-    assert_eq(len(Wall.NAMES), len(set(Wall.NAMES)))
+    assert_eq(len(Maze.Wall.WALLS), len(Maze.Wall.DIRECTIONS))
+    assert_eq(len(Maze.Wall.DIRECTIONS), len(set(Maze.Wall.DIRECTIONS)))
+    assert_eq(len(Maze.Wall.WALLS), len(Maze.Wall.NAMES))
+    assert_eq(len(Maze.Wall.NAMES), len(set(Maze.Wall.NAMES)))
 
 
 @test
-def Wall_get_opposite():
-    assert_eq(Wall.get_opposite(Wall.LEFT), Wall.RIGHT)
-    assert_eq(Wall.get_opposite(Wall.UP), Wall.DOWN)
-    assert_eq(Wall.get_opposite(Wall.RIGHT), Wall.LEFT)
-    assert_eq(Wall.get_opposite(Wall.DOWN), Wall.UP)
+def Maze_Wall_get_opposite():
+    assert_eq(Maze.Wall.get_opposite(Maze.Wall.LEFT), Maze.Wall.RIGHT)
+    assert_eq(Maze.Wall.get_opposite(Maze.Wall.UP), Maze.Wall.DOWN)
+    assert_eq(Maze.Wall.get_opposite(Maze.Wall.RIGHT), Maze.Wall.LEFT)
+    assert_eq(Maze.Wall.get_opposite(Maze.Wall.DOWN), Maze.Wall.UP)
 
 
 @test
-def Wall_opposite():
+def Maze_Wall_opposite():
     assert_eq(
-        Wall((0, 0), Wall.LEFT).opposite,
-        Wall((0, 0), Wall.RIGHT))
+        Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
+        Maze.Wall((0, 0), Maze.Wall.RIGHT))
     assert_eq(
-        Wall((0, 0), Wall.UP).opposite,
-        Wall((0, 0), Wall.DOWN))
+        Maze.Wall((0, 0), Maze.Wall.UP).opposite,
+        Maze.Wall((0, 0), Maze.Wall.DOWN))
     assert_eq(
-        Wall((0, 0), Wall.RIGHT).opposite,
-        Wall((0, 0), Wall.LEFT))
+        Maze.Wall((0, 0), Maze.Wall.RIGHT).opposite,
+        Maze.Wall((0, 0), Maze.Wall.LEFT))
     assert_eq(
-        Wall((0, 0), Wall.DOWN).opposite,
-        Wall((0, 0), Wall.UP))
+        Maze.Wall((0, 0), Maze.Wall.DOWN).opposite,
+        Maze.Wall((0, 0), Maze.Wall.UP))
 
 
 @test
-def Wall_get_span():
-    first_span = Wall.get_span(Wall.WALLS[0])
+def Maze_Wall_get_span():
+    first_span = Maze.Wall.get_span(Maze.Wall.WALLS[0])
     first_d = math.sin(first_span[1] - first_span[0])
     last_span = first_span
 
-    for wall in Wall.WALLS[1:]:
-        span = Wall.get_span(wall)
+    for wall in Maze.Wall.WALLS[1:]:
+        span = Maze.Wall.get_span(wall)
         assert last_span[1] == span[0], \
             'Walls are not continuous'
         assert first_d == math.sin(span[1] - span[0]), \
@@ -72,13 +72,13 @@ def Wall_get_span():
 
 
 @test
-def Wall_span():
-    first_span = Wall((0, 0), Wall.WALLS[0]).span
+def Maze_Wall_span():
+    first_span = Maze.Wall((0, 0), Maze.Wall.WALLS[0]).span
     first_d = math.sin(first_span[1] - first_span[0])
     last_span = first_span
 
-    for wall in Wall.WALLS[1:]:
-        span = Wall((0, 0), wall).span
+    for wall in Maze.Wall.WALLS[1:]:
+        span = Maze.Wall((0, 0), wall).span
         assert last_span[1] == span[0], \
             'Walls are not continuous'
         assert first_d == math.sin(span[1] - span[0]), \
@@ -90,52 +90,56 @@ def Wall_span():
 
 
 @test
-def Wall_get_direction():
-    assert_eq(Wall.get_direction(Wall.LEFT), (-1, 0))
-    assert_eq(Wall.get_direction(Wall.UP), (0, 1))
-    assert_eq(Wall.get_direction(Wall.RIGHT), (1, 0))
-    assert_eq(Wall.get_direction(Wall.DOWN), (0, -1))
+def Maze_Wall_get_direction():
+    assert_eq(Maze.Wall.get_direction(Maze.Wall.LEFT), (-1, 0))
+    assert_eq(Maze.Wall.get_direction(Maze.Wall.UP), (0, 1))
+    assert_eq(Maze.Wall.get_direction(Maze.Wall.RIGHT), (1, 0))
+    assert_eq(Maze.Wall.get_direction(Maze.Wall.DOWN), (0, -1))
 
 
 @test
-def Wall_direction():
-    assert_eq(Wall((0, 0), Wall.LEFT).direction, (-1, 0))
-    assert_eq(Wall((0, 0), Wall.UP).direction, (0, 1))
-    assert_eq(Wall((0, 0), Wall.RIGHT).direction, (1, 0))
-    assert_eq(Wall((0, 0), Wall.DOWN).direction, (0, -1))
+def Maze_Wall_direction():
+    assert_eq(Maze.Wall((0, 0), Maze.Wall.LEFT).direction, (-1, 0))
+    assert_eq(Maze.Wall((0, 0), Maze.Wall.UP).direction, (0, 1))
+    assert_eq(Maze.Wall((0, 0), Maze.Wall.RIGHT).direction, (1, 0))
+    assert_eq(Maze.Wall((0, 0), Maze.Wall.DOWN).direction, (0, -1))
 
 
 @test
-def Wall_back():
-    assert Wall((1, 1), Wall.LEFT).back == Wall((0, 1), Wall.RIGHT), \
+def Maze_Wall_back():
+    assert Maze.Wall((1, 1), Maze.Wall.LEFT).back \
+            == Maze.Wall((0, 1), Maze.Wall.RIGHT), \
         'Back of left wall in(1, 1) was incorrect'
-    assert Wall((1, 1), Wall.RIGHT).back == Wall((2, 1), Wall.LEFT), \
+    assert Maze.Wall((1, 1), Maze.Wall.RIGHT).back \
+            == Maze.Wall((2, 1), Maze.Wall.LEFT), \
         'Back of right wall in(1, 1) was incorrect'
-    assert Wall((1, 1), Wall.UP).back == Wall((1, 2), Wall.DOWN), \
+    assert Maze.Wall((1, 1), Maze.Wall.UP).back == \
+            Maze.Wall((1, 2), Maze.Wall.DOWN), \
         'Back of up wall in(1, 1) was incorrect'
-    assert Wall((1, 1), Wall.DOWN).back == Wall((1, 0), Wall.UP), \
+    assert Maze.Wall((1, 1), Maze.Wall.DOWN).back \
+            == Maze.Wall((1, 0), Maze.Wall.UP), \
         'Back of down wall in(1, 1) was incorrect'
 
 
 @test
-def Wall_get_wall():
-    assert_eq(Wall.get_wall((-1, 0)), Wall.LEFT)
-    assert_eq(Wall.get_wall((-2, 0)), Wall.LEFT)
-    assert_eq(Wall.get_wall((10, 0)), Wall.RIGHT)
-    assert_eq(Wall.get_wall((20, 0)), Wall.RIGHT)
+def Maze_Wall_get_wall():
+    assert_eq(Maze.Wall.get_wall((-1, 0)), Maze.Wall.LEFT)
+    assert_eq(Maze.Wall.get_wall((-2, 0)), Maze.Wall.LEFT)
+    assert_eq(Maze.Wall.get_wall((10, 0)), Maze.Wall.RIGHT)
+    assert_eq(Maze.Wall.get_wall((20, 0)), Maze.Wall.RIGHT)
 
-    assert_eq(Wall.get_wall((0, 1)), Wall.UP)
-    assert_eq(Wall.get_wall((0, -10)), Wall.DOWN)
+    assert_eq(Maze.Wall.get_wall((0, 1)), Maze.Wall.UP)
+    assert_eq(Maze.Wall.get_wall((0, -10)), Maze.Wall.DOWN)
 
     try:
-        Wall.get_wall((1, 1))
+        Maze.Wall.get_wall((1, 1))
         assert False, \
             'Invalid direction did not raise ValueError'
     except ValueError:
         pass
 
     try:
-        Wall.get_wall((0, 0))
+        Maze.Wall.get_wall((0, 0))
         assert False, \
             'Invalid direction did not raise ValueError'
     except ValueError:
@@ -143,34 +147,37 @@ def Wall_get_wall():
 
 
 @test
-def Wall_get_walls():
+def Maze_Wall_get_walls():
     walls = set()
 
-    for wall in Wall.get_walls((10, 20)):
+    for wall in Maze.Wall.get_walls((10, 20)):
         assert_eq(wall.room_pos, (10, 20))
 
         if wall.wall in walls:
             assert False, \
-                '%s was found twice' % Wall.NAMES[wall]
+                '%s was found twice' % Maze.Wall.NAMES[wall]
         walls.add(wall.wall)
 
 
 @test
-def Wall_eq():
+def Maze_Wall_eq():
     """Tests wall1 == wall2"""
-    assert Wall((1, 1), Wall.LEFT) == Wall((1, 1), Wall.LEFT), \
+    assert Maze.Wall((1, 1), Maze.Wall.LEFT) \
+            == Maze.Wall((1, 1), Maze.Wall.LEFT), \
         'Equal wall did not compare equally'
-    assert Wall((1, 2), Wall.LEFT) != Wall((1, 1), Wall.LEFT), \
+    assert Maze.Wall((1, 2), Maze.Wall.LEFT) \
+            != Maze.Wall((1, 1), Maze.Wall.LEFT), \
         'Walls with equal wall index and different positions compared equally'
-    assert Wall((1, 2), Wall.LEFT) != Wall((1, 2), Wall.RIGHT), \
+    assert Maze.Wall((1, 2), Maze.Wall.LEFT) \
+            != Maze.Wall((1, 2), Maze.Wall.RIGHT), \
         'Walls with different wall index and equal positions compared equally'
 
 
 @test
-def Wall_int():
+def Maze_Wall_int():
     """Test that int(wall) yields the correct value"""
-    for w in Wall.WALLS:
-        wall = Wall((0, 0), w)
+    for w in Maze.Wall.WALLS:
+        wall = Maze.Wall((0, 0), w)
         assert_eq(w, int(wall))
 
 
@@ -180,22 +187,22 @@ def Maze_Room_door_functions():
     room = Maze.Room()
 
     assert all(not room.has_door(wall)
-            for wall in Wall.WALLS), \
+            for wall in Maze.Wall.WALLS), \
         'Not all walls were empty when Room was created'
 
-    room.add_door(Wall.LEFT)
-    assert all(not room.has_door(wall) or wall == Wall.LEFT
-            for wall in Wall.WALLS), \
+    room.add_door(Maze.Wall.LEFT)
+    assert all(not room.has_door(wall) or wall == Maze.Wall.LEFT
+            for wall in Maze.Wall.WALLS), \
         'Adding left door did not have the expected effect (doors = %d)' % (
             room.doors)
 
-    for wall in Wall.WALLS:
+    for wall in Maze.Wall.WALLS:
         room.add_door(wall)
-    assert_eq(room.doors, set(Wall.WALLS))
+    assert_eq(room.doors, set(Maze.Wall.WALLS))
 
-    room.remove_door(Wall.RIGHT)
-    assert all(room.has_door(wall) or wall == Wall.RIGHT
-            for wall in Wall.WALLS), \
+    room.remove_door(Maze.Wall.RIGHT)
+    assert all(room.has_door(wall) or wall == Maze.Wall.RIGHT
+            for wall in Maze.Wall.WALLS), \
         'Removing right door did not have the expected effect (doors = %d)' % (
             room.doors)
 
@@ -206,22 +213,22 @@ def Maze_Room_door_operators():
     room = Maze.Room()
 
     assert all(not wall in room and not room[wall]
-            for wall in Wall.WALLS), \
+            for wall in Maze.Wall.WALLS), \
         'Not all walls were empty when Room was created'
 
-    room[Wall.LEFT] = True
-    assert all(not wall in room and not room[wall] or wall == Wall.LEFT
-            for wall in Wall.WALLS), \
+    room[Maze.Wall.LEFT] = True
+    assert all(not wall in room and not room[wall] or wall == Maze.Wall.LEFT
+            for wall in Maze.Wall.WALLS), \
         'Adding left door did not have the expected effect (doors = %d)' % (
             room.doors)
 
-    for wall in Wall.WALLS:
+    for wall in Maze.Wall.WALLS:
         room += wall
-    assert_eq(room.doors, set(Wall.WALLS))
+    assert_eq(room.doors, set(Maze.Wall.WALLS))
 
-    room -= Wall.RIGHT
-    assert all(wall in room and room[wall] or wall == Wall.RIGHT
-            for wall in Wall.WALLS), \
+    room -= Maze.Wall.RIGHT
+    assert all(wall in room and room[wall] or wall == Maze.Wall.RIGHT
+            for wall in Maze.Wall.WALLS), \
         'Removing right door did not have the expected effect (doors = %d)' % (
             room.doors)
 
@@ -234,7 +241,7 @@ def Maze_Room_bool():
     assert not room, \
         'An empty room tested True'
 
-    for wall in Wall.WALLS:
+    for wall in Maze.Wall.WALLS:
         room += wall
         assert room, \
             'A non-empty room tested False'
@@ -299,23 +306,23 @@ def Maze_index_tuple():
     room1 = maze[3, 4]
     room2 = maze[4, 4]
 
-    assert not Wall.RIGHT in room1, \
+    assert not maze.Wall.RIGHT in room1, \
         'Right door of room was not initially missing'
-    assert not Wall.LEFT in room2, \
+    assert not maze.Wall.LEFT in room2, \
         'Left door of room was not initially missing'
 
     maze[(3, 4):(4, 4)] = True
 
-    assert Wall.RIGHT in room1, \
+    assert maze.Wall.RIGHT in room1, \
         'Maze[(x1, y1):(x2, y2)] = True did not open the left door'
-    assert Wall.LEFT in room2, \
+    assert maze.Wall.LEFT in room2, \
         'Maze[(x1, y1):(x2, y2)] = True did not open the right door'
 
     maze[(3, 4):(4, 4)] = False
 
-    assert not Wall.RIGHT in room1, \
+    assert not maze.Wall.RIGHT in room1, \
         'Maze[(x1, y1):(x2, y2)] = False did not close the left door'
-    assert not Wall.LEFT in room2, \
+    assert not maze.Wall.LEFT in room2, \
         'Maze[(x1, y1):(x2, y2)] = False did not close the right door'
 
     try:
@@ -361,16 +368,16 @@ def Maze_add_door():
     room1 = maze[3, 4]
     room2 = maze[4, 4]
 
-    assert not Wall.RIGHT in room1, \
+    assert not maze.Wall.RIGHT in room1, \
         'Right door of room was not initially missing'
-    assert not Wall.LEFT in room2, \
+    assert not maze.Wall.LEFT in room2, \
         'Left door of room was not initially missing'
 
     maze.add_door((3, 4), (4, 4))
 
-    assert Wall.RIGHT in room1, \
+    assert maze.Wall.RIGHT in room1, \
         'Maze.add_door did not open the left door'
-    assert Wall.LEFT in room2, \
+    assert maze.Wall.LEFT in room2, \
         'Maze.add_door did not open the right door'
 
     maze.add_door((0, 0), (-1, 0))
@@ -401,9 +408,9 @@ def Maze_remove_door():
 
     maze.remove_door((3, 4), (4, 4))
 
-    assert not Wall.RIGHT in room1, \
+    assert not maze.Wall.RIGHT in room1, \
         'Maze.remove_door did not close the left door'
-    assert not Wall.LEFT in room2, \
+    assert not maze.Wall.LEFT in room2, \
         'Maze.remove_door did not close the right door'
 
     maze.remove_door((0, 0), (-1, 0))
@@ -456,28 +463,28 @@ def Maze_connected():
 def Maze_walk_from():
     maze = Maze(10, 20)
 
-    assert_eq(maze.walk_from((0, 0), Wall.RIGHT), (1, 0))
-    assert_eq(maze.walk_from((1, 0), Wall.LEFT), (0, 0))
-    assert_eq(maze.walk_from((0, 1), Wall.DOWN), (0, 0))
-    assert_eq(maze.walk_from((0, 0), Wall.UP), (0, 1))
-    assert_eq(maze.walk_from((-1, 0), Wall.RIGHT), (0, 0))
+    assert_eq(maze.walk_from((0, 0), maze.Wall.RIGHT), (1, 0))
+    assert_eq(maze.walk_from((1, 0), maze.Wall.LEFT), (0, 0))
+    assert_eq(maze.walk_from((0, 1), maze.Wall.DOWN), (0, 0))
+    assert_eq(maze.walk_from((0, 0), maze.Wall.UP), (0, 1))
+    assert_eq(maze.walk_from((-1, 0), maze.Wall.RIGHT), (0, 0))
 
     try:
-        maze.walk_from((-2, 0), Wall.RIGHT)
+        maze.walk_from((-2, 0), maze.Wall.RIGHT)
         assert False, \
             'Walking from an invalid room did not raise IndexError'
     except IndexError:
         pass
 
     try:
-        maze.walk_from((0, 0), Wall.RIGHT, True)
+        maze.walk_from((0, 0), maze.Wall.RIGHT, True)
         assert False, \
             'Walking through a wall without door did not raise ValueError'
     except ValueError:
         pass
 
     try:
-        maze.walk_from((-1, 0), Wall.RIGHT, True)
+        maze.walk_from((-1, 0), maze.Wall.RIGHT, True)
         assert False, \
             'Walking through a wall without door did not raise ValueError'
     except ValueError:
@@ -488,28 +495,28 @@ def Maze_walk_from():
 def Maze_walk():
     maze = Maze(10, 20)
 
-    assert_eq(maze.walk(Wall((0, 0), Wall.RIGHT)), (1, 0))
-    assert_eq(maze.walk(Wall((1, 0), Wall.LEFT)), (0, 0))
-    assert_eq(maze.walk(Wall((0, 1), Wall.DOWN)), (0, 0))
-    assert_eq(maze.walk(Wall((0, 0), Wall.UP)), (0, 1))
-    assert_eq(maze.walk(Wall((-1, 0), Wall.RIGHT)), (0, 0))
+    assert_eq(maze.walk(maze.Wall((0, 0), maze.Wall.RIGHT)), (1, 0))
+    assert_eq(maze.walk(maze.Wall((1, 0), maze.Wall.LEFT)), (0, 0))
+    assert_eq(maze.walk(maze.Wall((0, 1), maze.Wall.DOWN)), (0, 0))
+    assert_eq(maze.walk(maze.Wall((0, 0), maze.Wall.UP)), (0, 1))
+    assert_eq(maze.walk(maze.Wall((-1, 0), maze.Wall.RIGHT)), (0, 0))
 
     try:
-        maze.walk(Wall((-2, 0), Wall.RIGHT))
+        maze.walk(maze.Wall((-2, 0), maze.Wall.RIGHT))
         assert False, \
             'Walking from an invalid room did not raise IndexError'
     except IndexError:
         pass
 
     try:
-        maze.walk(Wall((0, 0), Wall.RIGHT), True)
+        maze.walk(maze.Wall((0, 0), maze.Wall.RIGHT), True)
         assert False, \
             'Walking through a wall without door did not raise ValueError'
     except ValueError:
         pass
 
     try:
-        maze.walk(Wall((-1, 0), Wall.RIGHT), True)
+        maze.walk(maze.Wall((-1, 0), maze.Wall.RIGHT), True)
         assert False, \
             'Walking through a wall without door did not raise ValueError'
     except ValueError:
@@ -526,8 +533,8 @@ def Maze_doors():
 
     doors = []
 
-    for w in Wall.WALLS:
-        wall = Wall((1, 1), w)
+    for w in maze.Wall.WALLS:
+        wall = maze.Wall((1, 1), w)
         doors.append(wall)
         maze.add_door((1, 1), (1 + wall.direction[0], 1 + wall.direction[1]))
         assert_eq(
@@ -541,21 +548,25 @@ def Maze_edge():
 
     for x in xrange(-5, maze.width + 5):
         for y in xrange(-5, maze.height + 5):
-            for w in Wall.WALLS:
+            for w in maze.Wall.WALLS:
                 expected = False
-                if w == Wall.LEFT and x == 0 and (x, y) in maze:
+                if w == maze.Wall.LEFT and x == 0 \
+                        and (x, y) in maze:
                     expected = True
-                if w == Wall.DOWN and y == 0 and (x, y) in maze:
+                if w == maze.Wall.DOWN and y == 0 \
+                        and (x, y) in maze:
                     expected = True
-                if w == Wall.RIGHT and x == maze.width - 1 and (x, y) in maze:
+                if w == maze.Wall.RIGHT and x == maze.width - 1 \
+                        and (x, y) in maze:
                     expected = True
-                if w == Wall.UP and y == maze.height - 1 and (x, y) in maze:
+                if w == maze.Wall.UP and y == maze.height - 1 \
+                        and (x, y) in maze:
                     expected = True
-                actual = maze.edge(Wall((x, y), w))
+                actual = maze.edge(maze.Wall((x, y), w))
                 assert expected == actual, \
                     '((%d, %d), %s)) was incorrectly labelled as %s' % (
                         x, y,
-                        Wall.NAMES[w],
+                        maze.Wall.NAMES[w],
                         'edge' if not expected else 'non-edge')
 
 
@@ -565,7 +576,7 @@ def Maze_walls():
 
     assert_eq(
         sorted(list(maze.walls((1, 1)))),
-        sorted([Wall((1, 1), w) for w in Wall.WALLS]))
+        sorted([maze.Wall((1, 1), w) for w in maze.Wall.WALLS]))
 
 @test
 def Maze_walk_path():
