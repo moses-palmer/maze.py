@@ -38,14 +38,6 @@ def Maze_Wall_from_direction():
 
 
 @test
-def Maze_Wall_get_opposite():
-    assert_eq(Maze.Wall.get_opposite(Maze.Wall.LEFT), Maze.Wall.RIGHT)
-    assert_eq(Maze.Wall.get_opposite(Maze.Wall.UP), Maze.Wall.DOWN)
-    assert_eq(Maze.Wall.get_opposite(Maze.Wall.RIGHT), Maze.Wall.LEFT)
-    assert_eq(Maze.Wall.get_opposite(Maze.Wall.DOWN), Maze.Wall.UP)
-
-
-@test
 def Maze_Wall_opposite():
     assert_eq(
         Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,

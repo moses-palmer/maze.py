@@ -60,16 +60,18 @@ class BaseMaze(object):
             """
             return self(room_pos, self.DIRECTIONS.index(direction))
 
-        @classmethod
-        def get_opposite(self, wall_index):
+        def _get_opposite(self):
             """
             Returns the opposite wall.
 
-            @param wall_index
-                The index of the wall for which to find the opposite.
-            @return the index of the opposite wall
+            The opposite wall is the wall in the same room with an inverted
+            direction vector.
+
+            @return the opposite wall
+            @raise ValueError if no opposite room exists
             """
-            return (int(wall_index) + len(self.WALLS) / 2) % len(self.WALLS)
+            return self.from_direction(self.room_pos,
+                tuple(-d for d in self.direction))
 
         @classmethod
         def get_direction(self, wall_index):
@@ -120,7 +122,7 @@ class BaseMaze(object):
         @property
         def opposite(self):
             """The opposite wall in the same room."""
-            return self.__class__(self.room_pos, self.get_opposite(self.wall))
+            return self._get_opposite()
 
         @property
         def direction(self):
@@ -282,15 +284,15 @@ class BaseMaze(object):
             raise ValueError('No wall between %s and %s' % (
                 str(from_pos), str(to_pos)))
 
-        wall = self.__class__.Wall.from_direction(from_pos,
-            (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1]))
+        direction = (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1])
+        wall = self.__class__.Wall.from_direction(from_pos, direction)
 
         from_room = self[from_pos]
         from_room[wall] = has_door
 
         if to_pos in self:
             to_room = self[to_pos]
-            to_room[self.__class__.Wall.get_opposite(wall)] = has_door
+            to_room[wall.opposite] = has_door
 
     def __init__(self, width, height):
         """
@@ -431,12 +433,12 @@ class BaseMaze(object):
             wall
         @raise IndexError if the destination room lies outside of the maze
         """
-        direction = self.__class__.Wall.get_direction(wall)
+        wall = self.__class__.Wall(room_pos, int(wall))
+        direction = wall.direction
         result = (room_pos[0] + direction[0], room_pos[1] + direction[1])
 
         if require_door:
-            opposite = self.__class__.Wall.get_opposite(wall)
-            if not opposite in self[result]:
+            if not wall.opposite in self[result]:
                 raise ValueError('(%d, %d) is not inside the maze' % room_pos)
 
         if result in self:
