@@ -40,6 +40,19 @@ def Maze_Wall_from_direction():
 
 
 @test
+def Maze_Wall_get_walls():
+    walls = set()
+
+    for wall in Maze.Wall.from_room_pos((10, 20)):
+        assert_eq(wall.room_pos, (10, 20))
+
+        if wall.wall in walls:
+            assert False, \
+                '%d was found twice' % int(wall)
+        walls.add(int(wall))
+
+
+@test
 def Maze_Wall_opposite():
     assert_eq(
         Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
@@ -95,19 +108,6 @@ def Maze_Wall_back():
     assert Maze.Wall((1, 1), Maze.Wall.DOWN).back \
             == Maze.Wall((1, 0), Maze.Wall.UP), \
         'Back of down wall in(1, 1) was incorrect'
-
-
-@test
-def Maze_Wall_get_walls():
-    walls = set()
-
-    for wall in Maze.Wall.get_walls((10, 20)):
-        assert_eq(wall.room_pos, (10, 20))
-
-        if wall.wall in walls:
-            assert False, \
-                '%s was found twice' % Maze.Wall.NAMES[wall]
-        walls.add(wall.wall)
 
 
 @test

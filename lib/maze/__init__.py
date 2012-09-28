@@ -60,6 +60,17 @@ class BaseMaze(object):
             """
             return self(room_pos, self._DIRECTIONS.index(direction))
 
+        @classmethod
+        def from_room_pos(self, room_pos):
+            """
+            Generates all walls of a room.
+
+            @param room_pos
+                The room coordinates.
+            """
+            for wall in self.WALLS:
+                yield self(room_pos, wall)
+
         def _get_opposite(self):
             """
             Returns the opposite wall.
@@ -99,17 +110,6 @@ class BaseMaze(object):
             end = self._ANGLES[(self.wall + 1) % len(self._ANGLES)]
 
             return (start, end)
-
-        @classmethod
-        def get_walls(self, room_pos):
-            """
-            Generates all walls of a room.
-
-            @param room_pos
-                The room coordinates.
-            """
-            for wall in self.WALLS:
-                yield self(room_pos, wall)
 
         @property
         def opposite(self):
@@ -389,7 +389,7 @@ class BaseMaze(object):
         @raise IndexError if a room lies outside of the maze
         """
         if room_pos in self:
-            return self.__class__.Wall.get_walls(room_pos)
+            return self.__class__.Wall.from_room_pos(room_pos)
         else:
             raise IndexError("Room %s is not part of the maze" % str(room_pos))
 

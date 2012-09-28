@@ -98,7 +98,7 @@ def make_image(maze, solution):
 
     # Calculate the multiplication factor for the room size
     idx, idy = 0.0, 0.0
-    for wall in maze.Wall.get_walls((0, 0)):
+    for wall in maze.Wall.from_room_pos((0, 0)):
         span = wall.span
         idx = max(idx, abs(math.cos(span[0])))
         idy = max(idy, abs(math.sin(span[0])))
