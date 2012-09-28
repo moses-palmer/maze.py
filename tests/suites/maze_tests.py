@@ -23,15 +23,17 @@ def Maze_Wall_fields():
 
         walls.add(w)
 
-    assert_eq(len(Maze.Wall.WALLS), len(Maze.Wall.DIRECTIONS))
-    assert_eq(len(Maze.Wall.DIRECTIONS), len(set(Maze.Wall.DIRECTIONS)))
     assert_eq(len(Maze.Wall.WALLS), len(Maze.Wall.NAMES))
     assert_eq(len(Maze.Wall.NAMES), len(set(Maze.Wall.NAMES)))
 
 
 @test
 def Maze_Wall_from_direction():
-    for w, direction in enumerate(Maze.Wall.DIRECTIONS):
+    for w, direction in enumerate((
+            (-1, 0),
+            (0, 1),
+            (1, 0),
+            (0, -1))):
         expected = Maze.Wall((0, 0), w)
         actual = Maze.Wall.from_direction((0, 0), direction)
         assert_eq(expected, actual)
@@ -87,14 +89,6 @@ def Maze_Wall_span():
 
     assert last_span[1] == first_span[0], \
         'Walls do not cover entire room'
-
-
-@test
-def Maze_Wall_get_direction():
-    assert_eq(Maze.Wall.get_direction(Maze.Wall.LEFT), (-1, 0))
-    assert_eq(Maze.Wall.get_direction(Maze.Wall.UP), (0, 1))
-    assert_eq(Maze.Wall.get_direction(Maze.Wall.RIGHT), (1, 0))
-    assert_eq(Maze.Wall.get_direction(Maze.Wall.DOWN), (0, -1))
 
 
 @test

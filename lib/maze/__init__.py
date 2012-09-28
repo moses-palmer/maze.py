@@ -58,7 +58,7 @@ class BaseMaze(object):
             @return a new Wall
             @raise ValueError if the direction is invalid
             """
-            return self(room_pos, self.DIRECTIONS.index(direction))
+            return self(room_pos, self._DIRECTIONS.index(direction))
 
         def _get_opposite(self):
             """
@@ -73,17 +73,13 @@ class BaseMaze(object):
             return self.from_direction(self.room_pos,
                 tuple(-d for d in self.direction))
 
-        @classmethod
-        def get_direction(self, wall_index):
+        def _get_direction(self):
             """
             Returns a direction vector to move in when going through the wall.
 
-            @param wall_index
-                The index of the wall.
             @return a direction vector though the wall
-            @raise IndexError if wall_index is invalid
             """
-            return self.DIRECTIONS[int(wall_index)]
+            return self._DIRECTIONS[self.wall]
 
         @classmethod
         def get_span(self, wall_index):
@@ -127,12 +123,12 @@ class BaseMaze(object):
         @property
         def direction(self):
             """The direction vector to move in when going through the wall."""
-            return self.get_direction(self.wall)
+            return self._get_direction()
 
         @property
         def back(self):
             """The wall on the other side of the wall."""
-            direction = self.get_direction(self.wall)
+            direction = self._get_direction()
 
             other_pos = (
                 self.room_pos[0] + direction[0],
@@ -356,8 +352,9 @@ class BaseMaze(object):
             The coordinates of the rooms to check.
         @return whether there is a wall between the two rooms
         """
-        return any((room1_pos[0] + d[0], room1_pos[1] + d[1]) == room2_pos
-            for d in self.__class__.Wall.DIRECTIONS)
+        return any((room1_pos[0] + wall.direction[0],
+                room1_pos[1] + wall.direction[1]) == room2_pos
+            for wall in self.walls(room1_pos))
 
     def connected(self, room1_pos, room2_pos):
         """
@@ -543,7 +540,7 @@ class Maze(BaseMaze):
         # Define the walls; this will also add the class variables
         # mapping wall name to its value
         ANGLES = []
-        DIRECTIONS = []
+        _DIRECTIONS = []
         NAMES = []
         WALLS = []
 
@@ -561,6 +558,6 @@ class Maze(BaseMaze):
             while next_angle < 0.0:
                 next_angle += 2 * math.pi
             ANGLES.append(next_angle)
-            DIRECTIONS.append((hdir, vdir))
+            _DIRECTIONS.append((hdir, vdir))
             NAMES.append(name.lower())
             WALLS.append(i)
