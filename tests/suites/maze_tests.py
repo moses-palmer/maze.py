@@ -56,24 +56,6 @@ def Maze_Wall_opposite():
 
 
 @test
-def Maze_Wall_get_span():
-    first_span = Maze.Wall.get_span(Maze.Wall.WALLS[0])
-    first_d = math.sin(first_span[1] - first_span[0])
-    last_span = first_span
-
-    for wall in Maze.Wall.WALLS[1:]:
-        span = Maze.Wall.get_span(wall)
-        assert last_span[1] == span[0], \
-            'Walls are not continuous'
-        assert first_d == math.sin(span[1] - span[0]), \
-            'Wall lengths are not uniform'
-        last_span = span
-
-    assert last_span[1] == first_span[0], \
-        'Walls do not cover entire room'
-
-
-@test
 def Maze_Wall_span():
     first_span = Maze.Wall((0, 0), Maze.Wall.WALLS[0]).span
     first_d = math.sin(first_span[1] - first_span[0])

@@ -81,8 +81,7 @@ class BaseMaze(object):
             """
             return self._DIRECTIONS[self.wall]
 
-        @classmethod
-        def get_span(self, wall_index):
+        def _get_span(self):
             """
             Returns the span of the wall, expressed as degrees.
 
@@ -94,13 +93,10 @@ class BaseMaze(object):
             x-coordinates and points below the center of the room negative
             y-coordinates.
 
-            @param wall_index
-                The index of the wall.
-            @return the spas expressed as (start_angle, end_angle)
-            @raise IndexError if wall_index is invalid
+            @return the span expressed as (start_angle, end_angle)
             """
-            start = self.ANGLES[int(wall_index)]
-            end = self.ANGLES[(int(wall_index) + 1) % len(self.ANGLES)]
+            start = self._ANGLES[self.wall]
+            end = self._ANGLES[(self.wall + 1) % len(self._ANGLES)]
 
             return (start, end)
 
@@ -140,7 +136,7 @@ class BaseMaze(object):
         @property
         def span(self):
             """The span of this wall"""
-            return self.get_span(self.wall)
+            return self._get_span()
 
 
     class Room(object):
@@ -539,7 +535,7 @@ class Maze(BaseMaze):
     class Wall(BaseMaze.Wall):
         # Define the walls; this will also add the class variables
         # mapping wall name to its value
-        ANGLES = []
+        _ANGLES = []
         _DIRECTIONS = []
         NAMES = []
         WALLS = []
@@ -552,12 +548,12 @@ class Maze(BaseMaze):
             ('DOWN', 0, -1))
         for i, (name, hdir, vdir) in enumerate(data):
             locals()[name] = i
-            next_angle = ANGLES[-1] - 2 * math.pi / len(data) \
-                if ANGLES else start_angle
+            next_angle = _ANGLES[-1] - 2 * math.pi / len(data) \
+                if _ANGLES else start_angle
 
             while next_angle < 0.0:
                 next_angle += 2 * math.pi
-            ANGLES.append(next_angle)
+            _ANGLES.append(next_angle)
             _DIRECTIONS.append((hdir, vdir))
             NAMES.append(name.lower())
             WALLS.append(i)
