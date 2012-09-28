@@ -337,6 +337,20 @@ class BaseMaze(object):
         """
         return self._set_door(from_pos, to_pos, False)
 
+    def get_center(self, room_pos):
+        """
+        Returns the physical coordinates of the centre of a room.
+
+        For a maze with square rooms, this will be (0.5, 0.5) for the room at
+        (0, 0).
+
+        @param room_pos
+            The position of the room.
+        @return the coordinates of the room
+        @raise IndexError if a room lies outside of the maze
+        """
+        return tuple(d + 0.5 for d in room_pos)
+
     def adjacent(self, room1_pos, room2_pos):
         """
         Returns whether two rooms are adjacent.

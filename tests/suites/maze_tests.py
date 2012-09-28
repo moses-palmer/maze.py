@@ -383,6 +383,12 @@ def Maze_remove_door():
 
 
 @test
+def Maze_get_center():
+    maze = Maze(10, 20)
+
+    assert_eq(maze.get_center((0, 0)), (0.5, 0.5))
+
+@test
 def Maze_connected():
     maze = Maze(10, 20)
 

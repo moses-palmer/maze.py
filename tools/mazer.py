@@ -113,9 +113,10 @@ def make_image(maze, solution):
         ctx.save()
 
         # Make (0.0, 0.0) the centre of the room
+        offset_x, offset_y = maze.get_center((x, y))
         ctx.translate(
-            (x + 0.5) * room_width,
-            (maze.height - y - 1 + 0.5) * room_height)
+            offset_x * room_width,
+            (maze.height - offset_y) * room_height)
 
         # Draw the walls
         ctx.set_source_rgb(*wall_color)
