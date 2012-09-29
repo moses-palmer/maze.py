@@ -366,9 +366,15 @@ class BaseMaze(object):
             return False
 
         # Make sure the wall has a door
-        direction = (room1_pos[0] - room2_pos[0], room1_pos[1] - room2_pos[1])
-        return int(self.__class__.Wall.from_direction(room1_pos, direction)) \
-            in self[room1_pos]
+        try:
+            direction = (
+                room1_pos[0] - room2_pos[0],
+                room1_pos[1] - room2_pos[1])
+            wall_index = int(self.__class__.Wall.from_direction(
+                room1_pos, direction))
+            return wall_index in self[room1_pos]
+        except ValueError:
+            return False
 
     def edge(self, wall):
         """
