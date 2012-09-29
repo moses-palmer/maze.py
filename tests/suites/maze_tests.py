@@ -40,19 +40,6 @@ def Maze_Wall_from_direction():
 
 
 @test
-def Maze_Wall_get_walls():
-    walls = set()
-
-    for wall in Maze.Wall.from_room_pos((10, 20)):
-        assert_eq(wall.room_pos, (10, 20))
-
-        if wall.wall in walls:
-            assert False, \
-                '%d was found twice' % int(wall)
-        walls.add(int(wall))
-
-
-@test
 def Maze_Wall_opposite():
     assert_eq(
         Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
@@ -66,24 +53,6 @@ def Maze_Wall_opposite():
     assert_eq(
         Maze.Wall((0, 0), Maze.Wall.DOWN).opposite,
         Maze.Wall((0, 0), Maze.Wall.UP))
-
-
-@test
-def Maze_Wall_span():
-    first_span = Maze.Wall((0, 0), Maze.Wall.WALLS[0]).span
-    first_d = math.sin(first_span[1] - first_span[0])
-    last_span = first_span
-
-    for wall in Maze.Wall.WALLS[1:]:
-        span = Maze.Wall((0, 0), wall).span
-        assert last_span[1] == span[0], \
-            'Walls are not continuous'
-        assert first_d == math.sin(span[1] - span[0]), \
-            'Wall lengths are not uniform'
-        last_span = span
-
-    assert last_span[1] == first_span[0], \
-        'Walls do not cover entire room'
 
 
 @test
@@ -111,392 +80,10 @@ def Maze_Wall_back():
 
 
 @test
-def Maze_Wall_eq():
-    """Tests wall1 == wall2"""
-    assert Maze.Wall((1, 1), Maze.Wall.LEFT) \
-            == Maze.Wall((1, 1), Maze.Wall.LEFT), \
-        'Equal wall did not compare equally'
-    assert Maze.Wall((1, 2), Maze.Wall.LEFT) \
-            != Maze.Wall((1, 1), Maze.Wall.LEFT), \
-        'Walls with equal wall index and different positions compared equally'
-    assert Maze.Wall((1, 2), Maze.Wall.LEFT) \
-            != Maze.Wall((1, 2), Maze.Wall.RIGHT), \
-        'Walls with different wall index and equal positions compared equally'
-
-
-@test
-def Maze_Wall_int():
-    """Test that int(wall) yields the correct value"""
-    for w in Maze.Wall.WALLS:
-        wall = Maze.Wall((0, 0), w)
-        assert_eq(w, int(wall))
-
-
-@test
-def Maze_Room_door_functions():
-    """Tests that Maze.Room.add_door, remove_door and has_door work"""
-    room = Maze.Room()
-
-    assert all(not room.has_door(wall)
-            for wall in Maze.Wall.WALLS), \
-        'Not all walls were empty when Room was created'
-
-    room.add_door(Maze.Wall.LEFT)
-    assert all(not room.has_door(wall) or wall == Maze.Wall.LEFT
-            for wall in Maze.Wall.WALLS), \
-        'Adding left door did not have the expected effect (doors = %d)' % (
-            room.doors)
-
-    for wall in Maze.Wall.WALLS:
-        room.add_door(wall)
-    assert_eq(room.doors, set(Maze.Wall.WALLS))
-
-    room.remove_door(Maze.Wall.RIGHT)
-    assert all(room.has_door(wall) or wall == Maze.Wall.RIGHT
-            for wall in Maze.Wall.WALLS), \
-        'Removing right door did not have the expected effect (doors = %d)' % (
-            room.doors)
-
-
-@test
-def Maze_Room_door_operators():
-    """Tests that the operator overloads work"""
-    room = Maze.Room()
-
-    assert all(not wall in room and not room[wall]
-            for wall in Maze.Wall.WALLS), \
-        'Not all walls were empty when Room was created'
-
-    room[Maze.Wall.LEFT] = True
-    assert all(not wall in room and not room[wall] or wall == Maze.Wall.LEFT
-            for wall in Maze.Wall.WALLS), \
-        'Adding left door did not have the expected effect (doors = %d)' % (
-            room.doors)
-
-    for wall in Maze.Wall.WALLS:
-        room += wall
-    assert_eq(room.doors, set(Maze.Wall.WALLS))
-
-    room -= Maze.Wall.RIGHT
-    assert all(wall in room and room[wall] or wall == Maze.Wall.RIGHT
-            for wall in Maze.Wall.WALLS), \
-        'Removing right door did not have the expected effect (doors = %d)' % (
-            room.doors)
-
-
-@test
-def Maze_Room_bool():
-    """Tests that truth testing with Maze.Room works"""
-    room = Maze.Room()
-
-    assert not room, \
-        'An empty room tested True'
-
-    for wall in Maze.Wall.WALLS:
-        room += wall
-        assert room, \
-            'A non-empty room tested False'
-
-
-@test
-def Maze_width_and_height():
-    """Tests that the width and height properties are correct"""
-    maze1 = Maze(10, 20)
-    assert_eq(maze1.width, 10)
-    assert_eq(maze1.height, 20)
-
-    maze2 = Maze(200, 100)
-    assert_eq(maze2.width, 200)
-    assert_eq(maze2.height, 100)
-
-
-@test
-def Maze_room_positions():
-    maze = Maze(3, 2)
-
-    assert_eq(
-        set(maze.room_positions),
-        set((
-            (0, 0), (1, 0), (2, 0),
-            (0, 1), (1, 1), (2, 1))))
-
-
-@test
-def Maze_iter():
-    """Tests that for room_pos in maze: works"""
-    maze = Maze(10, 20)
-
-    actual = set()
-    for room_pos in maze:
-        actual.add(room_pos)
-    assert_eq(actual, set())
-
-    maze[(5, 6):(5, 7)] = True
-    actual = set()
-    for room_pos in maze:
-        actual.add(room_pos)
-    assert_eq(actual, set((
-        (5, 6),
-        (5, 7))))
-
-
-@test
-def Maze_index_tuple():
-    """Tests that indexing Maze with a tuple yields a Room"""
-    maze = Maze(10, 20)
-
-    assert isinstance(maze[3, 4], maze.Room), \
-        'Maze[x, y] did not yield a Room'
-
-
-@test
-def Maze_index_tuple():
-    """Tests that assigning to Maze[(x1, y1):(x2, y2)] works"""
-    maze = Maze(10, 20)
-
-    room1 = maze[3, 4]
-    room2 = maze[4, 4]
-
-    assert not maze.Wall.RIGHT in room1, \
-        'Right door of room was not initially missing'
-    assert not maze.Wall.LEFT in room2, \
-        'Left door of room was not initially missing'
-
-    maze[(3, 4):(4, 4)] = True
-
-    assert maze.Wall.RIGHT in room1, \
-        'Maze[(x1, y1):(x2, y2)] = True did not open the left door'
-    assert maze.Wall.LEFT in room2, \
-        'Maze[(x1, y1):(x2, y2)] = True did not open the right door'
-
-    maze[(3, 4):(4, 4)] = False
-
-    assert not maze.Wall.RIGHT in room1, \
-        'Maze[(x1, y1):(x2, y2)] = False did not close the left door'
-    assert not maze.Wall.LEFT in room2, \
-        'Maze[(x1, y1):(x2, y2)] = False did not close the right door'
-
-    try:
-        maze[(-1, 0):(0, 0)] = True
-        assert False, \
-            'Maze.add_door did not raise IndexError for rooms outside of maze'
-    except IndexError:
-        pass
-
-
-@test
-def Maze_adjacent():
-    maze = Maze(10, 20)
-
-    for x in (-1, 0, 1):
-        for y in (-1, 0, 1):
-            adjacent1 = maze.adjacent((4, 4), (4 + x, 4 + y))
-            adjacent2 = abs(x) + abs(y) == 1
-            assert adjacent1 == adjacent2, \
-                '(4, 4) %s be adjacent to (%d, %d)' % (
-                    'should' if adjacent2 else 'should not',
-                    4 + x,
-                    4 + y)
-
-
-@test
-def Maze_contains():
-    """Tests that room_pos in maze works"""
-    maze = Maze(10, 20)
-
-    for x in xrange(-5, maze.width + 5):
-        for y in xrange(-5, maze.height + 5):
-            expected = x >= 0 and x < maze.width and y >= 0 and y < maze.height
-            actual = (x, y) in maze
-            assert expected == actual, \
-                '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
-
-
-@test
-def Maze_add_door():
-    maze = Maze(10, 20)
-
-    room1 = maze[3, 4]
-    room2 = maze[4, 4]
-
-    assert not maze.Wall.RIGHT in room1, \
-        'Right door of room was not initially missing'
-    assert not maze.Wall.LEFT in room2, \
-        'Left door of room was not initially missing'
-
-    maze.add_door((3, 4), (4, 4))
-
-    assert maze.Wall.RIGHT in room1, \
-        'Maze.add_door did not open the left door'
-    assert maze.Wall.LEFT in room2, \
-        'Maze.add_door did not open the right door'
-
-    maze.add_door((0, 0), (-1, 0))
-
-    try:
-        maze.add_door((0, 0), (2, 0))
-        assert False, \
-            'Maze.add_door did not raise IndexError for non-connected rooms'
-    except ValueError:
-        pass
-
-    try:
-        maze.add_door((-1, 0), (0, 0))
-        assert False, \
-            'Maze.add_door did not raise IndexError for rooms outside of maze'
-    except IndexError:
-        pass
-
-
-@test
-def Maze_remove_door():
-    maze = Maze(10, 20)
-
-    room1 = maze[3, 4]
-    room2 = maze[4, 4]
-
-    maze.add_door((3, 4), (4, 4))
-
-    maze.remove_door((3, 4), (4, 4))
-
-    assert not maze.Wall.RIGHT in room1, \
-        'Maze.remove_door did not close the left door'
-    assert not maze.Wall.LEFT in room2, \
-        'Maze.remove_door did not close the right door'
-
-    maze.remove_door((0, 0), (-1, 0))
-
-    try:
-        maze.remove_door((0, 0), (2, 0))
-        assert False, \
-            'Maze.remove_door did not raise IndexError for non-connected rooms'
-    except ValueError:
-        pass
-
-    try:
-        maze.remove_door((-1, 0), (0, 0))
-        assert False, \
-            'Maze.remove_door did not raise IndexError for rooms outside of ' \
-                'maze'
-    except IndexError:
-        pass
-
-
-@test
 def Maze_get_center():
     maze = Maze(10, 20)
 
     assert_eq(maze.get_center((0, 0)), (0.5, 0.5))
-
-@test
-def Maze_connected():
-    maze = Maze(10, 20)
-
-    for x in (-1, 0, 1):
-        for y in (-1, 0, 1):
-            connected1 = maze.connected((4, 4), (4 + x, 4 + y))
-            connected2 = False
-            assert connected1 == connected2, \
-                '(4, 4) %s be connected to (%d, %d)' % (
-                    'should' if adjacent2 else 'should not',
-                    4 + x,
-                    4 + y)
-
-    maze.add_door((3, 4), (4, 4))
-    maze.add_door((4, 4), (5, 4))
-
-    for x in (-1, 0, 1):
-        for y in (-1, 0, 1):
-            connected1 = maze.connected((4, 4), (4 + x, 4 + y))
-            connected2 = y == 0 and x != 0
-            assert connected1 == connected2, \
-                '(4, 4) %s be connected to (%d, %d)' % (
-                    'should' if adjacent2 else 'should not',
-                    4 + x,
-                    4 + y)
-
-
-@test
-def Maze_walk_from():
-    maze = Maze(10, 20)
-
-    assert_eq(maze.walk_from((0, 0), maze.Wall.RIGHT), (1, 0))
-    assert_eq(maze.walk_from((1, 0), maze.Wall.LEFT), (0, 0))
-    assert_eq(maze.walk_from((0, 1), maze.Wall.DOWN), (0, 0))
-    assert_eq(maze.walk_from((0, 0), maze.Wall.UP), (0, 1))
-    assert_eq(maze.walk_from((-1, 0), maze.Wall.RIGHT), (0, 0))
-
-    try:
-        maze.walk_from((-2, 0), maze.Wall.RIGHT)
-        assert False, \
-            'Walking from an invalid room did not raise IndexError'
-    except IndexError:
-        pass
-
-    try:
-        maze.walk_from((0, 0), maze.Wall.RIGHT, True)
-        assert False, \
-            'Walking through a wall without door did not raise ValueError'
-    except ValueError:
-        pass
-
-    try:
-        maze.walk_from((-1, 0), maze.Wall.RIGHT, True)
-        assert False, \
-            'Walking through a wall without door did not raise ValueError'
-    except ValueError:
-        pass
-
-
-@test
-def Maze_walk():
-    maze = Maze(10, 20)
-
-    assert_eq(maze.walk(maze.Wall((0, 0), maze.Wall.RIGHT)), (1, 0))
-    assert_eq(maze.walk(maze.Wall((1, 0), maze.Wall.LEFT)), (0, 0))
-    assert_eq(maze.walk(maze.Wall((0, 1), maze.Wall.DOWN)), (0, 0))
-    assert_eq(maze.walk(maze.Wall((0, 0), maze.Wall.UP)), (0, 1))
-    assert_eq(maze.walk(maze.Wall((-1, 0), maze.Wall.RIGHT)), (0, 0))
-
-    try:
-        maze.walk(maze.Wall((-2, 0), maze.Wall.RIGHT))
-        assert False, \
-            'Walking from an invalid room did not raise IndexError'
-    except IndexError:
-        pass
-
-    try:
-        maze.walk(maze.Wall((0, 0), maze.Wall.RIGHT), True)
-        assert False, \
-            'Walking through a wall without door did not raise ValueError'
-    except ValueError:
-        pass
-
-    try:
-        maze.walk(maze.Wall((-1, 0), maze.Wall.RIGHT), True)
-        assert False, \
-            'Walking through a wall without door did not raise ValueError'
-    except ValueError:
-        pass
-
-
-@test
-def Maze_doors():
-    maze = Maze(10, 20)
-
-    assert_eq(
-        list(maze.doors((1, 1))),
-        [])
-
-    doors = []
-
-    for w in maze.Wall.WALLS:
-        wall = maze.Wall((1, 1), w)
-        doors.append(wall)
-        maze.add_door((1, 1), (1 + wall.direction[0], 1 + wall.direction[1]))
-        assert_eq(
-            sorted(list(maze.doors((1, 1)))),
-            sorted(doors))
 
 
 @test
@@ -528,62 +115,6 @@ def Maze_edge():
 
 
 @test
-def Maze_walls():
-    maze = Maze(10, 20)
-
-    assert_eq(
-        sorted(list(maze.walls((1, 1)))),
-        sorted([maze.Wall((1, 1), w) for w in maze.Wall.WALLS]))
-
-@test
-def Maze_walk_path():
-    """Tests that walking from one room to the same room always works"""
-    maze = Maze(10, 20)
-
-    assert_eq(
-        list(maze.walk_path((2, 2), (2, 2))),
-        [(2, 2)])
-
-
-@test
-def Maze_walk_path():
-    """Tests that walking from a room outside of the maze raises ValueError"""
-    maze = Maze(10, 20)
-
-    try:
-        list(maze.walk_path((-1, -1), (0, 0)))
-        assert False, \
-            'Managed to walk from (-1, -1)'
-    except ValueError:
-        pass
-
-
-@test
-def Maze_walk_path():
-    """Tests that walking between non-connected rooms raises ValueError"""
-    maze = Maze(10, 20)
-
-    try:
-        list(maze.walk_path((0, 0), (2, 0)))
-        assert False, \
-            'Managed to walk between non-connected rooms'
-    except ValueError:
-        pass
-
-
-@test
-def Maze_walk_path():
-    """Tests that walking between adjacent rooms works as expected"""
-    maze = Maze(10, 20)
-
-    maze[(0, 0):(1, 0)] = True
-
-    assert_eq(
-        list(maze.walk_path((0, 0), (1, 0))),
-        [(0, 0), (1, 0)])
-
-
-@test
 def Maze_walk_path():
     """Tests that the shortest path is selected"""
     maze = Maze(10, 20)
@@ -605,34 +136,538 @@ def Maze_walk_path():
         [(0, 0), (1, 0), (2, 0)])
 
 
+def all_mazes(test):
+    """
+    A decorator used to run a particular test for all types of mazes.
+    """
+    def inner():
+        for maze_class in (Maze,):
+            maze = maze_class(10, 20)
+            try:
+                test(maze)
+            except Exception as e:
+                e.message = 'For %s: %s' % (maze_class.__name__, e.message)
+                raise
+
+    inner.__doc__ = test.__doc__
+    inner.__name__ = test.__name__
+
+    return inner
+
+
 @test
-def Maze_slice():
+@all_mazes
+def Maze_Wall_eq(maze):
+    """Tests wall1 == wall2"""
+    assert maze.Wall((1, 1), maze.Wall.WALLS[0]) \
+            == maze.Wall((1, 1), maze.Wall.WALLS[0]), \
+        'Equal wall did not compare equally'
+    assert maze.Wall((1, 2), maze.Wall.WALLS[0]) \
+            != maze.Wall((1, 1), maze.Wall.WALLS[0]), \
+        'Walls with equal wall index and different positions compared equally'
+    assert maze.Wall((1, 2), maze.Wall.WALLS[0]) \
+            != maze.Wall((1, 2), maze.Wall.WALLS[1]), \
+        'Walls with different wall index and equal positions compared equally'
+
+
+@test
+@all_mazes
+def Maze_Wall_int(maze):
+    """Test that int(wall) yields the correct value"""
+    for w in maze.Wall.WALLS:
+        wall = maze.Wall((0, 0), w)
+        assert_eq(w, int(wall))
+
+
+@test
+@all_mazes
+def Maze_Wall_get_walls(maze):
+    walls = set()
+
+    for wall in maze.Wall.from_room_pos((10, 20)):
+        assert_eq(wall.room_pos, (10, 20))
+
+        if wall.wall in walls:
+            assert False, \
+                '%d was found twice' % int(wall)
+        walls.add(int(wall))
+
+
+@test
+@all_mazes
+def Maze_Wall_back(maze):
+    for wall in maze.walls((1, 1)):
+        x, y = (p + d for (p, d) in zip(wall.room_pos, wall.direction))
+        w = wall.opposite.wall
+        assert_eq(wall.back, maze.Wall((x, y), w))
+
+
+@test
+@all_mazes
+def Maze_Wall_span(maze):
+    first_span = maze.Wall((0, 0), maze.Wall.WALLS[0]).span
+    first_d = math.sin(first_span[1] - first_span[0])
+    last_span = first_span
+
+    for wall in maze.Wall.WALLS[1:]:
+        span = maze.Wall((0, 0), wall).span
+        assert last_span[1] == span[0], \
+            'Walls are not continuous at %d' % wall
+        assert abs(first_d - math.sin(span[1] - span[0])) < 0.001, \
+            'Wall lengths are not uniform (%f != %f)' % (
+                first_d, math.sin(span[1] - span[0]))
+        last_span = span
+
+    assert last_span[1] == first_span[0], \
+        'Walls do not cover entire room'
+
+
+@test
+@all_mazes
+def Maze_Room_door_functions(maze):
+    """Tests that Maze.Room.add_door, remove_door and has_door work"""
+    room = maze.Room()
+
+    assert all(not room.has_door(wall)
+            for wall in maze.Wall.WALLS), \
+        'Not all walls were empty when Room was created'
+
+    room.add_door(maze.Wall.WALLS[0])
+    assert all(not room.has_door(wall) or wall == maze.Wall.WALLS[0]
+            for wall in maze.Wall.WALLS), \
+        'Adding left door did not have the expected effect (doors = %d)' % (
+            room.doors)
+
+    for wall in maze.Wall.WALLS:
+        room.add_door(wall)
+    assert_eq(room.doors, set(maze.Wall.WALLS))
+
+    room.remove_door(maze.Wall.WALLS[1])
+    assert all(room.has_door(wall) or wall == maze.Wall.WALLS[1]
+            for wall in maze.Wall.WALLS), \
+        'Removing right door did not have the expected effect (doors = %d)' % (
+            room.doors)
+
+
+@test
+@all_mazes
+def Maze_Room_door_operators(maze):
+    """Tests that the operator overloads work"""
+    room = maze.Room()
+
+    assert all(not wall in room and not room[wall]
+            for wall in maze.Wall.WALLS), \
+        'Not all walls were empty when Room was created'
+
+    room[Maze.Wall.WALLS[0]] = True
+    assert all(not wall in room and not room[wall] or wall == maze.Wall.WALLS[0]
+            for wall in maze.Wall.WALLS), \
+        'Adding left door did not have the expected effect (doors = %d)' % (
+            room.doors)
+
+    for wall in maze.Wall.WALLS:
+        room += wall
+    assert_eq(room.doors, set(maze.Wall.WALLS))
+
+    room -= maze.Wall.WALLS[1]
+    assert all(wall in room and room[wall] or wall == maze.Wall.WALLS[1]
+            for wall in maze.Wall.WALLS), \
+        'Removing right door did not have the expected effect (doors = %d)' % (
+            room.doors)
+
+
+@test
+@all_mazes
+def Maze_Room_bool(maze):
+    """Tests that truth testing with Maze.Room works"""
+    room = maze.Room()
+
+    assert not room, \
+        'An empty room tested True'
+
+    for wall in maze.Wall.WALLS:
+        room += wall
+        assert room, \
+            'A non-empty room tested False'
+
+
+@test
+@all_mazes
+def Maze_iter(maze):
+    """Tests that for room_pos in maze: works"""
+    actual = set()
+    for room_pos in maze:
+        actual.add(room_pos)
+    assert_eq(actual, set())
+
+    maze[(5, 6):(5, 7)] = True
+    actual = set()
+    for room_pos in maze:
+        actual.add(room_pos)
+    assert_eq(actual, set((
+        (5, 6),
+        (5, 7))))
+
+
+@test
+@all_mazes
+def Maze_index_tuple(maze):
+    """Tests that indexing Maze with a tuple yields a Room"""
+    assert isinstance(maze[3, 4], maze.Room), \
+        'Maze[x, y] did not yield a Room'
+
+
+@test
+@all_mazes
+def Maze_index_tuple(maze):
+    """Tests that assigning to Maze[(x1, y1):(x2, y2)] works"""
+    room = maze[4, 4]
+
+    for wall in maze.walls((4, 4)):
+        assert not wall in room, \
+            'A door was not initially missing'
+
+    for wall in maze.walls((4, 4)):
+        other_door = wall.back
+        other_room = maze[other_door.room_pos]
+        maze[(4, 4):other_door.room_pos] = True
+
+        assert wall in room, \
+            'Maze[(4, 4):%s] = True did not open the door in (4, 4)' % (
+                str(other_door.room_pos))
+        assert wall.back in other_room, \
+            'Maze[(4, 4):%s] = False did not open the door in %s' % (
+                str(other_door.room_pos), str(other_door.room_pos))
+
+    for wall in maze.walls((4, 4)):
+        other_door = wall.back
+        other_room = maze[other_door.room_pos]
+        maze[(4, 4):other_door.room_pos] = False
+
+        assert not wall in room, \
+            'Maze[(4, 4):%s] = False did not close the door in (4, 4)' % (
+                str(other_door.room_pos))
+        assert not wall.back in other_room, \
+            'Maze[(4, 4):%s] = False did not close the door in %s' % (
+                str(other_door.room_pos), str(other_door.room_pos))
+
+    for x, y in maze:
+        failure_required = not maze.adjacent((7, 7), (x, y))
+        try:
+            maze[(7, 7):(x, y)] = True
+            assert not failure_required, \
+                'Adding a door between non-adjacent rooms did not raise error'
+        except ValueError:
+            assert failure_required, \
+                'Adding a door between adjacent rooms raised error'
+
+        try:
+            maze[(7, 7):(x, y)] = False
+            assert not failure_required, \
+                'Removing a door between non-adjacent rooms did not raise error'
+        except ValueError:
+            assert failure_required, \
+                'Removing a door between adjacent rooms raised error'
+
+    try:
+        maze[(-1, -1):(-1, 0)] = True
+        assert False, \
+            'Adding a door outside of the maze did not raise error'
+    except IndexError:
+        pass
+
+    try:
+        maze[(-1, -1):(-1, 0)] = False
+        assert False, \
+            'Removing a door outside of the maze did not raise error'
+    except IndexError:
+        pass
+
+
+@test
+@all_mazes
+def Maze_slice(maze):
     """Tests that reading a slice of a maze yields the path between the two
     rooms"""
-    maze = Maze(10, 20)
-
-    maze[(0, 0):(0, 1)] = True
-    maze[(0, 1):(1, 1)] = True
-    maze[(1, 1):(2, 1)] = True
-    maze[(2, 1):(2, 0)] = True
-
-    assert_eq(
-        list(maze.walk_path((0, 0), (2, 0))),
-        list(maze[(0, 0):(2, 0)]))
-
-    maze[(0, 0):(1, 0)] = True
-    maze[(1, 0):(2, 0)] = True
+    for y in xrange(maze.height):
+        row = xrange(maze.width) if y == 0 or y == maze.height - 1 \
+            else (0, maze.width - 1)
+        for x in row:
+            for wall in maze.walls((x, y)):
+                if not maze.edge(wall):
+                    maze[x, y][wall] = True
 
     assert_eq(
-        list(maze.walk_path((0, 0), (2, 0))),
-        list(maze[(0, 0):(2, 0)]))
+        list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1))),
+        list(maze[(0, 0):(maze.width - 1, maze.height - 1)]))
 
 
 @test
-def Maze_with_randomized_prim():
-    """Tests that randomized_prim.initialize creates a valid maze"""
-    maze = Maze(10, 20)
+@all_mazes
+def Maze_contains(maze):
+    """Tests that room_pos in maze works"""
+    for x in xrange(-5, maze.width + 5):
+        for y in xrange(-5, maze.height + 5):
+            expected = x >= 0 and x < maze.width and y >= 0 and y < maze.height
+            actual = (x, y) in maze
+            assert expected == actual, \
+                '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
 
+
+@test
+@all_mazes
+def Maze_width_and_height(maze):
+    """Tests that the width and height properties are correct"""
+    maze1 = maze.__class__(10, 20)
+    assert_eq(maze1.width, 10)
+    assert_eq(maze1.height, 20)
+
+    maze2 = maze.__class__(200, 100)
+    assert_eq(maze2.width, 200)
+    assert_eq(maze2.height, 100)
+
+
+@test
+@all_mazes
+def Maze_room_positions(maze):
+    room_positions = set()
+    for x in xrange(maze.width):
+        for y in xrange(maze.height):
+            room_positions.add((x, y))
+
+    assert_eq(
+        set(maze.room_positions),
+        room_positions)
+
+
+@test
+@all_mazes
+def Maze_add_door(maze):
+    room = maze[4, 4]
+
+    for wall in maze.walls((4, 4)):
+        assert not wall in room, \
+            'A door was not initially missing'
+
+    for wall in maze.walls((4, 4)):
+        other_door = wall.back
+        other_room = maze[other_door.room_pos]
+        maze.add_door((4, 4), other_door.room_pos)
+
+        assert wall in room, \
+            'Maze.add_door did not open the door in the first room'
+        assert wall.back in other_room, \
+            'Maze.add_door did not open the door in the second room'
+
+    for x, y in maze:
+        failure_required = not maze.adjacent((7, 7), (x, y))
+        try:
+            maze.add_door((7, 7), (x, y))
+            assert not failure_required, \
+                'Adding a door between non-adjacent rooms did not raise error'
+        except ValueError:
+            assert failure_required, \
+                'Adding a door between adjacent rooms raised error'
+
+    try:
+        maze.add_door((-1, -1), (-1, 0))
+        assert False, \
+            'Adding a door outside of the maze did not raise error'
+    except IndexError:
+        pass
+
+
+@test
+@all_mazes
+def Maze_remove_door(maze):
+    room = maze[4, 4]
+
+    for wall in maze.walls((4, 4)):
+        maze.add_door((4, 4), wall.back.room_pos)
+
+    for wall in maze.walls((4, 4)):
+        other_door = wall.back
+        other_room = maze[other_door.room_pos]
+        maze.remove_door((4, 4), other_door.room_pos)
+
+        assert not wall in room, \
+            'Maze.remove_door did not close the door in the first room'
+        assert not wall.back in other_room, \
+            'Maze.remove_door did not close the door in the second room'
+
+    for x, y in maze:
+        failure_required = not maze.adjacent((7, 7), (x, y))
+        try:
+            maze.add_door((7, 7), (x, y))
+            assert not failure_required, \
+                'Removing a door between non-adjacent rooms did not raise error'
+        except ValueError:
+            assert failure_required, \
+                'Removing a door between adjacent rooms raised error'
+
+    try:
+        maze.add_door((-1, -1), (-1, 0))
+        assert False, \
+            'Removing a door outside of the maze did not raise error'
+    except IndexError:
+        pass
+
+
+@test
+@all_mazes
+def Maze_adjacent(maze):
+    adjacent = set(tuple(p + d for (p, d) in zip(wall.room_pos, wall.direction))
+        for wall in maze.walls((5, 5)))
+
+    for x, y in maze.room_positions:
+        assert maze.adjacent((5, 5), (x, y)) == ((x, y) in adjacent), \
+            'Room (%d, %d) incorrectly marked as %s to (5, 5)' % (x, y,
+                'adjacent' if maze.adjacent((5, 5), (x, y)) else 'non-adjacent')
+
+
+@test
+@all_mazes
+def Maze_connected(maze):
+    for x in (-1, 0, 1):
+        for y in (-1, 0, 1):
+            connected1 = maze.connected((4, 4), (4 + x, 4 + y))
+            connected2 = False
+            assert connected1 == connected2, \
+                '(4, 4) %s be connected to (%d, %d)' % (
+                    'should' if connected2 else 'should not',
+                    4 + x,
+                    4 + y)
+
+    maze.add_door((3, 4), (4, 4))
+    maze.add_door((4, 4), (5, 4))
+
+    for x in (-1, 0, 1):
+        for y in (-1, 0, 1):
+            connected1 = maze.connected((4, 4), (4 + x, 4 + y))
+            connected2 = y == 0 and x != 0
+            assert connected1 == connected2, \
+                '(4, 4) %s be connected to (%d, %d)' % (
+                    'should' if connected2 else 'should not',
+                    4 + x,
+                    4 + y)
+
+
+@test
+@all_mazes
+def Maze_walk_from(maze):
+    for x, y in maze.room_positions:
+        for wall in maze.walls((x, y)):
+            dx, dy = wall.direction
+            nx, ny = x + dx, y + dy
+            if (nx, ny) in maze:
+                assert_eq(maze.walk_from((x, y), int(wall)), (x + dx, y + dy))
+
+                try:
+                    maze.walk_from((x, y), int(wall), True)
+                except ValueError:
+                    pass
+            else:
+                try:
+                    maze.walk_from((x, y), int(wall))
+                except IndexError:
+                    pass
+
+
+@test
+@all_mazes
+def Maze_walk_from(maze):
+    for x, y in maze.room_positions:
+        for wall in maze.walls((x, y)):
+            dx, dy = wall.direction
+            nx, ny = x + dx, y + dy
+            if (nx, ny) in maze:
+                assert_eq(maze.walk(wall), (x + dx, y + dy))
+
+                try:
+                    maze.walk(wall, True)
+                except ValueError:
+                    pass
+            else:
+                try:
+                    maze.walk(wall)
+                except IndexError:
+                    pass
+
+
+@test
+@all_mazes
+def Maze_doors(maze):
+    assert_eq(
+        list(maze.doors((1, 1))),
+        [])
+
+    doors = []
+
+    for w in maze.Wall.WALLS:
+        wall = maze.Wall((1, 1), w)
+        doors.append(int(wall))
+        maze.add_door((1, 1), (1 + wall.direction[0], 1 + wall.direction[1]))
+        assert_eq(
+            set(int(w) for w in maze.doors((1, 1))),
+            set(doors))
+
+
+@test
+@all_mazes
+def Maze_walls(maze):
+    assert_eq(
+        set(int(w) for w in maze.walls((1, 1))),
+        set(maze.Wall.WALLS))
+
+
+@test
+@all_mazes
+def Maze_walk_path(maze):
+    """Tests that walking from one room to the same room always works"""
+    assert_eq(
+        list(maze.walk_path((2, 2), (2, 2))),
+        [(2, 2)])
+
+
+@test
+@all_mazes
+def Maze_walk_path(maze):
+    """Tests that walking from a room outside of the maze raises ValueError"""
+    try:
+        list(maze.walk_path((-1, -1), (0, 0)))
+        assert False, \
+            'Managed to walk from (-1, -1)'
+    except ValueError:
+        pass
+
+
+@test
+@all_mazes
+def Maze_walk_path(maze):
+    """Tests that walking between non-connected rooms raises ValueError"""
+    try:
+        list(maze.walk_path((0, 0), (2, 0)))
+        assert False, \
+            'Managed to walk between non-connected rooms'
+    except ValueError:
+        pass
+
+
+@test
+@all_mazes
+def Maze_walk_path(maze):
+    """Tests that walking between adjacent rooms works as expected"""
+    maze[(0, 0):(1, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((0, 0), (1, 0))),
+        [(0, 0), (1, 0)])
+
+
+@test
+@all_mazes
+def Maze_with_randomized_prim(maze):
+    """Tests that randomized_prim.initialize creates a valid maze"""
     def rand(m):
         return random.randint(0, m - 1)
 
