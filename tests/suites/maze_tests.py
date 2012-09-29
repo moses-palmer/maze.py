@@ -28,6 +28,27 @@ def Maze_Wall_fields():
 
 
 @test
+def HexMaze_Wall_fields():
+    """Tests that HexMaze.Wall contains the expected fields"""
+    walls = set()
+
+    assert_eq(len(HexMaze.Wall.NAMES), 6)
+
+    for a in (name.upper() for name in HexMaze.Wall.NAMES):
+        assert hasattr(HexMaze.Wall, a), \
+            'HexMaze.Wall.%s is undefined' % a
+
+        w = getattr(HexMaze.Wall, a)
+        assert not w in walls, \
+            'HexWall.%s has a previously set value' % a
+
+        walls.add(w)
+
+    assert_eq(len(HexMaze.Wall.WALLS), len(HexMaze.Wall.NAMES))
+    assert_eq(len(HexMaze.Wall.NAMES), len(set(HexMaze.Wall.NAMES)))
+
+
+@test
 def Maze_Wall_from_direction():
     for w, direction in enumerate((
             (-1, 0),

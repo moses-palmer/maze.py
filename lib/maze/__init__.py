@@ -577,3 +577,36 @@ class Maze(BaseMaze):
             _DIRECTIONS.append((hdir, vdir))
             NAMES.append(name.lower())
             WALLS.append(i)
+
+
+class HexMaze(BaseMaze):
+    """
+    This is a maze with hexagonal rooms.
+    """
+    class Wall(BaseMaze.Wall):
+        # Define the walls; this will also add the class variables
+        # mapping wall name to its value
+        _ANGLES = []
+        _DIRECTIONS = []
+        NAMES = []
+        WALLS = []
+
+        start_angle = math.pi / 2 + (2 * 2 * math.pi) / 6
+        data = (
+            ('LEFT', (-1, 0), None),
+            ('UP_LEFT', (-1, 1), (0, 1)),
+            ('UP_RIGHT', (0, 1), (1, 1)),
+            ('RIGHT', (1, 0), None),
+            ('DOWN_RIGHT', (0, -1), (1, -1)),
+            ('DOWN_LEFT', (-1, -1), (0, -1)))
+        for i, (name, dir1, dir2) in enumerate(data):
+            locals()[name] = i
+            next_angle = _ANGLES[-1] - 2 * math.pi / len(data) \
+                if _ANGLES else start_angle
+
+            while next_angle < 0.0:
+                next_angle += 2 * math.pi
+            _ANGLES.append(next_angle)
+            _DIRECTIONS.append((dir1, dir2))
+            NAMES.append(name.lower())
+            WALLS.append(i)
