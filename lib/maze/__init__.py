@@ -75,14 +75,14 @@ class BaseMaze(object):
             """
             Returns the opposite wall.
 
-            The opposite wall is the wall in the same room with an inverted
-            direction vector.
+            The opposite wall is the wall in the same room with a span opposing
+            this wall.
 
             @return the opposite wall
             @raise ValueError if no opposite room exists
             """
-            return self.from_direction(self.room_pos,
-                tuple(-d for d in self.direction))
+            return self.__class__(self.room_pos,
+                (self.wall + len(self.WALLS) / 2) % len(self.WALLS))
 
         def _get_direction(self):
             """
@@ -610,3 +610,16 @@ class HexMaze(BaseMaze):
             _DIRECTIONS.append((dir1, dir2))
             NAMES.append(name.lower())
             WALLS.append(i)
+
+        @classmethod
+        def from_direction(self, room_pos, direction):
+            """
+            @see Maze.Wall.from_direction
+            """
+            use_alt = room_pos[1] % 2 == 1
+            for i, (dir1, dir2) in enumerate(self._DIRECTIONS):
+                if direction == (dir1 if not use_alt or not dir2 else dir2):
+                    return self(room_pos, i)
+
+            raise ValueError('Invalid direction for %s: %s' % (
+                str(room_pos), str(direction)))

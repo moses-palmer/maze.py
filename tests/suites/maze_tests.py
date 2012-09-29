@@ -61,6 +61,25 @@ def Maze_Wall_from_direction():
 
 
 @test
+def HexMaze_Wall_from_direction():
+    for w, (direction, alt) in enumerate((
+            ((-1, 0), None),
+            ((-1, 1), (0, 1)),
+            ((0, 1), (1, 1)),
+            ((1, 0), None),
+            ((0, -1), (1, -1)),
+            ((-1, -1), (0, -1)))):
+        expected = HexMaze.Wall((0, 0), w)
+        actual = HexMaze.Wall.from_direction((0, 0), direction)
+        assert_eq(expected, actual)
+
+        if alt:
+            expected = HexMaze.Wall((0, 1), w)
+            actual = HexMaze.Wall.from_direction((0, 1), alt)
+            assert_eq(expected, actual)
+
+
+@test
 def Maze_Wall_opposite():
     assert_eq(
         Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
