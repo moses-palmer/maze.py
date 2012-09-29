@@ -623,3 +623,12 @@ class HexMaze(BaseMaze):
 
             raise ValueError('Invalid direction for %s: %s' % (
                 str(room_pos), str(direction)))
+
+        def _get_direction(self):
+            """
+            @see Maze.Wall._get_direction
+            """
+            if (self.room_pos[1] % 2 == 1) and self._DIRECTIONS[self.wall][1]:
+                return self._DIRECTIONS[self.wall][1]
+            else:
+                return self._DIRECTIONS[self.wall][0]

@@ -104,6 +104,27 @@ def Maze_Wall_direction():
 
 
 @test
+def HexMaze_Wall_direction():
+    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.LEFT).direction, (-1, 0))
+    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.LEFT).direction, (-1, 0))
+
+    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT).direction, (-1, 1))
+    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.UP_LEFT).direction, (0, 1))
+
+    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT).direction, (0, 1))
+    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.UP_RIGHT).direction, (1, 1))
+
+    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT).direction, (1, 0))
+    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT).direction, (1, 0))
+
+    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT).direction, (0, -1))
+    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.DOWN_RIGHT).direction, (1, -1))
+
+    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT).direction, (-1, -1))
+    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.DOWN_LEFT).direction, (0, -1))
+
+
+@test
 def Maze_Wall_back():
     assert Maze.Wall((1, 1), Maze.Wall.LEFT).back \
             == Maze.Wall((0, 1), Maze.Wall.RIGHT), \
