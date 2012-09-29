@@ -148,6 +148,17 @@ def Maze_get_center():
 
 
 @test
+def HexMaze_get_center():
+    maze = HexMaze(10, 20)
+
+    assert_eq(maze.get_center((0, 0)), (0.5, 0.5))
+    assert sum(abs(a - b) for a, b in zip(
+            maze.get_center((0, 1)),
+            (1.0, 0.5 + 1.0 - 0.5 * math.sin(5 * math.pi / 6)))) < 0.001, \
+        'The room (0, 1) is incorrectly centered'
+
+
+@test
 def Maze_edge():
     maze = Maze(10, 20)
 

@@ -611,6 +611,8 @@ class HexMaze(BaseMaze):
             NAMES.append(name.lower())
             WALLS.append(i)
 
+        VERTICAL_MULTIPLICATOR = 1.0 - 0.5 * math.sin(_ANGLES[1])
+
         @classmethod
         def from_direction(self, room_pos, direction):
             """
@@ -632,3 +634,11 @@ class HexMaze(BaseMaze):
                 return self._DIRECTIONS[self.wall][1]
             else:
                 return self._DIRECTIONS[self.wall][0]
+
+    def get_center(self, room_pos):
+        """
+        @see Maze.get_center
+        """
+        center_x = room_pos[0] + (1.0 if room_pos[1] % 2 == 1 else 0.5)
+        center_y = self.Wall.VERTICAL_MULTIPLICATOR * room_pos[1] + 0.5
+        return (center_x, center_y)
