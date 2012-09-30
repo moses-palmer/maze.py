@@ -89,11 +89,20 @@ def make_image(maze, solution):
     room_width, room_height = (10, 10)
     image_file = 'maze.png'
 
+    # Calculate the actual size of the image
+    max_x, max_y = 0, 0
+    for y in xrange(maze.height):
+        row = (maze.width - 1,) if y < maze.height - 1 else xrange(maze.width)
+        for x in row:
+            cx, cy = maze.get_center((x, y))
+            max_x = max(max_x, cx + 0.5)
+            max_y = max(max_y, cy + 0.5)
+
     # Create the cairo surface and context
     surface = cairo.ImageSurface(
         cairo.FORMAT_RGB24,
-        maze.width * room_width + 2 * wall_width,
-        maze.height * room_height + 2 * wall_width)
+        int(max_x * room_width) + 2 * wall_width,
+        int(max_y * room_height) + 2 * wall_width)
     ctx = cairo.Context(surface)
 
     # Calculate the multiplication factor for the room size
@@ -116,7 +125,7 @@ def make_image(maze, solution):
         offset_x, offset_y = maze.get_center((x, y))
         ctx.translate(
             offset_x * room_width + wall_width,
-            (maze.height - offset_y) * room_height + wall_width)
+            (max_y - offset_y) * room_height + wall_width)
 
         # Draw the walls
         ctx.set_source_rgb(*wall_color)
