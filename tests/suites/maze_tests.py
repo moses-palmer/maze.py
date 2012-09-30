@@ -163,6 +163,28 @@ def Maze_Wall_back():
 
 
 @test
+def HexMaze_Wall_back():
+    assert HexMaze.Wall((1, 1), HexMaze.Wall.LEFT).back \
+            == HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT), \
+        'Back of left wall in (1, 1) was incorrect'
+    assert HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT).back \
+            == HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT), \
+        'Back of up-left wall in (1, 1) was incorrect'
+    assert HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT).back \
+            == HexMaze.Wall((2, 2), HexMaze.Wall.DOWN_LEFT), \
+        'Back of up-right wall in (1, 1) was incorrect'
+    assert HexMaze.Wall((1, 1), HexMaze.Wall.RIGHT).back \
+            == HexMaze.Wall((2, 1), HexMaze.Wall.LEFT), \
+        'Back of right wall in (1, 1) was incorrect'
+    assert HexMaze.Wall((1, 1), HexMaze.Wall.DOWN_RIGHT).back \
+            == HexMaze.Wall((2, 0), HexMaze.Wall.UP_LEFT), \
+        'Back of down-right wall in (1, 1) was incorrect'
+    assert HexMaze.Wall((1, 1), HexMaze.Wall.DOWN_LEFT).back \
+            == HexMaze.Wall((1, 0), HexMaze.Wall.UP_RIGHT), \
+        'Back of down-left wall in (1, 1) was incorrect'
+
+
+@test
 def Maze_get_center():
     maze = Maze(10, 20)
 
