@@ -231,6 +231,35 @@ def Maze_edge():
 
 
 @test
+def HexMaze_edge():
+    maze = HexMaze(10, 20)
+
+    for x in xrange(-5, maze.width + 5):
+        for y in xrange(-5, maze.height + 5):
+            for w in maze.Wall.WALLS:
+                expected = (x, y) in maze and (False
+                    or (w == maze.Wall.LEFT and x == 0)
+                    or ((w == maze.Wall.UP_LEFT or w == maze.Wall.UP_RIGHT)
+                        and y == maze.height - 1)
+                    or (w == maze.Wall.UP_LEFT and x == 0 and not y % 2)
+                    or (w == maze.Wall.UP_RIGHT and x == maze.width - 1
+                        and y % 2)
+                    or (w == maze.Wall.RIGHT and x == maze.width - 1)
+                    or ((w == maze.Wall.DOWN_RIGHT or w == maze.Wall.DOWN_LEFT)
+                        and y == 0)
+                    or (w == maze.Wall.DOWN_RIGHT and x == maze.width - 1
+                        and y % 2)
+                    or (w == maze.Wall.DOWN_LEFT and x == 0 and not y % 2))
+
+                actual = maze.edge(maze.Wall((x, y), w))
+                assert expected == actual, \
+                    '((%d, %d), %s)) was incorrectly labelled as %s' % (
+                        x, y,
+                        maze.Wall.NAMES[w],
+                        'edge' if not expected else 'non-edge')
+
+
+@test
 def Maze_walk_path():
     """Tests that the shortest path is selected"""
     maze = Maze(10, 20)
