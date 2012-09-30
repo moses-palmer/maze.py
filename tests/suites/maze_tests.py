@@ -308,7 +308,7 @@ def all_mazes(test):
     A decorator used to run a particular test for all types of mazes.
     """
     def inner():
-        for maze_class in (Maze,):
+        for maze_class in (Maze, HexMaze):
             maze = maze_class(10, 20)
             try:
                 test(maze)
