@@ -281,6 +281,28 @@ def Maze_walk_path():
         [(0, 0), (1, 0), (2, 0)])
 
 
+@test
+def HexMaze_walk_path():
+    """Tests that the shortest path is selected"""
+    maze = HexMaze(10, 20)
+
+    maze[(0, 0):(0, 1)] = True
+    maze[(0, 1):(1, 1)] = True
+    maze[(1, 1):(2, 1)] = True
+    maze[(2, 1):(2, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((0, 0), (2, 0))),
+        [(0, 0), (0, 1), (1, 1), (2, 1), (2, 0)])
+
+    maze[(0, 0):(1, 0)] = True
+    maze[(1, 0):(2, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((0, 0), (2, 0))),
+        [(0, 0), (1, 0), (2, 0)])
+
+
 def all_mazes(test):
     """
     A decorator used to run a particular test for all types of mazes.
