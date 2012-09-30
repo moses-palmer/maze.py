@@ -96,6 +96,28 @@ def Maze_Wall_opposite():
 
 
 @test
+def HexMaze_Wall_opposite():
+    assert_eq(
+        HexMaze.Wall((0, 0), HexMaze.Wall.LEFT).opposite,
+        HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT))
+    assert_eq(
+        HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT).opposite,
+        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT))
+    assert_eq(
+        HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT).opposite,
+        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT))
+    assert_eq(
+        HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT).opposite,
+        HexMaze.Wall((0, 0), HexMaze.Wall.LEFT))
+    assert_eq(
+        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT).opposite,
+        HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT))
+    assert_eq(
+        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT).opposite,
+        HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT))
+
+
+@test
 def Maze_Wall_direction():
     assert_eq(Maze.Wall((0, 0), Maze.Wall.LEFT).direction, (-1, 0))
     assert_eq(Maze.Wall((0, 0), Maze.Wall.UP).direction, (0, 1))
