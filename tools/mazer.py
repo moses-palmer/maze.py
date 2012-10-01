@@ -3,7 +3,7 @@ import random
 from maze import Maze, HexMaze
 from maze.randomized_prim import initialize
 
-def print_maze(maze, solution):
+def print_maze(maze, solution, wall_char, path_char, floor_char):
     import sys
 
     if len(maze.Wall.WALLS) != 4:
@@ -13,9 +13,6 @@ def print_maze(maze, solution):
     def output(s):
         sys.stdout.write(s)
 
-    wall_char = '@'
-    path_char = '.'
-    floor_char = ' '
     room_size = (5, 5)
 
     # Iterate over all rows and make sure to start with the last to maintain the
@@ -213,6 +210,21 @@ if __name__ == '__main__':
         default = 4,
         help = 'The number of walls for every room.')
 
+    def char(s):
+        if len(s) != 1:
+            raise argparse.ArgumentTypeError('%s is not a valid character' % s)
+        else:
+            return s
+    parser.add_argument('--print-wall-char', type = char,
+        default = '@',
+        help = 'The character used for walls when printing the maze.')
+    parser.add_argument('--print-path-char', type = char,
+        default = '.',
+        help = 'The character used for the path when printing the maze.')
+    parser.add_argument('--print-floor-char', type = char,
+        default = ' ',
+        help = 'The character used for the floor when printing the maze.')
+
     namespace = parser.parse_args()
 
     # Create and initialise the maze
@@ -220,5 +232,8 @@ if __name__ == '__main__':
     initialize(maze, lambda max: random.randint(0, max - 1))
     solution = list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1)))
 
-    print_maze(maze, solution)
+    print_maze(maze, solution,
+        namespace.print_wall_char,
+        namespace.print_path_char,
+        namespace.print_floor_char)
     make_image(maze, solution)
