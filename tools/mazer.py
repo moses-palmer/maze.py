@@ -3,7 +3,7 @@ import random
 from maze import Maze, HexMaze
 from maze.randomized_prim import initialize
 
-def print_maze(maze, solution, wall_char, path_char, floor_char):
+def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
     import sys
 
     if len(maze.Wall.WALLS) != 4:
@@ -12,8 +12,6 @@ def print_maze(maze, solution, wall_char, path_char, floor_char):
 
     def output(s):
         sys.stdout.write(s)
-
-    room_size = (5, 5)
 
     # Iterate over all rows and make sure to start with the last to maintain the
     # orientation of the maze
@@ -225,6 +223,18 @@ if __name__ == '__main__':
         default = ' ',
         help = 'The character used for the floor when printing the maze.')
 
+    def print_room_size(s):
+        result = int(s)
+        if result < 3:
+            raise argparse.ArgumentTypeError(
+                'The room size must be greater than 3')
+        else:
+            return result
+    parser.add_argument('--print-room-size', type = print_room_size,
+        nargs = 2,
+        default = (5, 4),
+        help = 'The size of each room in characters when printing the maze.')
+
     namespace = parser.parse_args()
 
     # Create and initialise the maze
@@ -235,5 +245,7 @@ if __name__ == '__main__':
     print_maze(maze, solution,
         namespace.print_wall_char,
         namespace.print_path_char,
-        namespace.print_floor_char)
+        namespace.print_floor_char,
+        namespace.print_room_size)
     make_image(maze, solution)
+
