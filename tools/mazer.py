@@ -6,6 +6,10 @@ from maze.randomized_prim import initialize
 def print_maze(maze, solution):
     import sys
 
+    if len(maze.Wall.WALLS) != 4:
+        print 'This maze cannot be printed as it is not square'
+        return
+
     def output(s):
         sys.stdout.write(s)
 
