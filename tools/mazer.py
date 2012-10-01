@@ -185,10 +185,27 @@ def make_image(maze, solution):
 
 
 if __name__ == '__main__':
-    maze_size = (15, 10)
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description = 'A tool to generate mazes')
+
+    def maze_size(s):
+        result = int(s)
+        if result < 1:
+            raise argparse.ArgumentTypeError(
+                'The maze size must be greater than 0')
+        else:
+            return result
+    parser.add_argument('--maze-size', type = maze_size, nargs = 2,
+        metavar = ('WIDTH', 'HEIGHT'),
+        default = (15, 10),
+        help = 'The size of the maze.')
+
+    namespace = parser.parse_args()
 
     # Create and initialise the maze
-    maze = Maze(*maze_size)
+    maze = Maze(*namespace.maze_size)
     initialize(maze, lambda max: random.randint(0, max - 1))
     solution = list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1)))
 
