@@ -1,6 +1,6 @@
 import random
 
-from maze import Maze
+from maze import Maze, HexMaze
 from maze.randomized_prim import initialize
 
 def print_maze(maze, solution):
@@ -206,10 +206,17 @@ if __name__ == '__main__':
         default = (15, 10),
         help = 'The size of the maze.')
 
+    maze_classes = dict((len(mc.Wall.WALLS), mc) for mc in (
+        Maze, HexMaze))
+    parser.add_argument('--walls', type = int,
+        choices = maze_classes.keys(),
+        default = 4,
+        help = 'The number of walls for every room.')
+
     namespace = parser.parse_args()
 
     # Create and initialise the maze
-    maze = Maze(*namespace.maze_size)
+    maze = maze_classes[namespace.walls](*namespace.maze_size)
     initialize(maze, lambda max: random.randint(0, max - 1))
     solution = list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1)))
 
