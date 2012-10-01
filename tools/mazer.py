@@ -157,8 +157,8 @@ def make_image(maze, solution):
             for wall in maze.walls((x, y)):
                 def angle_to_coordinate(angle):
                     return (
-                        0.5 * room_width *  math.cos(angle),
-                        -0.5 * room_height *  math.sin(angle))
+                        0.5 / dy * room_width *  math.cos(angle),
+                        -0.5 / dx * room_height *  math.sin(angle))
 
                 # Do nothing if the room on the other side is not on the path
                 try:
