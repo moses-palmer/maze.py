@@ -71,7 +71,7 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
             output('\n')
 
 
-def make_image(maze, solution, (room_width, room_height)):
+def make_image(maze, solution, (room_width, room_height), image_file):
     import math
 
     try:
@@ -85,7 +85,6 @@ def make_image(maze, solution, (room_width, room_height)):
     wall_width = 2
     path_color = (0.8, 0.4, 0.2)
     path_width = 2
-    image_file = 'maze.png'
 
     # Calculate the actual size of the image
     max_x, max_y = 0, 0
@@ -246,6 +245,14 @@ if __name__ == '__main__':
         default = (30, 30),
         help = 'The size of the rooms in the maze image.')
 
+    class default:
+        def write(*args, **kwargs):
+            pass
+    parser.add_argument('--image-file', type = argparse.FileType('w'),
+        metavar = 'FILENAME',
+        default = default(),
+        help = 'The name of the PNG file to create.')
+
     namespace = parser.parse_args()
 
     # Create and initialise the maze
@@ -259,5 +266,6 @@ if __name__ == '__main__':
         namespace.print_floor_char,
         namespace.print_room_size)
     make_image(maze, solution,
-        namespace.image_room_size)
+        namespace.image_room_size,
+        namespace.image_file)
 
