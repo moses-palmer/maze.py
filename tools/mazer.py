@@ -1,4 +1,5 @@
 import random
+import re
 
 from maze import Maze, HexMaze
 from maze.randomized_prim import initialize
@@ -71,7 +72,8 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
             output('\n')
 
 
-def make_image(maze, solution, (room_width, room_height), image_file):
+def make_image(maze, solution, (room_width, room_height), image_file,
+        background_color, wall_color, path_color):
     import math
 
     try:
@@ -80,10 +82,7 @@ def make_image(maze, solution, (room_width, room_height), image_file):
         print 'cairo is not installed, not generating image'
         return
 
-    background_color = (0.0, 0.0, 0.0)
-    wall_color = (1.0, 1.0, 1.0)
     wall_width = 2
-    path_color = (0.8, 0.4, 0.2)
     path_width = 2
 
     # Calculate the actual size of the image
@@ -253,6 +252,43 @@ if __name__ == '__main__':
         default = default(),
         help = 'The name of the PNG file to create.')
 
+    def color(s):
+        result = None
+        m = re.match(r'''(?x)
+            \#(?P<red>[0-9A-Fa-f]{2})
+             (?P<green>[0-9A-Fa-f]{2})
+             (?P<blue>[0-9A-Fa-f]{2})''', s)
+        if not m is None:
+            result = tuple(float(int(d, 16)) / 255 for d in m.groups())
+        else:
+            m = re.match(r'''(?x)
+                rgb\(
+                    \s*(?P<red>\d{1,3}%?)\s*,
+                    \s*(?P<green>\d{1,3}%?)\s*,
+                    \s*(?P<blue>\d{1,3}%?)\s*\)''', s)
+            if not m is None:
+                result = tuple(float(d) / 255 if d[-1].isdigit()
+                    else float(d[:-1]) / 100 for d in m.groups())
+        if result is None or any(r < 0 or r > 1.0 for r in result):
+            raise argparse.ArgumentTypeError(
+                '"%s" is not a valid colour.' % s)
+        return result
+    parser.add_argument('--image-background-color', type = color,
+        metavar = 'COLOUR',
+        default = (0.0, 0.0, 0.0),
+        help = 'The background colour of the image. This must be specified as '
+            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+    parser.add_argument('--image-wall-color', type = color,
+        metavar = 'COLOUR',
+        default = (1.0, 1.0, 1.0),
+        help = 'The colour of the wall in the image. This must be specified as '
+            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+    parser.add_argument('--image-path-color', type = color,
+        metavar = 'COLOUR',
+        default = (0.8, 0.4, 0.2),
+        help = 'The colour of the path in the image. This must be specified as '
+            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+
     namespace = parser.parse_args()
 
     # Create and initialise the maze
@@ -267,5 +303,8 @@ if __name__ == '__main__':
         namespace.print_room_size)
     make_image(maze, solution,
         namespace.image_room_size,
-        namespace.image_file)
+        namespace.image_file,
+        namespace.image_background_color,
+        namespace.image_wall_color,
+        namespace.image_path_color)
 
