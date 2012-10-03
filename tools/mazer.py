@@ -73,7 +73,7 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
 
 
 def make_image(maze, solution, (room_width, room_height), image_file,
-        background_color, wall_color, path_color):
+        background_color, wall_color, path_color, wall_width, path_width):
     import math
 
     try:
@@ -81,9 +81,6 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     except ImportError:
         print 'cairo is not installed, not generating image'
         return
-
-    wall_width = 2
-    path_width = 2
 
     # Calculate the actual size of the image
     max_x, max_y = 0, 0
@@ -289,6 +286,25 @@ if __name__ == '__main__':
         help = 'The colour of the path in the image. This must be specified as '
             'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
 
+    def line_width(s):
+        result = int(s)
+        if result < 2:
+            raise argparse.ArgumentTypeError(
+                'The maze size must be greater than 1')
+        elif result & 1:
+            raise argparse.ArgumentTypeError(
+                'The maze size must be an even number')
+        else:
+            return result
+    parser.add_argument('--image-wall-width', type = line_width,
+        metavar = 'WIDTH',
+        default = 2,
+        help = 'The width of the maze wall lines.')
+    parser.add_argument('--image-path-width', type = line_width,
+        metavar = 'WIDTH',
+        default = 2,
+        help = 'The width of the maze path lines.')
+
     namespace = parser.parse_args()
 
     # Create and initialise the maze
@@ -306,5 +322,7 @@ if __name__ == '__main__':
         namespace.image_file,
         namespace.image_background_color,
         namespace.image_wall_color,
-        namespace.image_path_color)
+        namespace.image_path_color,
+        namespace.image_wall_width,
+        namespace.image_path_width)
 
