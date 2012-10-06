@@ -71,6 +71,17 @@ class BaseMaze(object):
             for wall in self.WALLS:
                 yield self(room_pos, wall)
 
+        def _get_opposite_index(self):
+            """
+            Returns the index of the opposite wall.
+
+            The opposite wall is the wall in the same room with a span opposing
+            this wall.
+
+            @return the opposite wall
+            """
+            return (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
+
         def _get_opposite(self):
             """
             Returns the opposite wall.
@@ -81,8 +92,7 @@ class BaseMaze(object):
             @return the opposite wall
             @raise ValueError if no opposite room exists
             """
-            return self.__class__(self.room_pos,
-                (self.wall + len(self.WALLS) / 2) % len(self.WALLS))
+            return self.__class__(self.room_pos, self._get_opposite_index())
 
         def _get_direction(self):
             """
@@ -124,14 +134,10 @@ class BaseMaze(object):
         @property
         def back(self):
             """The wall on the other side of the wall."""
-            direction = self._get_direction()
-
-            other_pos = (
-                self.room_pos[0] + direction[0],
-                self.room_pos[1] + direction[1])
-            other_wall = (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
-
-            return self.__class__(other_pos, other_wall)
+            return self.__class__(
+                tuple(r + d
+                    for r, d in zip(self.room_pos, self._get_direction())),
+                self._get_opposite_index())
 
         @property
         def span(self):
