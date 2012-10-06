@@ -587,6 +587,18 @@ def Maze_contains(maze):
 
 @test
 @all_mazes
+def Maze_contains(maze):
+    """Tests that wall in maze works"""
+    for x in xrange(-5, maze.width + 5):
+        for y in xrange(-5, maze.height + 5):
+            expected = x >= 0 and x < maze.width and y >= 0 and y < maze.height
+            actual = maze.Wall((x, y), 0) in maze
+            assert expected == actual, \
+                '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
+
+
+@test
+@all_mazes
 def Maze_width_and_height(maze):
     """Tests that the width and height properties are correct"""
     maze1 = maze.__class__(10, 20)

@@ -265,9 +265,13 @@ class BaseMaze(object):
 
         raise TypeError()
 
-    def __contains__(self, room_pos):
-        return room_pos[0] >= 0 and room_pos[0] < self.width \
-            and room_pos[1] >= 0 and room_pos[1] < self.height
+    def __contains__(self, item):
+        if isinstance(item, tuple) and len(item) == 2:
+            x, y = item
+            return x >= 0 and x < self.width and y >= 0 and y < self.height
+
+        if isinstance(item, self.Wall):
+            return item.room_pos in self
 
     def __iter__(self):
         return (room_pos for room_pos in self.room_positions if self[room_pos])
@@ -411,7 +415,7 @@ class BaseMaze(object):
             The wall.
         @return whether the wall is on the edge of the maze
         """
-        return wall.room_pos in self and not wall.back.room_pos in self
+        return wall in self and not wall.back in self
 
     def walls(self, room_pos):
         """
