@@ -180,43 +180,24 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     # Draw the path
     ctx.set_source_rgb(*path_color)
     ctx.set_line_width(path_width)
-    for x, y in maze:
-        if (x, y) in solution:
-            for wall in maze.walls((x, y)):
-                def angle_to_coordinate(angle):
-                    return (
-                        0.5 / dy * room_width *  math.cos(angle),
-                        -0.5 / dx * room_height *  math.sin(angle))
+    for i, (x, y) in enumerate(solution):
+        ctx.save()
 
-                # Do nothing if the room on the other side is not on the path
-                try:
-                    if not maze.walk(wall, True) in solution:
-                        continue
-                except IndexError:
-                    continue
-                except ValueError:
-                    continue
+        # Make (0.0, 0.0) the centre of the room
+        offset_x, offset_y = maze.get_center((x, y))
+        ctx.translate(
+            offset_x * room_width + wall_width,
+            (max_y - offset_y) * room_height + wall_width)
 
-                # Calculate the angle in the middle of the wall span
-                angle = math.atan2(
-                    sum(math.sin(a) for a in wall.span),
-                    sum(math.cos(a) for a in wall.span))
+        # Draw a line from the centre to the middle of the wall span
+        if i == 0:
+            ctx.move_to(0, 0)
+        else:
+            ctx.line_to(0, 0)
 
-                ctx.save()
+        ctx.restore()
 
-                # Make (0.0, 0.0) the centre of the room
-                offset_x, offset_y = maze.get_center(wall.room_pos)
-                ctx.translate(
-                    offset_x * room_width + wall_width,
-                    (max_y - offset_y) * room_height + wall_width)
-
-                # Draw a line from the centre to the middle of the wall span
-                ctx.move_to(0, 0)
-                ctx.line_to(*angle_to_coordinate(angle))
-
-                ctx.restore()
-
-            ctx.stroke()
+    ctx.stroke()
 
     surface.write_to_png(image_file)
 
