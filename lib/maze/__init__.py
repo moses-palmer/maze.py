@@ -78,6 +78,32 @@ class BaseMaze(object):
             for wall in self.WALLS:
                 yield self(room_pos, wall)
 
+        @classmethod
+        def from_corner(self, room_pos, wall_index):
+            """
+            Generates all walls that meet in the corner where the wall has its
+            start span.
+
+            The walls are generated counter-clockwise, starting with the wall
+            described by the parameters.
+
+            @param room_pos
+                The position of the room.
+            @param wall_index
+                The index of the wall.
+            """
+            wall = start_wall = self(room_pos, wall_index)
+
+            while True:
+                yield wall
+
+                back = wall.back
+                next = self(back.room_pos, (back.wall + 1) % len(self.WALLS))
+                if next == start_wall:
+                    break
+
+                wall = next
+
         def _get_opposite_index(self):
             """
             Returns the index of the opposite wall.

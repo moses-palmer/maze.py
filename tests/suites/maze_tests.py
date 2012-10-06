@@ -80,6 +80,51 @@ def HexMaze_Wall_from_direction():
 
 
 @test
+def Maze_Wall_from_corner():
+    assert_eq(
+        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
+        (
+            Maze.Wall((1, 1), Maze.Wall.UP),
+            Maze.Wall((1, 2), Maze.Wall.LEFT),
+            Maze.Wall((0, 2), Maze.Wall.DOWN),
+            Maze.Wall((1, 1), Maze.Wall.LEFT)))
+    assert_eq(
+        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.LEFT)),
+        (
+            Maze.Wall((1, 1), Maze.Wall.LEFT),
+            Maze.Wall((0, 1), Maze.Wall.DOWN),
+            Maze.Wall((0, 0), Maze.Wall.RIGHT),
+            Maze.Wall((1, 1), Maze.Wall.DOWN)))
+
+
+@test
+def Maze_Wall_from_corner():
+    assert_eq(
+        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
+        (
+            Maze.Wall((1, 1), Maze.Wall.UP),
+            Maze.Wall((1, 2), Maze.Wall.LEFT),
+            Maze.Wall((0, 2), Maze.Wall.DOWN),
+            Maze.Wall((1, 1), Maze.Wall.LEFT)))
+
+
+@test
+def HexMaze_Wall_from_corner():
+    assert_eq(
+        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_LEFT)),
+        (
+            HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT),
+            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_LEFT),
+            HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT)))
+    assert_eq(
+        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_RIGHT)),
+        (
+            HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT),
+            HexMaze.Wall((2, 2), HexMaze.Wall.LEFT),
+            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT)))
+
+
+@test
 def Maze_Wall_opposite():
     assert_eq(
         Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
