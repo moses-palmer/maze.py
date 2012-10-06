@@ -31,9 +31,16 @@ class BaseMaze(object):
         """
 
         def __eq__(self, other):
-            return isinstance(other, self.__class__) \
-                and self.wall == other.wall \
-                and self.room_pos == other.room_pos
+            if not isinstance(other, self.__class__):
+                return False
+            if self.wall == other.wall and self.room_pos == other.room_pos:
+                return True
+            if self.wall == other._get_opposite_index() \
+                    and all(s + d == o for s, d, o in zip(
+                        self.room_pos,
+                        self.direction,
+                        other.room_pos)):
+                return True
 
         def __int__(self):
             return self.wall

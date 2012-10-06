@@ -336,6 +336,10 @@ def Maze_Wall_eq(maze):
             != maze.Wall((1, 2), maze.Wall.WALLS[1]), \
         'Walls with different wall index and equal positions compared equally'
 
+    for w in maze.Wall.WALLS:
+        assert maze.Wall((1, 2), w) == maze.Wall((1, 2), w).back, \
+            'Wall did not compare equally with its back'
+
 
 @test
 @all_mazes
