@@ -173,6 +173,12 @@ class BaseMaze(object):
                 self._get_opposite_index())
 
         @property
+        def corner_walls(self):
+            """All walls in the corner that contains the start span of this
+            wall."""
+            return self.__class__.from_corner(self.room_pos, self.wall)
+
+        @property
         def span(self):
             """The span of this wall"""
             return self._get_span()
