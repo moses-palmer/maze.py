@@ -115,7 +115,17 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         maze[room_pos].painted = set()
 
     # Initialise the wall queue
-    queue = [maze.Wall((0, 0), 0)]
+    queue = []
+    def extend_queue():
+        for room_pos in maze.room_positions:
+            remaining = [w
+                for w in maze.walls(room_pos)
+                if not int(w) in maze[w.room_pos]
+                    and not int(w) in maze[w.room_pos].painted]
+            if remaining:
+                queue.extend(remaining)
+                break
+    extend_queue()
 
     # Draw the walls
     ctx.set_source_rgb(*wall_color)
@@ -174,6 +184,10 @@ def make_image(maze, solution, (room_width, room_height), image_file,
             needs_move = True
         else:
             needs_move = False
+
+        # If the queue is empty, check if any walls remain
+        if not queue:
+            extend_queue()
 
     ctx.stroke()
 
