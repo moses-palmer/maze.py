@@ -353,16 +353,8 @@ class BaseMaze(object):
         """
         self.rooms = [[self.__class__.Room() for x in xrange(width)]
             for y in xrange(height)]
-
-    @property
-    def height(self):
-        """The height of the maze."""
-        return len(self.rooms)
-
-    @property
-    def width(self):
-        """The width of the maze."""
-        return len(self.rooms[0])
+        self.width = width
+        self.height = height
 
     @property
     def room_positions(self):
