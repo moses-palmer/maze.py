@@ -167,9 +167,11 @@ class BaseMaze(object):
         @property
         def back(self):
             """The wall on the other side of the wall."""
+            direction = self._get_direction()
             return self.__class__(
-                tuple(r + d
-                    for r, d in zip(self.room_pos, self._get_direction())),
+                (
+                    self.room_pos[0] + direction[0],
+                    self.room_pos[1] + direction[1]),
                 self._get_opposite_index())
 
         @property
