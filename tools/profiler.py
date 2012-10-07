@@ -83,6 +83,12 @@ def maze_randomized_prim(maze):
     initialize(maze, rand)
 
 
+@profiler
+def Maze_walk_path(maze):
+    list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1)))
+Maze_walk_path.initializer = lambda maze: initialize(maze, rand)
+
+
 if __name__ == '__main__':
     for profiler in PROFILERS:
         profiler()
