@@ -303,7 +303,8 @@ class BaseMaze(object):
             return x >= 0 and x < self.width and y >= 0 and y < self.height
 
         if isinstance(item, self.Wall):
-            return item.room_pos in self
+            x, y = item.room_pos
+            return x >= 0 and x < self.width and y >= 0 and y < self.height
 
     def __iter__(self):
         return (room_pos for room_pos in self.room_positions if self[room_pos])
