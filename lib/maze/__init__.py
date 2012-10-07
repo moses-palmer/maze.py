@@ -30,6 +30,10 @@ class BaseMaze(object):
           * The span is the physical start and end angle of the wall.
         """
 
+        __slots__ = (
+            'wall',
+            'room_pos')
+
         def __eq__(self, other):
             if not isinstance(other, self.__class__):
                 return False
@@ -612,6 +616,8 @@ class Maze(BaseMaze):
         NAMES = []
         WALLS = []
 
+        __slots__ = tuple()
+
         start_angle = (5 * math.pi) / 4
         data = (
             ('LEFT', -1, 0),
@@ -642,6 +648,8 @@ class HexMaze(BaseMaze):
         _DIRECTIONS = []
         NAMES = []
         WALLS = []
+
+        __slots__ = tuple()
 
         start_angle = math.pi / 2 + (2 * 2 * math.pi) / 6
         data = (
