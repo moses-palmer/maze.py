@@ -78,6 +78,11 @@ def profiler(func):
     return func
 
 
+@profiler
+def maze_randomized_prim(maze):
+    initialize(maze, rand)
+
+
 if __name__ == '__main__':
     for profiler in PROFILERS:
         profiler()
