@@ -27,7 +27,7 @@ def initialize(maze, randomizer):
         # Is this the first time we visit this room?
         if not maze[next_room_pos]:
             # Add a door to the wall
-            maze[wall.room_pos:next_room_pos] = True
+            maze.set_door(wall.room_pos, wall, True)
 
             # Add all walls of the new room except those on the edge and those
             # leading to rooms already visited
