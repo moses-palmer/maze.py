@@ -1,3 +1,4 @@
+import bisect
 import math
 import sys
 
@@ -564,7 +565,7 @@ class BaseMaze(object):
 
         while open_set:
             # Get the node in open_set having the lowest f_score value
-            cost, current = open_set.pop()
+            cost, current = open_set.pop(0)
 
             # Have we reached the goal?
             if current == to_pos:
@@ -595,8 +596,7 @@ class BaseMaze(object):
 
                     # Insert the next room while keeping open_set sorted
                     if not next in open_set:
-                        open_set.append((f, next))
-                        open_set.sort(reverse = True)
+                        bisect.insort(open_set, (f, next))
 
         raise ValueError()
 
