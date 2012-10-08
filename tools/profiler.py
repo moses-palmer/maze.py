@@ -89,6 +89,20 @@ def Maze_walk_path(maze):
 Maze_walk_path.initializer = lambda maze: initialize(maze, rand)
 
 
+def Maze_walk_path_open_initialize(maze):
+    initialize(maze, rand)
+    for x in xrange(3, maze.width - 3):
+        for y in xrange(3, maze.height - 3):
+            for w in maze.walls((x, y)):
+                maze[(x, y):w.back.room_pos] = True
+
+@profiler
+def Maze_walk_path_open(maze):
+    list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1)))
+Maze_walk_path_open.initializer = Maze_walk_path_open_initialize
+Maze_walk_path_open.maze_size = (13, 13)
+
+
 if __name__ == '__main__':
     for profiler in PROFILERS:
         profiler()
