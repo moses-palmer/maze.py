@@ -538,62 +538,67 @@ class BaseMaze(object):
             yield from_pos
             return
 
-        # Create the matrix of the walls we used to enter the room
-        rooms = [[list((-1, sys.maxint)) for x in xrange(self.width)]
-            for y in xrange(self.height)]
-        def get_wall(room_pos):
-            return rooms[room_pos[1]][room_pos[0]][0]
-        def set_wall(room_pos, value):
-            rooms[room_pos[1]][room_pos[0]][0] = value
-        def get_distance(room_pos):
-            return rooms[room_pos[1]][room_pos[0]][1]
-        def set_distance(room_pos, value):
-            rooms[room_pos[1]][room_pos[0]][1] = value
+        # Swap from_pos and to pos to make reconstructing the path easier
+        from_pos, to_pos = to_pos, from_pos
 
-        # Perform a breadth-first search of the maze
-        shortest = sys.maxint
-        queue = [(0, to_pos)]
-        while queue:
-            (distance, room_pos) = queue.pop()
+        def h(room_pos):
+            """The heuristic for a room"""
+            return sum((t - f)**2 for f, t in zip(room_pos, to_pos))
 
-            # If we have walked further than a previously found solution, abort
-            if distance + 1 > shortest:
-                continue
+        # The rooms already evaluated
+        closed_set = []
 
-            for wall in self.doors(room_pos):
-                # Do not crash on doors leading out of the maze
-                try:
-                    next_pos = self.walk(wall)
-                except IndexError:
+        # The rooms pending evaluation; this list is sorted on cost
+        open_set = [(sys.maxint, from_pos)]
+
+        # The cost from from_pos to the room along the best known path
+        g_score = {}
+        g_score[from_pos] = 0
+
+        # The estimated cost from from_pos to to_pos through the room
+        f_score = {}
+        f_score[from_pos] = h(from_pos)
+
+        # The room from which we entered a room
+        came_from = {}
+
+        while open_set:
+            # Get the node in open_set having the lowest f_score value
+            cost, current = open_set.pop()
+
+            # Have we reached the goal?
+            if current == to_pos:
+                while current != from_pos:
+                    yield current
+                    current = came_from[current]
+                yield from_pos
+                return
+
+            closed_set.append(current)
+            for wall in self.doors(current):
+                next = wall.back.room_pos
+
+                # Ignore rooms already evaluated or rooms outside of the maze
+                if next in closed_set or not next in self:
                     continue
 
-                # If the room has been visited along a shorter path before,
-                # ignore it
-                if get_distance(next_pos) <= distance:
-                    continue
+                # The cost to get to this room is one more that the room from
+                # which we came
+                g = g_score[current] + 1
 
-                # Update the matrix, since we found the shortest path to the
-                # current room
-                set_wall(next_pos, wall.opposite.wall)
-                set_distance(next_pos, distance + 1)
-                queue.append((distance + 1, next_pos))
+                # Is this a new room, or has the score improved since last?
+                if not next in open_set or g < g_score[next]:
+                    came_from[next] = current
+                    g_score[next] = g
+                    f = g + h(next)
+                    f_score[next] = f
 
-                # Store the current shortest length so that we may ignore rooms
-                # further from the starting point
-                if next_pos == from_pos:
-                    shortest = distance + 1
+                    # Insert the next room while keeping open_set sorted
+                    if not next in open_set:
+                        open_set.append((f, next))
+                        open_set.sort(reverse = True)
 
-        # Make sure that we reached the starting room
-        if rooms[from_pos[0]][from_pos[1]][0] == -1:
-            raise ValueError()
-
-        # Walk from the starting room in the directions found in the previous
-        # step
-        current = from_pos
-        while current != to_pos:
-            yield current
-            current = self.walk_from(current, get_wall(current))
-        yield to_pos
+        raise ValueError()
 
 
 class Maze(BaseMaze):
