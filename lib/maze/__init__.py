@@ -386,6 +386,32 @@ class BaseMaze(object):
         """
         return self._set_door(from_pos, to_pos, False)
 
+    def set_door(self, room_pos, wall, has_door):
+        """
+        Adds or removes a door.
+
+        @param room_pos
+            The coordinates of the room.
+        @param
+            The wall to modify.
+        @param has_door
+            True to add the door and False to remove it.
+        @raise IndexError if a room lies outside of the maze
+        """
+        if not room_pos in self:
+            raise IndexError()
+
+        # Get the coordinate of the other room
+        if not isinstance(wall, self.Wall):
+            wall = self.Wall(room_pos, int(wall))
+        other_wall = wall.back
+        to_pos = other_wall.room_pos
+
+        self[room_pos][wall] = has_door
+
+        if to_pos in self:
+            self[to_pos][other_wall] = has_door
+
     def get_center(self, room_pos):
         """
         Returns the physical coordinates of the centre of a room.
