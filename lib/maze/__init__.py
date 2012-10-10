@@ -26,6 +26,10 @@ class Wall(object):
     def __int__(self):
         return self.wall
 
+    def __str__(self):
+        return self.NAMES[self.wall] + '@' + str(self.room_pos)
+    __repr__ = __str__
+
     def __init__(self, room_pos, wall):
         self.room_pos = room_pos
         self.wall = wall
