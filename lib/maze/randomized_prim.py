@@ -29,8 +29,12 @@ def initialize(maze, randomizer):
             # Add a door to the wall
             maze.set_door(wall.room_pos, wall, True)
 
-            # Add all walls of the new room except those on the edge and those
-            # leading to rooms already visited
-            walls.extend(w for w in maze.walls(next_room_pos)
-                if not maze.edge(w) and not maze[maze.walk(w)])
+            # Add all walls of the new room except those leading to rooms
+            # already visited or leading out of the maze
+            for w in maze.walls(next_room_pos):
+                try:
+                    if not maze[maze.walk(w)]:
+                        walls.append(w)
+                except IndexError:
+                    pass
 
