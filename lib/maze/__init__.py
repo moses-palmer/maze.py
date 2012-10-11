@@ -526,7 +526,7 @@ class BaseMaze(object):
         result = (room_pos[0] + direction[0], room_pos[1] + direction[1])
 
         if require_door:
-            if not wall.opposite in self[result]:
+            if not wall in self[room_pos]:
                 raise ValueError('(%d, %d) is not inside the maze' % room_pos)
 
         if result in self:
