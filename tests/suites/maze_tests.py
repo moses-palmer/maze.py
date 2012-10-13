@@ -69,17 +69,6 @@ def Maze_Wall_from_corner():
 
 
 @test
-def Maze_Wall_from_corner():
-    assert_eq(
-        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
-        (
-            Maze.Wall((1, 1), Maze.Wall.UP),
-            Maze.Wall((1, 2), Maze.Wall.LEFT),
-            Maze.Wall((0, 2), Maze.Wall.DOWN),
-            Maze.Wall((1, 1), Maze.Wall.LEFT)))
-
-
-@test
 def Maze_Wall_corner_walls():
     assert_eq(
         tuple(Maze.Wall((1, 1), Maze.Wall.UP).corner_walls),
