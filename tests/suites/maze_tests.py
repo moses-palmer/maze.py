@@ -119,35 +119,6 @@ def HexMaze_Wall_opposite():
 
 
 @test
-def Maze_Wall_direction():
-    assert_eq(Maze.Wall((0, 0), Maze.Wall.LEFT).direction, (-1, 0))
-    assert_eq(Maze.Wall((0, 0), Maze.Wall.UP).direction, (0, 1))
-    assert_eq(Maze.Wall((0, 0), Maze.Wall.RIGHT).direction, (1, 0))
-    assert_eq(Maze.Wall((0, 0), Maze.Wall.DOWN).direction, (0, -1))
-
-
-@test
-def HexMaze_Wall_direction():
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.LEFT).direction, (-1, 0))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.LEFT).direction, (-1, 0))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT).direction, (-1, 1))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.UP_LEFT).direction, (0, 1))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT).direction, (0, 1))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.UP_RIGHT).direction, (1, 1))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT).direction, (1, 0))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT).direction, (1, 0))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT).direction, (0, -1))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.DOWN_RIGHT).direction, (1, -1))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT).direction, (-1, -1))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.DOWN_LEFT).direction, (0, -1))
-
-
-@test
 def Maze_Wall_back():
     assert Maze.Wall((1, 1), Maze.Wall.LEFT).back \
             == Maze.Wall((0, 1), Maze.Wall.RIGHT), \
@@ -439,6 +410,30 @@ def Maze_Wall_get_walls(maze):
             assert False, \
                 '%d was found twice' % int(wall)
         walls.add(int(wall))
+
+
+@maze_test(
+    Maze = (
+        ((0, 0), Maze.Wall.LEFT, (-1, 0)),
+        ((0, 0), Maze.Wall.UP, (0, 1)),
+        ((0, 0), Maze.Wall.RIGHT, (1, 0)),
+        ((0, 0), Maze.Wall.DOWN, (0, -1))),
+    HexMaze = (
+        ((0, 0), HexMaze.Wall.LEFT, (-1, 0)),
+        ((0, 1), HexMaze.Wall.LEFT, (-1, 0)),
+        ((0, 0), HexMaze.Wall.UP_LEFT, (-1, 1)),
+        ((0, 1), HexMaze.Wall.UP_LEFT, (0, 1)),
+        ((0, 0), HexMaze.Wall.UP_RIGHT, (0, 1)),
+        ((0, 1), HexMaze.Wall.UP_RIGHT, (1, 1)),
+        ((0, 0), HexMaze.Wall.RIGHT, (1, 0)),
+        ((0, 1), HexMaze.Wall.RIGHT, (1, 0)),
+        ((0, 0), HexMaze.Wall.DOWN_RIGHT, (0, -1)),
+        ((0, 1), HexMaze.Wall.DOWN_RIGHT, (1, -1)),
+        ((0, 0), HexMaze.Wall.DOWN_LEFT, (-1, -1)),
+        ((0, 1), HexMaze.Wall.DOWN_LEFT, (0, -1))))
+def Maze_Wall_direction(maze, data):
+    for room_pos, w, direction in data:
+        assert_eq(maze.Wall(room_pos, w).direction, direction)
 
 
 @maze_test
