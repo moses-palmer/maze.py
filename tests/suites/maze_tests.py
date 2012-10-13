@@ -337,7 +337,7 @@ def HexMaze_walk_path():
 
 MAZE_TYPES = (Maze, HexMaze)
 
-def all_mazes(test = None, except_for = []):
+def all_mazes(test = None, except_for = [], **kwargs):
     """
     A decorator used to run a particular test for all types of mazes.
 
@@ -348,9 +348,11 @@ def all_mazes(test = None, except_for = []):
         A list of maze types for which this test should not be run. This may
         also be a maze type, which it treated as a list containing only that
         type.
+    @param <maze type name> as data
+        Data passed to the test function as the named parameter 'data'. None
     """
     if not test:
-        return lambda test: all_mazes(test, except_for)
+        return lambda test: all_mazes(test, except_for, **kwargs)
 
     try:
         except_for = iter(except_for)
@@ -368,7 +370,10 @@ def all_mazes(test = None, except_for = []):
                 continue
             maze = maze_class(10, 20)
             try:
-                test(maze)
+                if maze.__class__.__name__ in kwargs:
+                    test(maze, data = kwargs[maze.__class__.__name__])
+                else:
+                    test(maze)
             except Exception as e:
                 e.message = 'For %s: %s' % (maze_class.__name__, e.message)
                 raise
