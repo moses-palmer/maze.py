@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 try:
     import cProfile as profile
 except ImportError:
