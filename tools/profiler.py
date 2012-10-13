@@ -7,6 +7,22 @@ import os
 import tempfile
 from pstats import Stats
 
+try:
+    import maze
+except ImportError:
+    import sys
+
+    # Use the in-tree maze library at ../lib/
+    path_entry = os.path.join(
+        os.path.dirname(__file__),
+        os.path.pardir,
+        'lib')
+    if not path_entry in sys.path:
+        sys.path.append(path_entry)
+        import maze
+    else:
+        raise
+
 from maze import Maze, HexMaze
 from maze.randomized_prim import initialize
 
