@@ -20,37 +20,6 @@ import maze.randomized_prim as randomized_prim
 
 
 @test
-def Maze_Wall_from_direction():
-    for w, direction in enumerate((
-            (-1, 0),
-            (0, 1),
-            (1, 0),
-            (0, -1))):
-        expected = Maze.Wall((0, 0), w)
-        actual = Maze.Wall.from_direction((0, 0), direction)
-        assert_eq(expected, actual)
-
-
-@test
-def HexMaze_Wall_from_direction():
-    for w, (direction, alt) in enumerate((
-            ((-1, 0), None),
-            ((-1, 1), (0, 1)),
-            ((0, 1), (1, 1)),
-            ((1, 0), None),
-            ((0, -1), (1, -1)),
-            ((-1, -1), (0, -1)))):
-        expected = HexMaze.Wall((0, 0), w)
-        actual = HexMaze.Wall.from_direction((0, 0), direction)
-        assert_eq(expected, actual)
-
-        if alt:
-            expected = HexMaze.Wall((0, 1), w)
-            actual = HexMaze.Wall.from_direction((0, 1), alt)
-            assert_eq(expected, actual)
-
-
-@test
 def Maze_Wall_from_corner():
     assert_eq(
         tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
@@ -427,6 +396,36 @@ def Maze_Wall_int(maze):
     for w in maze.Wall.WALLS:
         wall = maze.Wall((0, 0), w)
         assert_eq(w, int(wall))
+
+
+@maze_test(
+    Maze = {
+        (0, 0): (
+            (-1, 0),
+            (0, 1),
+            (1, 0),
+            (0, -1))},
+    HexMaze = {
+        (0, 0): (
+            (-1, 0),
+            (-1, 1),
+            (0, 1),
+            (1, 0),
+            (0, -1),
+            (-1, -1)),
+        (0, 1): (
+            (-1, 0),
+            (0, 1),
+            (1, 1),
+            (1, 0),
+            (1, -1),
+            (0, -1))})
+def Maze_Wall_from_direction(maze, data):
+    for room_pos, directions in data.items():
+        for w, direction in enumerate(directions):
+            expected = maze.Wall(room_pos, w)
+            actual = maze.Wall.from_direction(room_pos, direction)
+            assert_eq(expected, actual)
 
 
 @maze_test
