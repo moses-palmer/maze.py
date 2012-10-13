@@ -1,3 +1,15 @@
+import os
+import sys
+
+# Prefer in-tree library at ../../lib
+libdir = os.path.abspath(os.path.join(
+    os.path.dirname(__file__),
+    os.path.pardir,
+    os.path.pardir,
+    'lib'))
+sys.path = [libdir] + [sys_path for sys_path in sys.path
+    if not os.path.abspath(sys_path) == libdir]
+
 import math
 import random
 
