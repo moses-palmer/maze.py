@@ -18,47 +18,6 @@ from maze import *
 
 import maze.randomized_prim as randomized_prim
 
-@test
-def Maze_Wall_fields():
-    """Tests that Maze.Wall contains the expected fields"""
-    walls = set()
-
-    assert_eq(len(Maze.Wall.NAMES), 4)
-
-    for a in (name.upper() for name in Maze.Wall.NAMES):
-        assert hasattr(Maze.Wall, a), \
-            'Maze.Wall.%s is undefined' % a
-
-        w = getattr(Maze.Wall, a)
-        assert not w in walls, \
-            'Wall.%s has a previously set value' % a
-
-        walls.add(w)
-
-    assert_eq(len(Maze.Wall.WALLS), len(Maze.Wall.NAMES))
-    assert_eq(len(Maze.Wall.NAMES), len(set(Maze.Wall.NAMES)))
-
-
-@test
-def HexMaze_Wall_fields():
-    """Tests that HexMaze.Wall contains the expected fields"""
-    walls = set()
-
-    assert_eq(len(HexMaze.Wall.NAMES), 6)
-
-    for a in (name.upper() for name in HexMaze.Wall.NAMES):
-        assert hasattr(HexMaze.Wall, a), \
-            'HexMaze.Wall.%s is undefined' % a
-
-        w = getattr(HexMaze.Wall, a)
-        assert not w in walls, \
-            'HexWall.%s has a previously set value' % a
-
-        walls.add(w)
-
-    assert_eq(len(HexMaze.Wall.WALLS), len(HexMaze.Wall.NAMES))
-    assert_eq(len(HexMaze.Wall.NAMES), len(set(HexMaze.Wall.NAMES)))
-
 
 @test
 def Maze_Wall_from_direction():
@@ -429,6 +388,26 @@ def all_mazes(test = None, except_for = []):
     inner.__name__ = test.__name__
 
     return inner
+
+
+@test
+@all_mazes
+def Maze_Wall_fields(maze):
+    """Tests that Maze.Wall contains the expected fields"""
+    walls = set()
+
+    assert_eq(len(maze.Wall.WALLS), len(maze.Wall.NAMES))
+    assert_eq(len(maze.Wall.NAMES), len(set(maze.Wall.NAMES)))
+
+    for a in (name.upper() for name in maze.Wall.NAMES):
+        assert hasattr(maze.Wall, a), \
+            'Wall.%s is undefined' % a
+
+        w = getattr(maze.Wall, a)
+        assert not w in walls, \
+            '%s has a previously set value' % a
+
+        walls.add(w)
 
 
 @test
