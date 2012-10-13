@@ -337,12 +337,12 @@ def HexMaze_walk_path():
 
 MAZE_TYPES = (Maze, HexMaze)
 
-def all_mazes(test_function = None, except_for = [], **kwargs):
+def maze_test(test_function = None, except_for = [], **kwargs):
     """
     A decorator used to run a particular test for all types of mazes.
 
-    It may be used as @all_mazes, in which case the default options are used,
-    or @all_mazes(...) to specify options.
+    It may be used as @maze_test, in which case the default options are used,
+    or @maze_test(...) to specify options.
 
     @param except_for
         A list of maze types for which this test should not be run. This may
@@ -352,7 +352,7 @@ def all_mazes(test_function = None, except_for = [], **kwargs):
         Data passed to the test function as the named parameter 'data'. None
     """
     if not test_function:
-        return lambda test: all_mazes(test, except_for, **kwargs)
+        return lambda test: maze_test(test, except_for, **kwargs)
 
     try:
         except_for = iter(except_for)
@@ -384,7 +384,7 @@ def all_mazes(test_function = None, except_for = [], **kwargs):
     return test(inner)
 
 
-@all_mazes
+@maze_test
 def Maze_Wall_fields(maze):
     """Tests that Maze.Wall contains the expected fields"""
     walls = set()
@@ -403,7 +403,7 @@ def Maze_Wall_fields(maze):
         walls.add(w)
 
 
-@all_mazes
+@maze_test
 def Maze_Wall_eq(maze):
     """Tests wall1 == wall2"""
     assert maze.Wall((1, 1), maze.Wall.WALLS[0]) \
@@ -421,7 +421,7 @@ def Maze_Wall_eq(maze):
             'Wall did not compare equally with its back'
 
 
-@all_mazes
+@maze_test
 def Maze_Wall_int(maze):
     """Test that int(wall) yields the correct value"""
     for w in maze.Wall.WALLS:
@@ -429,7 +429,7 @@ def Maze_Wall_int(maze):
         assert_eq(w, int(wall))
 
 
-@all_mazes
+@maze_test
 def Maze_Wall_get_walls(maze):
     walls = set()
 
@@ -442,7 +442,7 @@ def Maze_Wall_get_walls(maze):
         walls.add(int(wall))
 
 
-@all_mazes
+@maze_test
 def Maze_Wall_back(maze):
     for wall in maze.walls((1, 1)):
         x, y = (p + d for (p, d) in zip(wall.room_pos, wall.direction))
@@ -450,7 +450,7 @@ def Maze_Wall_back(maze):
         assert_eq(wall.back, maze.Wall((x, y), w))
 
 
-@all_mazes
+@maze_test
 def Maze_Wall_span(maze):
     first_span = maze.Wall((0, 0), maze.Wall.WALLS[0]).span
     first_d = math.sin(first_span[1] - first_span[0])
@@ -469,7 +469,7 @@ def Maze_Wall_span(maze):
         'Walls do not cover entire room'
 
 
-@all_mazes
+@maze_test
 def Maze_Room_door_functions(maze):
     """Tests that Maze.Room.add_door, remove_door and has_door work"""
     room = maze.Room()
@@ -495,7 +495,7 @@ def Maze_Room_door_functions(maze):
             room.doors)
 
 
-@all_mazes
+@maze_test
 def Maze_Room_door_operators(maze):
     """Tests that the operator overloads work"""
     room = maze.Room()
@@ -521,7 +521,7 @@ def Maze_Room_door_operators(maze):
             room.doors)
 
 
-@all_mazes
+@maze_test
 def Maze_Room_bool(maze):
     """Tests that truth testing with Maze.Room works"""
     room = maze.Room()
@@ -535,7 +535,7 @@ def Maze_Room_bool(maze):
             'A non-empty room tested False'
 
 
-@all_mazes
+@maze_test
 def Maze_iter(maze):
     """Tests that for room_pos in maze: works"""
     actual = set()
@@ -552,14 +552,14 @@ def Maze_iter(maze):
         (5, 7))))
 
 
-@all_mazes
+@maze_test
 def Maze_index_tuple(maze):
     """Tests that indexing Maze with a tuple yields a Room"""
     assert isinstance(maze[3, 4], maze.Room), \
         'Maze[x, y] did not yield a Room'
 
 
-@all_mazes
+@maze_test
 def Maze_index_tuple(maze):
     """Tests that assigning to Maze[(x1, y1):(x2, y2)] works"""
     room = maze[4, 4]
@@ -625,7 +625,7 @@ def Maze_index_tuple(maze):
         pass
 
 
-@all_mazes
+@maze_test
 def Maze_slice(maze):
     """Tests that reading a slice of a maze yields the path between the two
     rooms"""
@@ -642,7 +642,7 @@ def Maze_slice(maze):
         list(maze[(0, 0):(maze.width - 1, maze.height - 1)]))
 
 
-@all_mazes
+@maze_test
 def Maze_contains(maze):
     """Tests that room_pos in maze works"""
     for x in xrange(-5, maze.width + 5):
@@ -653,7 +653,7 @@ def Maze_contains(maze):
                 '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
 
 
-@all_mazes
+@maze_test
 def Maze_contains(maze):
     """Tests that wall in maze works"""
     for x in xrange(-5, maze.width + 5):
@@ -664,7 +664,7 @@ def Maze_contains(maze):
                 '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
 
 
-@all_mazes
+@maze_test
 def Maze_width_and_height(maze):
     """Tests that the width and height properties are correct"""
     maze1 = maze.__class__(10, 20)
@@ -676,7 +676,7 @@ def Maze_width_and_height(maze):
     assert_eq(maze2.height, 100)
 
 
-@all_mazes
+@maze_test
 def Maze_room_positions(maze):
     room_positions = set()
     for x in xrange(maze.width):
@@ -688,7 +688,7 @@ def Maze_room_positions(maze):
         room_positions)
 
 
-@all_mazes
+@maze_test
 def Maze_add_door(maze):
     room = maze[4, 4]
 
@@ -724,7 +724,7 @@ def Maze_add_door(maze):
         pass
 
 
-@all_mazes
+@maze_test
 def Maze_remove_door(maze):
     room = maze[4, 4]
 
@@ -759,7 +759,7 @@ def Maze_remove_door(maze):
         pass
 
 
-@all_mazes
+@maze_test
 def Maze_set_door(maze):
     room = maze[4, 4]
 
@@ -785,7 +785,7 @@ def Maze_set_door(maze):
             'Maze.set_door did not close the door in the second room'
 
 
-@all_mazes
+@maze_test
 def Maze_adjacent(maze):
     adjacent = set(tuple(p + d for (p, d) in zip(wall.room_pos, wall.direction))
         for wall in maze.walls((5, 5)))
@@ -796,7 +796,7 @@ def Maze_adjacent(maze):
                 'adjacent' if maze.adjacent((5, 5), (x, y)) else 'non-adjacent')
 
 
-@all_mazes
+@maze_test
 def Maze_connected(maze):
     for x in (-1, 0, 1):
         for y in (-1, 0, 1):
@@ -822,7 +822,7 @@ def Maze_connected(maze):
                     4 + y)
 
 
-@all_mazes
+@maze_test
 def Maze_walk_from(maze):
     for x, y in maze.room_positions:
         for wall in maze.walls((x, y)):
@@ -842,7 +842,7 @@ def Maze_walk_from(maze):
                     pass
 
 
-@all_mazes
+@maze_test
 def Maze_walk_from(maze):
     for x, y in maze.room_positions:
         for wall in maze.walls((x, y)):
@@ -862,7 +862,7 @@ def Maze_walk_from(maze):
                     pass
 
 
-@all_mazes
+@maze_test
 def Maze_doors(maze):
     assert_eq(
         list(maze.doors((1, 1))),
@@ -879,14 +879,14 @@ def Maze_doors(maze):
             set(doors))
 
 
-@all_mazes
+@maze_test
 def Maze_walls(maze):
     assert_eq(
         set(int(w) for w in maze.walls((1, 1))),
         set(maze.Wall.WALLS))
 
 
-@all_mazes
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking from one room to the same room always works"""
     assert_eq(
@@ -894,7 +894,7 @@ def Maze_walk_path(maze):
         [(2, 2)])
 
 
-@all_mazes
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking from a room outside of the maze raises ValueError"""
     try:
@@ -905,7 +905,7 @@ def Maze_walk_path(maze):
         pass
 
 
-@all_mazes
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking between non-connected rooms raises ValueError"""
     try:
@@ -916,7 +916,7 @@ def Maze_walk_path(maze):
         pass
 
 
-@all_mazes
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking between adjacent rooms works as expected"""
     maze[(0, 0):(1, 0)] = True
@@ -926,7 +926,7 @@ def Maze_walk_path(maze):
         [(0, 0), (1, 0)])
 
 
-@all_mazes
+@maze_test
 def Maze_with_randomized_prim(maze):
     """Tests that randomized_prim.initialize creates a valid maze"""
     def rand(m):
