@@ -20,33 +20,6 @@ import maze.randomized_prim as randomized_prim
 
 
 @test
-def Maze_Wall_corner_walls():
-    assert_eq(
-        tuple(Maze.Wall((1, 1), Maze.Wall.UP).corner_walls),
-        (
-            Maze.Wall((1, 1), Maze.Wall.UP),
-            Maze.Wall((1, 2), Maze.Wall.LEFT),
-            Maze.Wall((0, 2), Maze.Wall.DOWN),
-            Maze.Wall((1, 1), Maze.Wall.LEFT)))
-
-
-@test
-def HexMaze_Wall_corner_walls():
-    assert_eq(
-        tuple(HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT).corner_walls),
-        (
-            HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT),
-            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_LEFT),
-            HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT)))
-    assert_eq(
-        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_RIGHT)),
-        (
-            HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT),
-            HexMaze.Wall((2, 2), HexMaze.Wall.LEFT),
-            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT)))
-
-
-@test
 def Maze_Wall_opposite():
     assert_eq(
         Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
