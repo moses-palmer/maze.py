@@ -1,18 +1,18 @@
 import random
+import re
 
-from maze import Maze
+from maze import Maze, HexMaze
 from maze.randomized_prim import initialize
 
-def print_maze(maze, solution):
+def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
     import sys
+
+    if len(maze.Wall.WALLS) != 4:
+        print 'This maze cannot be printed as it is not square'
+        return
 
     def output(s):
         sys.stdout.write(s)
-
-    wall_char = '@'
-    path_char = '.'
-    floor_char = ' '
-    room_size = (5, 5)
 
     # Iterate over all rows and make sure to start with the last to maintain the
     # orientation of the maze
@@ -72,7 +72,8 @@ def print_maze(maze, solution):
             output('\n')
 
 
-def make_image(maze, solution):
+def make_image(maze, solution, (room_width, room_height), image_file,
+        background_color, wall_color, path_color, wall_width, path_width):
     import math
 
     try:
@@ -80,14 +81,6 @@ def make_image(maze, solution):
     except ImportError:
         print 'cairo is not installed, not generating image'
         return
-
-    background_color = (0.0, 0.0, 0.0)
-    wall_color = (1.0, 1.0, 1.0)
-    wall_width = 2
-    path_color = (0.8, 0.4, 0.2)
-    path_width = 2
-    room_width, room_height = (10, 10)
-    image_file = 'maze.png'
 
     # Calculate the actual size of the image
     max_x, max_y = 0, 0
@@ -157,8 +150,8 @@ def make_image(maze, solution):
             for wall in maze.walls((x, y)):
                 def angle_to_coordinate(angle):
                     return (
-                        0.5 * room_width *  math.cos(angle),
-                        -0.5 * room_height *  math.sin(angle))
+                        0.5 / dy * room_width *  math.cos(angle),
+                        -0.5 / dx * room_height *  math.sin(angle))
 
                 # Do nothing if the room on the other side is not on the path
                 try:
@@ -185,12 +178,151 @@ def make_image(maze, solution):
 
 
 if __name__ == '__main__':
-    maze_size = (15, 10)
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description = 'A tool to generate mazes')
+
+    def maze_size(s):
+        result = int(s)
+        if result < 1:
+            raise argparse.ArgumentTypeError(
+                'The maze size must be greater than 0')
+        else:
+            return result
+    parser.add_argument('--maze-size', type = maze_size, nargs = 2,
+        metavar = ('WIDTH', 'HEIGHT'),
+        default = (15, 10),
+        help = 'The size of the maze.')
+
+    maze_classes = dict((len(mc.Wall.WALLS), mc) for mc in (
+        Maze, HexMaze))
+    parser.add_argument('--walls', type = int,
+        choices = maze_classes.keys(),
+        default = 4,
+        help = 'The number of walls for every room.')
+
+    def char(s):
+        if len(s) != 1:
+            raise argparse.ArgumentTypeError('%s is not a valid character' % s)
+        else:
+            return s
+    parser.add_argument('--print-wall-char', type = char,
+        default = '@',
+        help = 'The character used for walls when printing the maze.')
+    parser.add_argument('--print-path-char', type = char,
+        default = '.',
+        help = 'The character used for the path when printing the maze.')
+    parser.add_argument('--print-floor-char', type = char,
+        default = ' ',
+        help = 'The character used for the floor when printing the maze.')
+
+    def print_room_size(s):
+        result = int(s)
+        if result < 3:
+            raise argparse.ArgumentTypeError(
+                'The room size must be greater than 3')
+        else:
+            return result
+    parser.add_argument('--print-room-size', type = print_room_size,
+        nargs = 2,
+        default = (5, 4),
+        help = 'The size of each room in characters when printing the maze.')
+
+    def image_room_size(s):
+        result = int(s)
+        if result < 1:
+            raise argparse.ArgumentTypeError(
+                'The maze room size in the image must be greater than 0')
+        else:
+            return result
+    parser.add_argument('--image-room-size', type = image_room_size, nargs = 2,
+        metavar = ('WIDTH', 'HEIGHT'),
+        default = (30, 30),
+        help = 'The size of the rooms in the maze image.')
+
+    class default:
+        def write(*args, **kwargs):
+            pass
+    parser.add_argument('--image-file', type = argparse.FileType('w'),
+        metavar = 'FILENAME',
+        default = default(),
+        help = 'The name of the PNG file to create.')
+
+    def color(s):
+        result = None
+        m = re.match(r'''(?x)
+            \#(?P<red>[0-9A-Fa-f]{2})
+             (?P<green>[0-9A-Fa-f]{2})
+             (?P<blue>[0-9A-Fa-f]{2})''', s)
+        if not m is None:
+            result = tuple(float(int(d, 16)) / 255 for d in m.groups())
+        else:
+            m = re.match(r'''(?x)
+                rgb\(
+                    \s*(?P<red>\d{1,3}%?)\s*,
+                    \s*(?P<green>\d{1,3}%?)\s*,
+                    \s*(?P<blue>\d{1,3}%?)\s*\)''', s)
+            if not m is None:
+                result = tuple(float(d) / 255 if d[-1].isdigit()
+                    else float(d[:-1]) / 100 for d in m.groups())
+        if result is None or any(r < 0 or r > 1.0 for r in result):
+            raise argparse.ArgumentTypeError(
+                '"%s" is not a valid colour.' % s)
+        return result
+    parser.add_argument('--image-background-color', type = color,
+        metavar = 'COLOUR',
+        default = (0.0, 0.0, 0.0),
+        help = 'The background colour of the image. This must be specified as '
+            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+    parser.add_argument('--image-wall-color', type = color,
+        metavar = 'COLOUR',
+        default = (1.0, 1.0, 1.0),
+        help = 'The colour of the wall in the image. This must be specified as '
+            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+    parser.add_argument('--image-path-color', type = color,
+        metavar = 'COLOUR',
+        default = (0.8, 0.4, 0.2),
+        help = 'The colour of the path in the image. This must be specified as '
+            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+
+    def line_width(s):
+        result = int(s)
+        if result < 2:
+            raise argparse.ArgumentTypeError(
+                'The maze size must be greater than 1')
+        elif result & 1:
+            raise argparse.ArgumentTypeError(
+                'The maze size must be an even number')
+        else:
+            return result
+    parser.add_argument('--image-wall-width', type = line_width,
+        metavar = 'WIDTH',
+        default = 2,
+        help = 'The width of the maze wall lines.')
+    parser.add_argument('--image-path-width', type = line_width,
+        metavar = 'WIDTH',
+        default = 2,
+        help = 'The width of the maze path lines.')
+
+    namespace = parser.parse_args()
 
     # Create and initialise the maze
-    maze = Maze(*maze_size)
+    maze = maze_classes[namespace.walls](*namespace.maze_size)
     initialize(maze, lambda max: random.randint(0, max - 1))
     solution = list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1)))
 
-    print_maze(maze, solution)
-    make_image(maze, solution)
+    print_maze(maze, solution,
+        namespace.print_wall_char,
+        namespace.print_path_char,
+        namespace.print_floor_char,
+        namespace.print_room_size)
+    make_image(maze, solution,
+        namespace.image_room_size,
+        namespace.image_file,
+        namespace.image_background_color,
+        namespace.image_wall_color,
+        namespace.image_path_color,
+        namespace.image_wall_width,
+        namespace.image_path_width)
+
