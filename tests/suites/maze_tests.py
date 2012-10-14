@@ -20,40 +20,6 @@ import maze.randomized_prim as randomized_prim
 
 
 @test
-def Maze_Wall_from_corner():
-    assert_eq(
-        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
-        (
-            Maze.Wall((1, 1), Maze.Wall.UP),
-            Maze.Wall((1, 2), Maze.Wall.LEFT),
-            Maze.Wall((0, 2), Maze.Wall.DOWN),
-            Maze.Wall((1, 1), Maze.Wall.LEFT)))
-    assert_eq(
-        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.LEFT)),
-        (
-            Maze.Wall((1, 1), Maze.Wall.LEFT),
-            Maze.Wall((0, 1), Maze.Wall.DOWN),
-            Maze.Wall((0, 0), Maze.Wall.RIGHT),
-            Maze.Wall((1, 1), Maze.Wall.DOWN)))
-
-
-@test
-def HexMaze_Wall_from_corner():
-    assert_eq(
-        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_LEFT)),
-        (
-            HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT),
-            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_LEFT),
-            HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT)))
-    assert_eq(
-        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_RIGHT)),
-        (
-            HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT),
-            HexMaze.Wall((2, 2), HexMaze.Wall.LEFT),
-            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT)))
-
-
-@test
 def Maze_Wall_corner_walls():
     assert_eq(
         tuple(Maze.Wall((1, 1), Maze.Wall.UP).corner_walls),
@@ -397,6 +363,34 @@ def Maze_Wall_from_direction(maze, data):
             expected = maze.Wall(room_pos, w)
             actual = maze.Wall.from_direction(room_pos, direction)
             assert_eq(expected, actual)
+
+
+@maze_test(
+    Maze = {
+        ((1, 1), Maze.Wall.UP): (
+            ((1, 2), Maze.Wall.LEFT),
+            ((0, 2), Maze.Wall.DOWN),
+            ((1, 1), Maze.Wall.LEFT)),
+        ((1, 1), Maze.Wall.LEFT): (
+            ((0, 1), Maze.Wall.DOWN),
+            ((0, 0), Maze.Wall.RIGHT),
+            ((1, 1), Maze.Wall.DOWN))},
+    HexMaze = {
+        ((1, 1), HexMaze.Wall.UP_LEFT): (
+            ((1, 2), HexMaze.Wall.DOWN_LEFT),
+            ((0, 1), HexMaze.Wall.RIGHT)),
+        ((1, 1), HexMaze.Wall.UP_RIGHT): (
+            ((2, 2), HexMaze.Wall.LEFT),
+            ((1, 2), HexMaze.Wall.DOWN_RIGHT))})
+def Maze_Wall_from_corner(maze, data):
+    for (room_pos, w), corner_walls in data.items():
+        actual = tuple(maze.Wall.from_corner(room_pos, w))
+
+        expected = (maze.Wall(room_pos, w),) + tuple(
+            maze.Wall(corner_room_pos, corner_wall)
+                for corner_room_pos, corner_wall in corner_walls)
+
+        assert_eq(actual, expected)
 
 
 @maze_test
