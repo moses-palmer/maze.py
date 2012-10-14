@@ -20,44 +20,6 @@ import maze.randomized_prim as randomized_prim
 
 
 @test
-def Maze_Wall_opposite():
-    assert_eq(
-        Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
-        Maze.Wall((0, 0), Maze.Wall.RIGHT))
-    assert_eq(
-        Maze.Wall((0, 0), Maze.Wall.UP).opposite,
-        Maze.Wall((0, 0), Maze.Wall.DOWN))
-    assert_eq(
-        Maze.Wall((0, 0), Maze.Wall.RIGHT).opposite,
-        Maze.Wall((0, 0), Maze.Wall.LEFT))
-    assert_eq(
-        Maze.Wall((0, 0), Maze.Wall.DOWN).opposite,
-        Maze.Wall((0, 0), Maze.Wall.UP))
-
-
-@test
-def HexMaze_Wall_opposite():
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.LEFT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.LEFT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT))
-
-
-@test
 def Maze_Wall_back():
     assert Maze.Wall((1, 1), Maze.Wall.LEFT).back \
             == Maze.Wall((0, 1), Maze.Wall.RIGHT), \
@@ -377,6 +339,26 @@ def Maze_Wall_get_walls(maze):
             assert False, \
                 '%d was found twice' % int(wall)
         walls.add(int(wall))
+
+
+@maze_test(
+    Maze = (
+        (((0, 0), Maze.Wall.LEFT), ((0, 0), Maze.Wall.RIGHT)),
+        (((0, 0), Maze.Wall.UP), ((0, 0), Maze.Wall.DOWN)),
+        (((0, 0), Maze.Wall.RIGHT), ((0, 0), Maze.Wall.LEFT)),
+        (((0, 0), Maze.Wall.DOWN), ((0, 0), Maze.Wall.UP))),
+    HexMaze = (
+        (((0, 0), HexMaze.Wall.LEFT), ((0, 0), HexMaze.Wall.RIGHT)),
+        (((0, 0), HexMaze.Wall.UP_LEFT), ((0, 0), HexMaze.Wall.DOWN_RIGHT)),
+        (((0, 0), HexMaze.Wall.UP_RIGHT), ((0, 0), HexMaze.Wall.DOWN_LEFT)),
+        (((0, 0), HexMaze.Wall.RIGHT), ((0, 0), HexMaze.Wall.LEFT)),
+        (((0, 0), HexMaze.Wall.DOWN_RIGHT), ((0, 0), HexMaze.Wall.UP_LEFT)),
+        (((0, 0), HexMaze.Wall.DOWN_LEFT), ((0, 0), HexMaze.Wall.UP_RIGHT))))
+def Maze_Wall_opposite(maze, data):
+    for (room_pos1, wall1), (room_pos2, wall2) in data:
+        assert_eq(
+            maze.Wall(room_pos1, wall1).opposite,
+            maze.Wall(room_pos2, wall2))
 
 
 @maze_test(
