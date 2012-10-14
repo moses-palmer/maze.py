@@ -1,6 +1,6 @@
 import random
 
-from maze import Maze, Wall
+from maze import Maze
 from maze.randomized_prim import initialize
 
 def print_maze(maze, solution):
@@ -31,11 +31,14 @@ def print_maze(maze, solution):
                         wall_char,
 
                         # The opening or top/bottom wall
-                        (path_char if Wall.get_wall((0, dy)) in maze[x, y] \
+                        (path_char if \
+                            int(maze.Wall.from_direction((x, y), (0, dy))) \
+                                in maze[x, y] \
                             and (x, y) in solution \
                             and (x, y + dy) in solution
                         else floor_char \
-                                if Wall.get_wall((0, dy)) in maze[x, y]
+                            if int(maze.Wall.from_direction((x, y), (0, dy))) \
+                                in maze[x, y]
                         else wall_char) * (room_size[0] - 2),
 
                         # The right wall
@@ -44,10 +47,13 @@ def print_maze(maze, solution):
                     # This is a line in the middle of a room
                     output(''.join((
                         # The left opening or wall
-                        path_char if Wall.get_wall((-1, 0)) in maze[x, y] \
+                        path_char if int(maze.Wall.from_direction(
+                                (x, y), (-1, 0))) in maze[x, y] \
                             and (x, y) in solution \
                             and (x - 1, y) in solution
-                        else floor_char if Wall.get_wall((-1, 0)) in maze[x, y]
+                        else floor_char if \
+                            int(maze.Wall.from_direction((x, y), (-1, 0))) \
+                                in maze[x, y]
                         else wall_char,
 
                         # The center
@@ -55,10 +61,13 @@ def print_maze(maze, solution):
                         else floor_char) * (room_size[0] - 2),
 
                         # The right opening or wall
-                        path_char if Wall.get_wall((1, 0)) in maze[x, y] \
+                        path_char if int(maze.Wall.from_direction(
+                                (x, y), (1, 0))) in maze[x, y] \
                             and (x, y) in solution \
                             and (x + 1, y) in solution
-                        else floor_char if Wall.get_wall((1, 0)) in maze[x, y]
+                        else floor_char if \
+                            int(maze.Wall.from_direction((x, y), (1, 0))) \
+                                in maze[x, y]
                         else wall_char)))
             output('\n')
 
@@ -89,8 +98,8 @@ def make_image(maze, solution):
 
     # Calculate the multiplication factor for the room size
     idx, idy = 0.0, 0.0
-    for wall in Wall.WALLS:
-        span = Wall.get_span(wall)
+    for wall in maze.Wall.from_room_pos((0, 0)):
+        span = wall.span
         idx = max(idx, abs(math.cos(span[0])))
         idy = max(idy, abs(math.sin(span[0])))
     dx, dy = 0.5 / idx, 0.5 / idy

@@ -1,251 +1,8 @@
 import math
 import sys
 
-class Wall(object):
-    """
-    A reference to the wall of a room.
 
-    A wall has an index, a direction and a span.
-      * The index is its position in the list (LEFT, UP, RIGHT, DOWN).
-      * The direction is a direction vector for the wall; up and right are
-        positive directions.
-      * The span is the physical start and end angle of the wall.
-    """
-
-    # Define the walls; this will also add the class variables mapping wall name
-    # to its value
-    ANGLES = []
-    DIRECTIONS = []
-    NAMES = []
-    WALLS = []
-    start_angle = (5 * math.pi) / 4
-    data = (
-        ('LEFT', -1, 0),
-        ('UP', 0, 1),
-        ('RIGHT', 1, 0),
-        ('DOWN', 0, -1))
-    for i, (name, hdir, vdir) in enumerate(data):
-        locals()[name] = i
-        next_angle = ANGLES[-1] - 2 * math.pi / len(data) \
-            if ANGLES else start_angle
-
-        while next_angle < 0.0:
-            next_angle += 2 * math.pi
-        ANGLES.append(next_angle)
-        DIRECTIONS.append((hdir, vdir))
-        NAMES.append(name.lower())
-        WALLS.append(i)
-
-    def __eq__(self, other):
-        return isinstance(other, Wall) \
-            and self.wall == other.wall \
-            and self.room_pos == other.room_pos
-
-    def __int__(self):
-        return self.wall
-
-    def __str__(self):
-        return self.NAMES[self.wall] + '@' + str(self.room_pos)
-    __repr__ = __str__
-
-    def __init__(self, room_pos, wall):
-        self.room_pos = room_pos
-        self.wall = wall
-
-    @classmethod
-    def get_opposite(self, wall_index):
-        """
-        Returns the opposite wall.
-
-        @param wall_index
-            The index of the wall for which to find the opposite.
-        @return the index of the opposite wall
-        """
-        return (wall_index + len(self.WALLS) / 2) % len(self.WALLS)
-
-    @classmethod
-    def get_direction(self, wall_index):
-        """
-        Returns a direction vector to move in when going through the wall.
-
-        @param wall_index
-            The index of the wall.
-        @return a direction vector though the wall
-        @raise IndexError if wall_index is invalid
-        """
-        return self.DIRECTIONS[wall_index]
-
-    @classmethod
-    def get_span(self, wall_index):
-        """
-        Returns the span of the wall, expressed as degrees.
-
-        The start of the wall is defined as the most counter-clockwise edge of
-        the wall and the end as the start of the next wall.
-
-        The origin of the coordinate system is the center of the room; thus
-        points to the left of the center of room will have negative
-        x-coordinates and points below the center of the room negative
-        y-coordinates.
-
-        @param wall_index
-            The index of the wall.
-        @return the spas expressed as (start_angle, end_angle)
-        @raise IndexError if wall_index is invalid
-        """
-        start = self.ANGLES[wall_index]
-        end = self.ANGLES[(wall_index + 1) % len(self.ANGLES)]
-
-        return (start, end)
-
-    @classmethod
-    def get_wall(self, direction):
-        """
-        Returns the index of the wall in the given direction.
-
-        @param direction
-            A direction vector. Its length does not matter; only the direction
-            is used.
-        @return the index of the wall in the specified direction
-        @raise ValueError if the wall cannot be determined by the vector
-        """
-        return self.DIRECTIONS.index((
-            (0 if direction[0] == 0 else
-                1 if direction[0] > 0 else
-                    -1),
-            (0 if direction[1] == 0 else
-                1 if direction[1] > 0 else
-                    -1)))
-
-    @classmethod
-    def get_walls(self, room_pos):
-        """
-        Generates all walls of a room.
-
-        @param room_pos
-            The room coordinates.
-        """
-        for wall in self.WALLS:
-            yield self(room_pos, wall)
-
-    @property
-    def opposite(self):
-        """The opposite wall in the same room."""
-        return Wall(self.room_pos, Wall.get_opposite(self.wall))
-
-    @property
-    def direction(self):
-        """The direction vector to move in when going through the wall."""
-        return Wall.get_direction(self.wall)
-
-    @property
-    def back(self):
-        """The wall on the other side of the wall."""
-        direction = Wall.get_direction(self.wall)
-
-        other_pos = (
-            self.room_pos[0] + direction[0],
-            self.room_pos[1] + direction[1])
-        other_wall = (self.wall + len(Wall.WALLS) / 2) % len(Wall.WALLS)
-
-        return Wall(other_pos, other_wall)
-
-    @property
-    def span(self):
-        """The span of this wall"""
-        return Wall.get_span(self.wall)
-
-
-class Room(object):
-    """
-    A room is a part of the maze.
-
-    A room has all walls defined in Wall, and a concept of doors on the walls.
-
-    In addition to the methods defined for Room, the following constructs are
-    allowed:
-        if wall in room: => if wall.has_door(wall):
-        if room[Wall.LEFT]: => if room.has_door(wall):
-        room[Wall.LEFT] = True => room.set_door(Wall.LEFT, True)
-        room += Wall.LEFT => room.add_door(Wall.LEFT)
-        room -= Wall.LEFT => room_remove_door(Wall.LEFT)
-    """
-
-    def __bool__(self):
-        return bool(self.doors)
-    __nonzero__ = __bool__
-
-    def __contains__(self, wall_index):
-        return self.has_door(wall_index)
-
-    def __getitem__(self, wall_index):
-        return self.has_door(wall_index)
-
-    def __setitem__(self, wall_index, has_door):
-        self.set_door(wall_index, has_door)
-
-    def __iadd__(self, wall_index):
-        self.add_door(wall_index)
-        return self
-
-    def __isub__(self, wall_index):
-        self.remove_door(wall_index)
-        return self
-
-    def __init__(self):
-        """
-        Creates a new room.
-        """
-        self.doors = set()
-
-    def has_door(self, wall_index):
-        """
-        Returns whether a wall has a door.
-
-        @param wall_index
-            The wall to check.
-        @return whether the wall has a door
-        @raise IndexError if wall is not a valid wall
-        """
-        return wall_index in self.doors
-
-    def add_door(self, wall_index):
-        """
-        Adds a door.
-
-        @param wall_index
-            The wall to which to add a door.
-        @raise IndexError if wall_index is not a valid wall
-        """
-        self.doors.add(wall_index)
-
-    def remove_door(self, wall_index):
-        """
-        Removes a door.
-
-        @param wall_index
-            The wall from which to remove a door.
-        @raise IndexError if wall_index is not a valid wall
-        """
-        self.doors.discard(wall_index)
-
-    def set_door(self, wall_index, has_door):
-        """
-        Adds or removes a door depending on has_door.
-
-        @param wall_index
-            The wall to modify.
-        @param has_door
-            Whether to add or remove the door.
-        @raise IndexError if wall_index is not a valid wall
-        """
-        if has_door:
-            self.add_door(wall_index)
-        else:
-            self.remove_door(wall_index)
-
-
-class Maze(object):
+class BaseMaze(object):
     """
     A maze is a grid of rooms.
 
@@ -261,6 +18,215 @@ class Maze(object):
         for room_pos in maze: => for room_pos in \
             (rp for rp in maze.room_positions if maze[rp]):
     """
+
+    class Wall(object):
+        """
+        A reference to the wall of a room.
+
+        A wall has an index, a direction and a span.
+          * The index is its position in the list (LEFT, UP, RIGHT, DOWN).
+          * The direction is a direction vector for the wall; up and right are
+            positive directions.
+          * The span is the physical start and end angle of the wall.
+        """
+
+        def __eq__(self, other):
+            return isinstance(other, self.__class__) \
+                and self.wall == other.wall \
+                and self.room_pos == other.room_pos
+
+        def __int__(self):
+            return self.wall
+
+        def __str__(self):
+            return self.NAMES[self.wall] + '@' + str(self.room_pos)
+        __repr__ = __str__
+
+        def __init__(self, room_pos, wall):
+            self.room_pos = room_pos
+            self.wall = wall
+
+        @classmethod
+        def from_direction(self, room_pos, direction):
+            """
+            Creates a new wall from a direction.
+
+            @param room_pos
+                The position of the room.
+            @param direction
+                The direction of the wall.
+            @return a new Wall
+            @raise ValueError if the direction is invalid
+            """
+            return self(room_pos, self._DIRECTIONS.index(direction))
+
+        @classmethod
+        def from_room_pos(self, room_pos):
+            """
+            Generates all walls of a room.
+
+            @param room_pos
+                The room coordinates.
+            """
+            for wall in self.WALLS:
+                yield self(room_pos, wall)
+
+        def _get_opposite(self):
+            """
+            Returns the opposite wall.
+
+            The opposite wall is the wall in the same room with an inverted
+            direction vector.
+
+            @return the opposite wall
+            @raise ValueError if no opposite room exists
+            """
+            return self.from_direction(self.room_pos,
+                tuple(-d for d in self.direction))
+
+        def _get_direction(self):
+            """
+            Returns a direction vector to move in when going through the wall.
+
+            @return a direction vector though the wall
+            """
+            return self._DIRECTIONS[self.wall]
+
+        def _get_span(self):
+            """
+            Returns the span of the wall, expressed as degrees.
+
+            The start of the wall is defined as the most counter-clockwise edge
+            of the wall and the end as the start of the next wall.
+
+            The origin of the coordinate system is the center of the room; thus
+            points to the left of the center of room will have negative
+            x-coordinates and points below the center of the room negative
+            y-coordinates.
+
+            @return the span expressed as (start_angle, end_angle)
+            """
+            start = self._ANGLES[self.wall]
+            end = self._ANGLES[(self.wall + 1) % len(self._ANGLES)]
+
+            return (start, end)
+
+        @property
+        def opposite(self):
+            """The opposite wall in the same room."""
+            return self._get_opposite()
+
+        @property
+        def direction(self):
+            """The direction vector to move in when going through the wall."""
+            return self._get_direction()
+
+        @property
+        def back(self):
+            """The wall on the other side of the wall."""
+            direction = self._get_direction()
+
+            other_pos = (
+                self.room_pos[0] + direction[0],
+                self.room_pos[1] + direction[1])
+            other_wall = (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
+
+            return self.__class__(other_pos, other_wall)
+
+        @property
+        def span(self):
+            """The span of this wall"""
+            return self._get_span()
+
+
+    class Room(object):
+        """
+        A room is a part of the maze.
+
+        A room has all walls defined in Wall, and a concept of doors on the
+        walls.
+
+        In addition to the methods defined for Room, the following constructs
+        are allowed:
+            if wall in room: => if wall.has_door(wall):
+            if room[Wall.LEFT]: => if room.has_door(wall):
+            room[Wall.LEFT] = True => room.set_door(Wall.LEFT, True)
+            room += Wall.LEFT => room.add_door(Wall.LEFT)
+            room -= Wall.LEFT => room_remove_door(Wall.LEFT)
+        """
+
+        def __bool__(self):
+            return bool(self.doors)
+        __nonzero__ = __bool__
+
+        def __contains__(self, wall_index):
+            return self.has_door(int(wall_index))
+
+        def __getitem__(self, wall_index):
+            return self.has_door(int(wall_index))
+
+        def __setitem__(self, wall_index, has_door):
+            self.set_door(int(wall_index), has_door)
+
+        def __iadd__(self, wall_index):
+            self.add_door(int(wall_index))
+            return self
+
+        def __isub__(self, wall_index):
+            self.remove_door(int(wall_index))
+            return self
+
+        def __init__(self):
+            """
+            Creates a new room.
+            """
+            self.doors = set()
+
+        def has_door(self, wall_index):
+            """
+            Returns whether a wall has a door.
+
+            @param wall_index
+                The wall to check.
+            @return whether the wall has a door
+            @raise IndexError if wall is not a valid wall
+            """
+            return int(wall_index) in self.doors
+
+        def add_door(self, wall_index):
+            """
+            Adds a door.
+
+            @param wall_index
+                The wall to which to add a door.
+            @raise IndexError if wall_index is not a valid wall
+            """
+            self.doors.add(int(wall_index))
+
+        def remove_door(self, wall_index):
+            """
+            Removes a door.
+
+            @param wall_index
+                The wall from which to remove a door.
+            @raise IndexError if wall_index is not a valid wall
+            """
+            self.doors.discard(int(wall_index))
+
+        def set_door(self, wall_index, has_door):
+            """
+            Adds or removes a door depending on has_door.
+
+            @param wall_index
+                The wall to modify.
+            @param has_door
+                Whether to add or remove the door.
+            @raise IndexError if wall_index is not a valid wall
+            """
+            if has_door:
+                self.add_door(int(wall_index))
+            else:
+                self.remove_door(int(wall_index))
 
     def __getitem__(self, room_pos):
         if isinstance(room_pos, tuple) and len(room_pos) == 2:
@@ -310,14 +276,15 @@ class Maze(object):
             raise ValueError('No wall between %s and %s' % (
                 str(from_pos), str(to_pos)))
 
-        wall = Wall.get_wall((to_pos[0] - from_pos[0], to_pos[1] - from_pos[1]))
+        direction = (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1])
+        wall = self.__class__.Wall.from_direction(from_pos, direction)
 
         from_room = self[from_pos]
         from_room[wall] = has_door
 
         if to_pos in self:
             to_room = self[to_pos]
-            to_room[Wall.get_opposite(wall)] = has_door
+            to_room[wall.opposite] = has_door
 
     def __init__(self, width, height):
         """
@@ -328,7 +295,8 @@ class Maze(object):
         @param height
             The height of the maze.
         """
-        self.rooms = [[Room() for x in xrange(width)] for y in xrange(height)]
+        self.rooms = [[self.__class__.Room() for x in xrange(width)]
+            for y in xrange(height)]
 
     @property
     def height(self):
@@ -380,8 +348,9 @@ class Maze(object):
             The coordinates of the rooms to check.
         @return whether there is a wall between the two rooms
         """
-        return any((room1_pos[0] + d[0], room1_pos[1] + d[1]) == room2_pos
-            for d in Wall.DIRECTIONS)
+        return any((room1_pos[0] + wall.direction[0],
+                room1_pos[1] + wall.direction[1]) == room2_pos
+            for wall in self.walls(room1_pos))
 
     def connected(self, room1_pos, room2_pos):
         """
@@ -397,8 +366,9 @@ class Maze(object):
             return False
 
         # Make sure the wall has a door
-        return Wall.get_wall((room1_pos[0] - room2_pos[0],
-            room1_pos[1] - room2_pos[1])) in self[room1_pos]
+        direction = (room1_pos[0] - room2_pos[0], room1_pos[1] - room2_pos[1])
+        return int(self.__class__.Wall.from_direction(room1_pos, direction)) \
+            in self[room1_pos]
 
     def edge(self, wall):
         """
@@ -419,7 +389,7 @@ class Maze(object):
         @raise IndexError if a room lies outside of the maze
         """
         if room_pos in self:
-            return Wall.get_walls(room_pos)
+            return self.__class__.Wall.from_room_pos(room_pos)
         else:
             raise IndexError("Room %s is not part of the maze" % str(room_pos))
 
@@ -433,9 +403,9 @@ class Maze(object):
         """
         room = self[room_pos]
 
-        for wall in Wall.WALLS:
+        for wall in self.__class__.Wall.WALLS:
             if wall in room:
-                yield Wall(room_pos, wall)
+                yield self.__class__.Wall(room_pos, wall)
 
     def walk_from(self, room_pos, wall, require_door = False):
         """
@@ -456,12 +426,12 @@ class Maze(object):
             wall
         @raise IndexError if the destination room lies outside of the maze
         """
-        direction = Wall.get_direction(wall)
+        wall = self.__class__.Wall(room_pos, int(wall))
+        direction = wall.direction
         result = (room_pos[0] + direction[0], room_pos[1] + direction[1])
 
         if require_door:
-            opposite = Wall.get_opposite(wall)
-            if not opposite in self[result]:
+            if not wall.opposite in self[result]:
                 raise ValueError('(%d, %d) is not inside the maze' % room_pos)
 
         if result in self:
@@ -556,3 +526,34 @@ class Maze(object):
             yield current
             current = self.walk_from(current, get_wall(current))
         yield to_pos
+
+
+class Maze(BaseMaze):
+    """
+    This is a maze with square rooms.
+    """
+    class Wall(BaseMaze.Wall):
+        # Define the walls; this will also add the class variables
+        # mapping wall name to its value
+        _ANGLES = []
+        _DIRECTIONS = []
+        NAMES = []
+        WALLS = []
+
+        start_angle = (5 * math.pi) / 4
+        data = (
+            ('LEFT', -1, 0),
+            ('UP', 0, 1),
+            ('RIGHT', 1, 0),
+            ('DOWN', 0, -1))
+        for i, (name, hdir, vdir) in enumerate(data):
+            locals()[name] = i
+            next_angle = _ANGLES[-1] - 2 * math.pi / len(data) \
+                if _ANGLES else start_angle
+
+            while next_angle < 0.0:
+                next_angle += 2 * math.pi
+            _ANGLES.append(next_angle)
+            _DIRECTIONS.append((hdir, vdir))
+            NAMES.append(name.lower())
+            WALLS.append(i)
