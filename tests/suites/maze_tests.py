@@ -481,6 +481,19 @@ def Maze_pickle(maze):
 
 
 @maze_test
+def Maze_unpickle(maze):
+    """Tests that pickling a maze works"""
+    import pickle
+
+    pickled = pickle.dumps(maze)
+    reconstructed = pickle.loads(pickled)
+
+    for room_pos in maze.room_positions:
+        assert maze[room_pos] == reconstructed[room_pos], \
+            'Rooms at %s were different' % str(room_pos)
+
+
+@maze_test
 def Maze_iter(maze):
     """Tests that for room_pos in maze: works"""
     actual = set()
