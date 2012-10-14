@@ -1,3 +1,4 @@
+import bisect
 import math
 import sys
 
@@ -29,6 +30,10 @@ class BaseMaze(object):
             positive directions.
           * The span is the physical start and end angle of the wall.
         """
+
+        __slots__ = (
+            'wall',
+            'room_pos')
 
         def __eq__(self, other):
             if not isinstance(other, self.__class__):
@@ -167,9 +172,11 @@ class BaseMaze(object):
         @property
         def back(self):
             """The wall on the other side of the wall."""
+            direction = self._get_direction()
             return self.__class__(
-                tuple(r + d
-                    for r, d in zip(self.room_pos, self._get_direction())),
+                (
+                    self.room_pos[0] + direction[0],
+                    self.room_pos[1] + direction[1]),
                 self._get_opposite_index())
 
         @property
@@ -303,7 +310,8 @@ class BaseMaze(object):
             return x >= 0 and x < self.width and y >= 0 and y < self.height
 
         if isinstance(item, self.Wall):
-            return item.room_pos in self
+            x, y = item.room_pos
+            return x >= 0 and x < self.width and y >= 0 and y < self.height
 
     def __iter__(self):
         return (room_pos for room_pos in self.room_positions if self[room_pos])
@@ -346,16 +354,8 @@ class BaseMaze(object):
         """
         self.rooms = [[self.__class__.Room() for x in xrange(width)]
             for y in xrange(height)]
-
-    @property
-    def height(self):
-        """The height of the maze."""
-        return len(self.rooms)
-
-    @property
-    def width(self):
-        """The width of the maze."""
-        return len(self.rooms[0])
+        self.width = width
+        self.height = height
 
     @property
     def room_positions(self):
@@ -385,6 +385,32 @@ class BaseMaze(object):
         @raise ValueError if the rooms are not adjacent
         """
         return self._set_door(from_pos, to_pos, False)
+
+    def set_door(self, room_pos, wall, has_door):
+        """
+        Adds or removes a door.
+
+        @param room_pos
+            The coordinates of the room.
+        @param
+            The wall to modify.
+        @param has_door
+            True to add the door and False to remove it.
+        @raise IndexError if a room lies outside of the maze
+        """
+        if not room_pos in self:
+            raise IndexError()
+
+        # Get the coordinate of the other room
+        if not isinstance(wall, self.Wall):
+            wall = self.Wall(room_pos, int(wall))
+        other_wall = wall.back
+        to_pos = other_wall.room_pos
+
+        self[room_pos][wall] = has_door
+
+        if to_pos in self:
+            self[to_pos][other_wall] = has_door
 
     def get_center(self, room_pos):
         """
@@ -500,7 +526,7 @@ class BaseMaze(object):
         result = (room_pos[0] + direction[0], room_pos[1] + direction[1])
 
         if require_door:
-            if not wall.opposite in self[result]:
+            if not wall in self[room_pos]:
                 raise ValueError('(%d, %d) is not inside the maze' % room_pos)
 
         if result in self:
@@ -539,62 +565,66 @@ class BaseMaze(object):
             yield from_pos
             return
 
-        # Create the matrix of the walls we used to enter the room
-        rooms = [[list((-1, sys.maxint)) for x in xrange(self.width)]
-            for y in xrange(self.height)]
-        def get_wall(room_pos):
-            return rooms[room_pos[1]][room_pos[0]][0]
-        def set_wall(room_pos, value):
-            rooms[room_pos[1]][room_pos[0]][0] = value
-        def get_distance(room_pos):
-            return rooms[room_pos[1]][room_pos[0]][1]
-        def set_distance(room_pos, value):
-            rooms[room_pos[1]][room_pos[0]][1] = value
+        # Swap from_pos and to pos to make reconstructing the path easier
+        from_pos, to_pos = to_pos, from_pos
 
-        # Perform a breadth-first search of the maze
-        shortest = sys.maxint
-        queue = [(0, to_pos)]
-        while queue:
-            (distance, room_pos) = queue.pop()
+        def h(room_pos):
+            """The heuristic for a room"""
+            return sum((t - f)**2 for f, t in zip(room_pos, to_pos))
 
-            # If we have walked further than a previously found solution, abort
-            if distance + 1 > shortest:
-                continue
+        # The rooms already evaluated
+        closed_set = []
 
-            for wall in self.doors(room_pos):
-                # Do not crash on doors leading out of the maze
-                try:
-                    next_pos = self.walk(wall)
-                except IndexError:
+        # The rooms pending evaluation; this list is sorted on cost
+        open_set = [(sys.maxint, from_pos)]
+
+        # The cost from from_pos to the room along the best known path
+        g_score = {}
+        g_score[from_pos] = 0
+
+        # The estimated cost from from_pos to to_pos through the room
+        f_score = {}
+        f_score[from_pos] = h(from_pos)
+
+        # The room from which we entered a room
+        came_from = {}
+
+        while open_set:
+            # Get the node in open_set having the lowest f_score value
+            cost, current = open_set.pop(0)
+
+            # Have we reached the goal?
+            if current == to_pos:
+                while current != from_pos:
+                    yield current
+                    current = came_from[current]
+                yield from_pos
+                return
+
+            closed_set.append(current)
+            for wall in self.doors(current):
+                next = wall.back.room_pos
+
+                # Ignore rooms already evaluated or rooms outside of the maze
+                if next in closed_set or not next in self:
                     continue
 
-                # If the room has been visited along a shorter path before,
-                # ignore it
-                if get_distance(next_pos) <= distance:
-                    continue
+                # The cost to get to this room is one more that the room from
+                # which we came
+                g = g_score[current] + 1
 
-                # Update the matrix, since we found the shortest path to the
-                # current room
-                set_wall(next_pos, wall.opposite.wall)
-                set_distance(next_pos, distance + 1)
-                queue.append((distance + 1, next_pos))
+                # Is this a new room, or has the score improved since last?
+                if not next in open_set or g < g_score[next]:
+                    came_from[next] = current
+                    g_score[next] = g
+                    f = g + h(next)
+                    f_score[next] = f
 
-                # Store the current shortest length so that we may ignore rooms
-                # further from the starting point
-                if next_pos == from_pos:
-                    shortest = distance + 1
+                    # Insert the next room while keeping open_set sorted
+                    if not next in open_set:
+                        bisect.insort(open_set, (f, next))
 
-        # Make sure that we reached the starting room
-        if rooms[from_pos[0]][from_pos[1]][0] == -1:
-            raise ValueError()
-
-        # Walk from the starting room in the directions found in the previous
-        # step
-        current = from_pos
-        while current != to_pos:
-            yield current
-            current = self.walk_from(current, get_wall(current))
-        yield to_pos
+        raise ValueError()
 
 
 class Maze(BaseMaze):
@@ -608,6 +638,8 @@ class Maze(BaseMaze):
         _DIRECTIONS = []
         NAMES = []
         WALLS = []
+
+        __slots__ = tuple()
 
         start_angle = (5 * math.pi) / 4
         data = (
@@ -639,6 +671,8 @@ class HexMaze(BaseMaze):
         _DIRECTIONS = []
         NAMES = []
         WALLS = []
+
+        __slots__ = tuple()
 
         start_angle = math.pi / 2 + (2 * 2 * math.pi) / 6
         data = (

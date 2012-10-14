@@ -770,6 +770,33 @@ def Maze_remove_door(maze):
 
 @test
 @all_mazes
+def Maze_set_door(maze):
+    room = maze[4, 4]
+
+    for wall in maze.walls((4, 4)):
+        assert not wall in room, \
+            'A door was not initially missing'
+
+    for wall in maze.walls((4, 4)):
+        other_door = wall.back
+        other_room = maze[other_door.room_pos]
+        maze.set_door((4, 4), wall, True)
+
+        assert wall in room, \
+            'Maze.set_door did not open the door in the first room'
+        assert wall.back in other_room, \
+            'Maze.set_door did not open the door in the second room'
+
+        maze.set_door((4, 4), int(wall), False)
+
+        assert not wall in room, \
+            'Maze.set_door did not close the door in the first room'
+        assert not wall.back in other_room, \
+            'Maze.set_door did not close the door in the second room'
+
+
+@test
+@all_mazes
 def Maze_adjacent(maze):
     adjacent = set(tuple(p + d for (p, d) in zip(wall.room_pos, wall.direction))
         for wall in maze.walls((5, 5)))
