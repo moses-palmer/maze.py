@@ -31,9 +31,16 @@ class BaseMaze(object):
         """
 
         def __eq__(self, other):
-            return isinstance(other, self.__class__) \
-                and self.wall == other.wall \
-                and self.room_pos == other.room_pos
+            if not isinstance(other, self.__class__):
+                return False
+            if self.wall == other.wall and self.room_pos == other.room_pos:
+                return True
+            if self.wall == other._get_opposite_index() \
+                    and all(s + d == o for s, d, o in zip(
+                        self.room_pos,
+                        self.direction,
+                        other.room_pos)):
+                return True
 
         def __int__(self):
             return self.wall
@@ -71,6 +78,43 @@ class BaseMaze(object):
             for wall in self.WALLS:
                 yield self(room_pos, wall)
 
+        @classmethod
+        def from_corner(self, room_pos, wall_index):
+            """
+            Generates all walls that meet in the corner where the wall has its
+            start span.
+
+            The walls are generated counter-clockwise, starting with the wall
+            described by the parameters.
+
+            @param room_pos
+                The position of the room.
+            @param wall_index
+                The index of the wall.
+            """
+            wall = start_wall = self(room_pos, wall_index)
+
+            while True:
+                yield wall
+
+                back = wall.back
+                next = self(back.room_pos, (back.wall + 1) % len(self.WALLS))
+                if next == start_wall:
+                    break
+
+                wall = next
+
+        def _get_opposite_index(self):
+            """
+            Returns the index of the opposite wall.
+
+            The opposite wall is the wall in the same room with a span opposing
+            this wall.
+
+            @return the opposite wall
+            """
+            return (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
+
         def _get_opposite(self):
             """
             Returns the opposite wall.
@@ -81,8 +125,7 @@ class BaseMaze(object):
             @return the opposite wall
             @raise ValueError if no opposite room exists
             """
-            return self.__class__(self.room_pos,
-                (self.wall + len(self.WALLS) / 2) % len(self.WALLS))
+            return self.__class__(self.room_pos, self._get_opposite_index())
 
         def _get_direction(self):
             """
@@ -124,14 +167,16 @@ class BaseMaze(object):
         @property
         def back(self):
             """The wall on the other side of the wall."""
-            direction = self._get_direction()
+            return self.__class__(
+                tuple(r + d
+                    for r, d in zip(self.room_pos, self._get_direction())),
+                self._get_opposite_index())
 
-            other_pos = (
-                self.room_pos[0] + direction[0],
-                self.room_pos[1] + direction[1])
-            other_wall = (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
-
-            return self.__class__(other_pos, other_wall)
+        @property
+        def corner_walls(self):
+            """All walls in the corner that contains the start span of this
+            wall."""
+            return self.__class__.from_corner(self.room_pos, self.wall)
 
         @property
         def span(self):
@@ -252,9 +297,13 @@ class BaseMaze(object):
 
         raise TypeError()
 
-    def __contains__(self, room_pos):
-        return room_pos[0] >= 0 and room_pos[0] < self.width \
-            and room_pos[1] >= 0 and room_pos[1] < self.height
+    def __contains__(self, item):
+        if isinstance(item, tuple) and len(item) == 2:
+            x, y = item
+            return x >= 0 and x < self.width and y >= 0 and y < self.height
+
+        if isinstance(item, self.Wall):
+            return item.room_pos in self
 
     def __iter__(self):
         return (room_pos for room_pos in self.room_positions if self[room_pos])
@@ -398,7 +447,7 @@ class BaseMaze(object):
             The wall.
         @return whether the wall is on the edge of the maze
         """
-        return wall.room_pos in self and not wall.back.room_pos in self
+        return wall in self and not wall.back in self
 
     def walls(self, room_pos):
         """

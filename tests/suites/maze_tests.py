@@ -80,6 +80,78 @@ def HexMaze_Wall_from_direction():
 
 
 @test
+def Maze_Wall_from_corner():
+    assert_eq(
+        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
+        (
+            Maze.Wall((1, 1), Maze.Wall.UP),
+            Maze.Wall((1, 2), Maze.Wall.LEFT),
+            Maze.Wall((0, 2), Maze.Wall.DOWN),
+            Maze.Wall((1, 1), Maze.Wall.LEFT)))
+    assert_eq(
+        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.LEFT)),
+        (
+            Maze.Wall((1, 1), Maze.Wall.LEFT),
+            Maze.Wall((0, 1), Maze.Wall.DOWN),
+            Maze.Wall((0, 0), Maze.Wall.RIGHT),
+            Maze.Wall((1, 1), Maze.Wall.DOWN)))
+
+
+@test
+def Maze_Wall_from_corner():
+    assert_eq(
+        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
+        (
+            Maze.Wall((1, 1), Maze.Wall.UP),
+            Maze.Wall((1, 2), Maze.Wall.LEFT),
+            Maze.Wall((0, 2), Maze.Wall.DOWN),
+            Maze.Wall((1, 1), Maze.Wall.LEFT)))
+
+
+@test
+def Maze_Wall_corner_walls():
+    assert_eq(
+        tuple(Maze.Wall((1, 1), Maze.Wall.UP).corner_walls),
+        (
+            Maze.Wall((1, 1), Maze.Wall.UP),
+            Maze.Wall((1, 2), Maze.Wall.LEFT),
+            Maze.Wall((0, 2), Maze.Wall.DOWN),
+            Maze.Wall((1, 1), Maze.Wall.LEFT)))
+
+
+@test
+def HexMaze_Wall_from_corner():
+    assert_eq(
+        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_LEFT)),
+        (
+            HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT),
+            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_LEFT),
+            HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT)))
+    assert_eq(
+        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_RIGHT)),
+        (
+            HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT),
+            HexMaze.Wall((2, 2), HexMaze.Wall.LEFT),
+            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT)))
+
+
+@test
+def HexMaze_Wall_corner_walls():
+    assert_eq(
+        tuple(HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT).corner_walls),
+        (
+            HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT),
+            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_LEFT),
+            HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT)))
+    assert_eq(
+        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_RIGHT)),
+        (
+            HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT),
+            HexMaze.Wall((2, 2), HexMaze.Wall.LEFT),
+            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT)))
+
+
+@test
 def Maze_Wall_opposite():
     assert_eq(
         Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
@@ -336,6 +408,10 @@ def Maze_Wall_eq(maze):
             != maze.Wall((1, 2), maze.Wall.WALLS[1]), \
         'Walls with different wall index and equal positions compared equally'
 
+    for w in maze.Wall.WALLS:
+        assert maze.Wall((1, 2), w) == maze.Wall((1, 2), w).back, \
+            'Wall did not compare equally with its back'
+
 
 @test
 @all_mazes
@@ -577,6 +653,18 @@ def Maze_contains(maze):
         for y in xrange(-5, maze.height + 5):
             expected = x >= 0 and x < maze.width and y >= 0 and y < maze.height
             actual = (x, y) in maze
+            assert expected == actual, \
+                '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
+
+
+@test
+@all_mazes
+def Maze_contains(maze):
+    """Tests that wall in maze works"""
+    for x in xrange(-5, maze.width + 5):
+        for y in xrange(-5, maze.height + 5):
+            expected = x >= 0 and x < maze.width and y >= 0 and y < maze.height
+            actual = maze.Wall((x, y), 0) in maze
             assert expected == actual, \
                 '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
 
