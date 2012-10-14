@@ -1,3 +1,15 @@
+import os
+import sys
+
+# Prefer in-tree library at ../../lib
+libdir = os.path.abspath(os.path.join(
+    os.path.dirname(__file__),
+    os.path.pardir,
+    os.path.pardir,
+    'lib'))
+sys.path = [libdir] + [sys_path for sys_path in sys.path
+    if not os.path.abspath(sys_path) == libdir]
+
 import math
 import random
 
@@ -5,255 +17,6 @@ from tests import *
 from maze import *
 
 import maze.randomized_prim as randomized_prim
-
-@test
-def Maze_Wall_fields():
-    """Tests that Maze.Wall contains the expected fields"""
-    walls = set()
-
-    assert_eq(len(Maze.Wall.NAMES), 4)
-
-    for a in (name.upper() for name in Maze.Wall.NAMES):
-        assert hasattr(Maze.Wall, a), \
-            'Maze.Wall.%s is undefined' % a
-
-        w = getattr(Maze.Wall, a)
-        assert not w in walls, \
-            'Wall.%s has a previously set value' % a
-
-        walls.add(w)
-
-    assert_eq(len(Maze.Wall.WALLS), len(Maze.Wall.NAMES))
-    assert_eq(len(Maze.Wall.NAMES), len(set(Maze.Wall.NAMES)))
-
-
-@test
-def HexMaze_Wall_fields():
-    """Tests that HexMaze.Wall contains the expected fields"""
-    walls = set()
-
-    assert_eq(len(HexMaze.Wall.NAMES), 6)
-
-    for a in (name.upper() for name in HexMaze.Wall.NAMES):
-        assert hasattr(HexMaze.Wall, a), \
-            'HexMaze.Wall.%s is undefined' % a
-
-        w = getattr(HexMaze.Wall, a)
-        assert not w in walls, \
-            'HexWall.%s has a previously set value' % a
-
-        walls.add(w)
-
-    assert_eq(len(HexMaze.Wall.WALLS), len(HexMaze.Wall.NAMES))
-    assert_eq(len(HexMaze.Wall.NAMES), len(set(HexMaze.Wall.NAMES)))
-
-
-@test
-def Maze_Wall_from_direction():
-    for w, direction in enumerate((
-            (-1, 0),
-            (0, 1),
-            (1, 0),
-            (0, -1))):
-        expected = Maze.Wall((0, 0), w)
-        actual = Maze.Wall.from_direction((0, 0), direction)
-        assert_eq(expected, actual)
-
-
-@test
-def HexMaze_Wall_from_direction():
-    for w, (direction, alt) in enumerate((
-            ((-1, 0), None),
-            ((-1, 1), (0, 1)),
-            ((0, 1), (1, 1)),
-            ((1, 0), None),
-            ((0, -1), (1, -1)),
-            ((-1, -1), (0, -1)))):
-        expected = HexMaze.Wall((0, 0), w)
-        actual = HexMaze.Wall.from_direction((0, 0), direction)
-        assert_eq(expected, actual)
-
-        if alt:
-            expected = HexMaze.Wall((0, 1), w)
-            actual = HexMaze.Wall.from_direction((0, 1), alt)
-            assert_eq(expected, actual)
-
-
-@test
-def Maze_Wall_from_corner():
-    assert_eq(
-        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
-        (
-            Maze.Wall((1, 1), Maze.Wall.UP),
-            Maze.Wall((1, 2), Maze.Wall.LEFT),
-            Maze.Wall((0, 2), Maze.Wall.DOWN),
-            Maze.Wall((1, 1), Maze.Wall.LEFT)))
-    assert_eq(
-        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.LEFT)),
-        (
-            Maze.Wall((1, 1), Maze.Wall.LEFT),
-            Maze.Wall((0, 1), Maze.Wall.DOWN),
-            Maze.Wall((0, 0), Maze.Wall.RIGHT),
-            Maze.Wall((1, 1), Maze.Wall.DOWN)))
-
-
-@test
-def Maze_Wall_from_corner():
-    assert_eq(
-        tuple(Maze.Wall.from_corner((1, 1), Maze.Wall.UP)),
-        (
-            Maze.Wall((1, 1), Maze.Wall.UP),
-            Maze.Wall((1, 2), Maze.Wall.LEFT),
-            Maze.Wall((0, 2), Maze.Wall.DOWN),
-            Maze.Wall((1, 1), Maze.Wall.LEFT)))
-
-
-@test
-def Maze_Wall_corner_walls():
-    assert_eq(
-        tuple(Maze.Wall((1, 1), Maze.Wall.UP).corner_walls),
-        (
-            Maze.Wall((1, 1), Maze.Wall.UP),
-            Maze.Wall((1, 2), Maze.Wall.LEFT),
-            Maze.Wall((0, 2), Maze.Wall.DOWN),
-            Maze.Wall((1, 1), Maze.Wall.LEFT)))
-
-
-@test
-def HexMaze_Wall_from_corner():
-    assert_eq(
-        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_LEFT)),
-        (
-            HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT),
-            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_LEFT),
-            HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT)))
-    assert_eq(
-        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_RIGHT)),
-        (
-            HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT),
-            HexMaze.Wall((2, 2), HexMaze.Wall.LEFT),
-            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT)))
-
-
-@test
-def HexMaze_Wall_corner_walls():
-    assert_eq(
-        tuple(HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT).corner_walls),
-        (
-            HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT),
-            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_LEFT),
-            HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT)))
-    assert_eq(
-        tuple(HexMaze.Wall.from_corner((1, 1), HexMaze.Wall.UP_RIGHT)),
-        (
-            HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT),
-            HexMaze.Wall((2, 2), HexMaze.Wall.LEFT),
-            HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT)))
-
-
-@test
-def Maze_Wall_opposite():
-    assert_eq(
-        Maze.Wall((0, 0), Maze.Wall.LEFT).opposite,
-        Maze.Wall((0, 0), Maze.Wall.RIGHT))
-    assert_eq(
-        Maze.Wall((0, 0), Maze.Wall.UP).opposite,
-        Maze.Wall((0, 0), Maze.Wall.DOWN))
-    assert_eq(
-        Maze.Wall((0, 0), Maze.Wall.RIGHT).opposite,
-        Maze.Wall((0, 0), Maze.Wall.LEFT))
-    assert_eq(
-        Maze.Wall((0, 0), Maze.Wall.DOWN).opposite,
-        Maze.Wall((0, 0), Maze.Wall.UP))
-
-
-@test
-def HexMaze_Wall_opposite():
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.LEFT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.LEFT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT))
-    assert_eq(
-        HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT).opposite,
-        HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT))
-
-
-@test
-def Maze_Wall_direction():
-    assert_eq(Maze.Wall((0, 0), Maze.Wall.LEFT).direction, (-1, 0))
-    assert_eq(Maze.Wall((0, 0), Maze.Wall.UP).direction, (0, 1))
-    assert_eq(Maze.Wall((0, 0), Maze.Wall.RIGHT).direction, (1, 0))
-    assert_eq(Maze.Wall((0, 0), Maze.Wall.DOWN).direction, (0, -1))
-
-
-@test
-def HexMaze_Wall_direction():
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.LEFT).direction, (-1, 0))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.LEFT).direction, (-1, 0))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.UP_LEFT).direction, (-1, 1))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.UP_LEFT).direction, (0, 1))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.UP_RIGHT).direction, (0, 1))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.UP_RIGHT).direction, (1, 1))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.RIGHT).direction, (1, 0))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT).direction, (1, 0))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_RIGHT).direction, (0, -1))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.DOWN_RIGHT).direction, (1, -1))
-
-    assert_eq(HexMaze.Wall((0, 0), HexMaze.Wall.DOWN_LEFT).direction, (-1, -1))
-    assert_eq(HexMaze.Wall((0, 1), HexMaze.Wall.DOWN_LEFT).direction, (0, -1))
-
-
-@test
-def Maze_Wall_back():
-    assert Maze.Wall((1, 1), Maze.Wall.LEFT).back \
-            == Maze.Wall((0, 1), Maze.Wall.RIGHT), \
-        'Back of left wall in(1, 1) was incorrect'
-    assert Maze.Wall((1, 1), Maze.Wall.RIGHT).back \
-            == Maze.Wall((2, 1), Maze.Wall.LEFT), \
-        'Back of right wall in(1, 1) was incorrect'
-    assert Maze.Wall((1, 1), Maze.Wall.UP).back == \
-            Maze.Wall((1, 2), Maze.Wall.DOWN), \
-        'Back of up wall in(1, 1) was incorrect'
-    assert Maze.Wall((1, 1), Maze.Wall.DOWN).back \
-            == Maze.Wall((1, 0), Maze.Wall.UP), \
-        'Back of down wall in(1, 1) was incorrect'
-
-
-@test
-def HexMaze_Wall_back():
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.LEFT).back \
-            == HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT), \
-        'Back of left wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT).back \
-            == HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT), \
-        'Back of up-left wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT).back \
-            == HexMaze.Wall((2, 2), HexMaze.Wall.DOWN_LEFT), \
-        'Back of up-right wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.RIGHT).back \
-            == HexMaze.Wall((2, 1), HexMaze.Wall.LEFT), \
-        'Back of right wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.DOWN_RIGHT).back \
-            == HexMaze.Wall((2, 0), HexMaze.Wall.UP_LEFT), \
-        'Back of down-right wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.DOWN_LEFT).back \
-            == HexMaze.Wall((1, 0), HexMaze.Wall.UP_RIGHT), \
-        'Back of down-left wall in (1, 1) was incorrect'
 
 
 @test
@@ -375,27 +138,75 @@ def HexMaze_walk_path():
         [(0, 0), (1, 0), (2, 0)])
 
 
-def all_mazes(test):
+MAZE_TYPES = (Maze, HexMaze)
+
+def maze_test(test_function = None, except_for = [], **kwargs):
     """
     A decorator used to run a particular test for all types of mazes.
+
+    It may be used as @maze_test, in which case the default options are used,
+    or @maze_test(...) to specify options.
+
+    @param except_for
+        A list of maze types for which this test should not be run. This may
+        also be a maze type, which it treated as a list containing only that
+        type.
+    @param <maze type name> as data
+        Data passed to the test function as the named parameter 'data'. None
     """
+    if not test_function:
+        return lambda test: maze_test(test, except_for, **kwargs)
+
+    try:
+        except_for = iter(except_for)
+    except TypeError:
+        except_for = (except_for,)
+
     def inner():
-        for maze_class in (Maze, HexMaze):
+        global MAZE_TYPES
+        maze_classes = filter(
+            lambda mc: not mc == except_for or mc in except_for,
+            MAZE_TYPES)
+
+        for maze_class in maze_classes:
+            if maze_class in except_for:
+                continue
             maze = maze_class(10, 20)
             try:
-                test(maze)
+                if maze.__class__.__name__ in kwargs:
+                    test_function(maze, data = kwargs[maze.__class__.__name__])
+                else:
+                    test_function(maze)
             except Exception as e:
                 e.message = 'For %s: %s' % (maze_class.__name__, e.message)
                 raise
 
-    inner.__doc__ = test.__doc__
-    inner.__name__ = test.__name__
+    inner.__doc__ = test_function.__doc__
+    inner.__name__ = test_function.__name__
 
-    return inner
+    return test(inner)
 
 
-@test
-@all_mazes
+@maze_test
+def Maze_Wall_fields(maze):
+    """Tests that Maze.Wall contains the expected fields"""
+    walls = set()
+
+    assert_eq(len(maze.Wall.WALLS), len(maze.Wall.NAMES))
+    assert_eq(len(maze.Wall.NAMES), len(set(maze.Wall.NAMES)))
+
+    for a in (name.upper() for name in maze.Wall.NAMES):
+        assert hasattr(maze.Wall, a), \
+            'Wall.%s is undefined' % a
+
+        w = getattr(maze.Wall, a)
+        assert not w in walls, \
+            '%s has a previously set value' % a
+
+        walls.add(w)
+
+
+@maze_test
 def Maze_Wall_eq(maze):
     """Tests wall1 == wall2"""
     assert maze.Wall((1, 1), maze.Wall.WALLS[0]) \
@@ -413,8 +224,7 @@ def Maze_Wall_eq(maze):
             'Wall did not compare equally with its back'
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_Wall_int(maze):
     """Test that int(wall) yields the correct value"""
     for w in maze.Wall.WALLS:
@@ -422,8 +232,65 @@ def Maze_Wall_int(maze):
         assert_eq(w, int(wall))
 
 
-@test
-@all_mazes
+@maze_test(
+    Maze = {
+        (0, 0): (
+            (-1, 0),
+            (0, 1),
+            (1, 0),
+            (0, -1))},
+    HexMaze = {
+        (0, 0): (
+            (-1, 0),
+            (-1, 1),
+            (0, 1),
+            (1, 0),
+            (0, -1),
+            (-1, -1)),
+        (0, 1): (
+            (-1, 0),
+            (0, 1),
+            (1, 1),
+            (1, 0),
+            (1, -1),
+            (0, -1))})
+def Maze_Wall_from_direction(maze, data):
+    for room_pos, directions in data.items():
+        for w, direction in enumerate(directions):
+            expected = maze.Wall(room_pos, w)
+            actual = maze.Wall.from_direction(room_pos, direction)
+            assert_eq(expected, actual)
+
+
+@maze_test(
+    Maze = {
+        ((1, 1), Maze.Wall.UP): (
+            ((1, 2), Maze.Wall.LEFT),
+            ((0, 2), Maze.Wall.DOWN),
+            ((1, 1), Maze.Wall.LEFT)),
+        ((1, 1), Maze.Wall.LEFT): (
+            ((0, 1), Maze.Wall.DOWN),
+            ((0, 0), Maze.Wall.RIGHT),
+            ((1, 1), Maze.Wall.DOWN))},
+    HexMaze = {
+        ((1, 1), HexMaze.Wall.UP_LEFT): (
+            ((1, 2), HexMaze.Wall.DOWN_LEFT),
+            ((0, 1), HexMaze.Wall.RIGHT)),
+        ((1, 1), HexMaze.Wall.UP_RIGHT): (
+            ((2, 2), HexMaze.Wall.LEFT),
+            ((1, 2), HexMaze.Wall.DOWN_RIGHT))})
+def Maze_Wall_from_corner(maze, data):
+    for (room_pos, w), corner_walls in data.items():
+        actual = tuple(maze.Wall.from_corner(room_pos, w))
+
+        expected = (maze.Wall(room_pos, w),) + tuple(
+            maze.Wall(corner_room_pos, corner_wall)
+                for corner_room_pos, corner_wall in corner_walls)
+
+        assert_eq(actual, expected)
+
+
+@maze_test
 def Maze_Wall_get_walls(maze):
     walls = set()
 
@@ -436,17 +303,73 @@ def Maze_Wall_get_walls(maze):
         walls.add(int(wall))
 
 
-@test
-@all_mazes
-def Maze_Wall_back(maze):
-    for wall in maze.walls((1, 1)):
-        x, y = (p + d for (p, d) in zip(wall.room_pos, wall.direction))
-        w = wall.opposite.wall
-        assert_eq(wall.back, maze.Wall((x, y), w))
+@maze_test(
+    Maze = (
+        (((0, 0), Maze.Wall.LEFT), ((0, 0), Maze.Wall.RIGHT)),
+        (((0, 0), Maze.Wall.UP), ((0, 0), Maze.Wall.DOWN)),
+        (((0, 0), Maze.Wall.RIGHT), ((0, 0), Maze.Wall.LEFT)),
+        (((0, 0), Maze.Wall.DOWN), ((0, 0), Maze.Wall.UP))),
+    HexMaze = (
+        (((0, 0), HexMaze.Wall.LEFT), ((0, 0), HexMaze.Wall.RIGHT)),
+        (((0, 0), HexMaze.Wall.UP_LEFT), ((0, 0), HexMaze.Wall.DOWN_RIGHT)),
+        (((0, 0), HexMaze.Wall.UP_RIGHT), ((0, 0), HexMaze.Wall.DOWN_LEFT)),
+        (((0, 0), HexMaze.Wall.RIGHT), ((0, 0), HexMaze.Wall.LEFT)),
+        (((0, 0), HexMaze.Wall.DOWN_RIGHT), ((0, 0), HexMaze.Wall.UP_LEFT)),
+        (((0, 0), HexMaze.Wall.DOWN_LEFT), ((0, 0), HexMaze.Wall.UP_RIGHT))))
+def Maze_Wall_opposite(maze, data):
+    for (room_pos1, wall1), (room_pos2, wall2) in data:
+        assert_eq(
+            maze.Wall(room_pos1, wall1).opposite,
+            maze.Wall(room_pos2, wall2))
 
 
-@test
-@all_mazes
+@maze_test(
+    Maze = (
+        ((0, 0), Maze.Wall.LEFT, (-1, 0)),
+        ((0, 0), Maze.Wall.UP, (0, 1)),
+        ((0, 0), Maze.Wall.RIGHT, (1, 0)),
+        ((0, 0), Maze.Wall.DOWN, (0, -1))),
+    HexMaze = (
+        ((0, 0), HexMaze.Wall.LEFT, (-1, 0)),
+        ((0, 1), HexMaze.Wall.LEFT, (-1, 0)),
+        ((0, 0), HexMaze.Wall.UP_LEFT, (-1, 1)),
+        ((0, 1), HexMaze.Wall.UP_LEFT, (0, 1)),
+        ((0, 0), HexMaze.Wall.UP_RIGHT, (0, 1)),
+        ((0, 1), HexMaze.Wall.UP_RIGHT, (1, 1)),
+        ((0, 0), HexMaze.Wall.RIGHT, (1, 0)),
+        ((0, 1), HexMaze.Wall.RIGHT, (1, 0)),
+        ((0, 0), HexMaze.Wall.DOWN_RIGHT, (0, -1)),
+        ((0, 1), HexMaze.Wall.DOWN_RIGHT, (1, -1)),
+        ((0, 0), HexMaze.Wall.DOWN_LEFT, (-1, -1)),
+        ((0, 1), HexMaze.Wall.DOWN_LEFT, (0, -1))))
+def Maze_Wall_direction(maze, data):
+    for room_pos, w, direction in data:
+        assert_eq(maze.Wall(room_pos, w).direction, direction)
+
+
+@maze_test(
+    Maze = (
+        (((1, 1), Maze.Wall.LEFT), ((0, 1), Maze.Wall.RIGHT)),
+        (((1, 1), Maze.Wall.RIGHT), ((2, 1), Maze.Wall.LEFT)),
+        (((1, 1), Maze.Wall.UP), ((1, 2), Maze.Wall.DOWN)),
+        (((1, 1), Maze.Wall.DOWN), ((1, 0), Maze.Wall.UP))),
+    HexMaze = (
+        (((1, 1), HexMaze.Wall.LEFT), ((0, 1), HexMaze.Wall.RIGHT)),
+        (((1, 1), HexMaze.Wall.UP_LEFT), ((1, 2), HexMaze.Wall.DOWN_RIGHT)),
+        (((1, 1), HexMaze.Wall.UP_RIGHT), ((2, 2), HexMaze.Wall.DOWN_LEFT)),
+        (((1, 1), HexMaze.Wall.RIGHT), ((2, 1), HexMaze.Wall.LEFT)),
+        (((1, 1), HexMaze.Wall.DOWN_RIGHT), ((2, 0), HexMaze.Wall.UP_LEFT)),
+        (((1, 1), HexMaze.Wall.DOWN_LEFT), ((1, 0), HexMaze.Wall.UP_RIGHT))))
+def Maze_Wall_back(maze, data):
+    for f, b in data:
+        front = maze.Wall(*f)
+        back = maze.Wall(*b)
+        assert_eq(front.back, back)
+        assert_eq(back.back, front)
+
+
+
+@maze_test
 def Maze_Wall_span(maze):
     first_span = maze.Wall((0, 0), maze.Wall.WALLS[0]).span
     first_d = math.sin(first_span[1] - first_span[0])
@@ -465,8 +388,7 @@ def Maze_Wall_span(maze):
         'Walls do not cover entire room'
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_Room_door_functions(maze):
     """Tests that Maze.Room.add_door, remove_door and has_door work"""
     room = maze.Room()
@@ -492,8 +414,7 @@ def Maze_Room_door_functions(maze):
             room.doors)
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_Room_door_operators(maze):
     """Tests that the operator overloads work"""
     room = maze.Room()
@@ -519,8 +440,7 @@ def Maze_Room_door_operators(maze):
             room.doors)
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_Room_bool(maze):
     """Tests that truth testing with Maze.Room works"""
     room = maze.Room()
@@ -534,8 +454,7 @@ def Maze_Room_bool(maze):
             'A non-empty room tested False'
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_iter(maze):
     """Tests that for room_pos in maze: works"""
     actual = set()
@@ -552,16 +471,14 @@ def Maze_iter(maze):
         (5, 7))))
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_index_tuple(maze):
     """Tests that indexing Maze with a tuple yields a Room"""
     assert isinstance(maze[3, 4], maze.Room), \
         'Maze[x, y] did not yield a Room'
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_index_tuple(maze):
     """Tests that assigning to Maze[(x1, y1):(x2, y2)] works"""
     room = maze[4, 4]
@@ -627,8 +544,7 @@ def Maze_index_tuple(maze):
         pass
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_slice(maze):
     """Tests that reading a slice of a maze yields the path between the two
     rooms"""
@@ -645,8 +561,7 @@ def Maze_slice(maze):
         list(maze[(0, 0):(maze.width - 1, maze.height - 1)]))
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_contains(maze):
     """Tests that room_pos in maze works"""
     for x in xrange(-5, maze.width + 5):
@@ -657,8 +572,7 @@ def Maze_contains(maze):
                 '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_contains(maze):
     """Tests that wall in maze works"""
     for x in xrange(-5, maze.width + 5):
@@ -669,8 +583,7 @@ def Maze_contains(maze):
                 '(%d, %d) in maze was incorrect (was %s)' % (x, y, actual)
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_width_and_height(maze):
     """Tests that the width and height properties are correct"""
     maze1 = maze.__class__(10, 20)
@@ -682,8 +595,7 @@ def Maze_width_and_height(maze):
     assert_eq(maze2.height, 100)
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_room_positions(maze):
     room_positions = set()
     for x in xrange(maze.width):
@@ -695,8 +607,7 @@ def Maze_room_positions(maze):
         room_positions)
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_add_door(maze):
     room = maze[4, 4]
 
@@ -732,8 +643,7 @@ def Maze_add_door(maze):
         pass
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_remove_door(maze):
     room = maze[4, 4]
 
@@ -768,8 +678,7 @@ def Maze_remove_door(maze):
         pass
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_set_door(maze):
     room = maze[4, 4]
 
@@ -795,8 +704,7 @@ def Maze_set_door(maze):
             'Maze.set_door did not close the door in the second room'
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_adjacent(maze):
     adjacent = set(tuple(p + d for (p, d) in zip(wall.room_pos, wall.direction))
         for wall in maze.walls((5, 5)))
@@ -807,8 +715,7 @@ def Maze_adjacent(maze):
                 'adjacent' if maze.adjacent((5, 5), (x, y)) else 'non-adjacent')
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_connected(maze):
     for x in (-1, 0, 1):
         for y in (-1, 0, 1):
@@ -834,8 +741,7 @@ def Maze_connected(maze):
                     4 + y)
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_walk_from(maze):
     for x, y in maze.room_positions:
         for wall in maze.walls((x, y)):
@@ -855,8 +761,7 @@ def Maze_walk_from(maze):
                     pass
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_walk_from(maze):
     for x, y in maze.room_positions:
         for wall in maze.walls((x, y)):
@@ -876,8 +781,7 @@ def Maze_walk_from(maze):
                     pass
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_doors(maze):
     assert_eq(
         list(maze.doors((1, 1))),
@@ -894,16 +798,14 @@ def Maze_doors(maze):
             set(doors))
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_walls(maze):
     assert_eq(
         set(int(w) for w in maze.walls((1, 1))),
         set(maze.Wall.WALLS))
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking from one room to the same room always works"""
     assert_eq(
@@ -911,8 +813,7 @@ def Maze_walk_path(maze):
         [(2, 2)])
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking from a room outside of the maze raises ValueError"""
     try:
@@ -923,8 +824,7 @@ def Maze_walk_path(maze):
         pass
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking between non-connected rooms raises ValueError"""
     try:
@@ -935,8 +835,7 @@ def Maze_walk_path(maze):
         pass
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking between adjacent rooms works as expected"""
     maze[(0, 0):(1, 0)] = True
@@ -946,8 +845,7 @@ def Maze_walk_path(maze):
         [(0, 0), (1, 0)])
 
 
-@test
-@all_mazes
+@maze_test
 def Maze_with_randomized_prim(maze):
     """Tests that randomized_prim.initialize creates a valid maze"""
     def rand(m):
