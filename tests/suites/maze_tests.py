@@ -15,6 +15,8 @@ import random
 
 from tests import *
 from maze import *
+from maze.quad import *
+from maze.hex import *
 
 import maze.randomized_prim as randomized_prim
 
@@ -389,6 +391,22 @@ def Maze_Wall_span(maze):
 
 
 @maze_test
+def Maze_Room_eq(maze):
+    """Tests room1 == room2"""
+    room1 = maze.Room()
+    room2 = maze.Room()
+
+    for wall in maze.Wall.WALLS:
+        assert room1 == room2, \
+            'Equal rooms did not compare equally'
+
+        room1 += wall
+        assert room1 != room2, \
+            'Inequal rooms did not compare inequally'
+        room2 += wall
+
+
+@maze_test
 def Maze_Room_door_functions(maze):
     """Tests that Maze.Room.add_door, remove_door and has_door work"""
     room = maze.Room()
@@ -452,6 +470,27 @@ def Maze_Room_bool(maze):
         room += wall
         assert room, \
             'A non-empty room tested False'
+
+
+@maze_test
+def Maze_pickle(maze):
+    """Tests that pickling a maze works"""
+    import pickle
+
+    pickled = pickle.dumps(maze)
+
+
+@maze_test
+def Maze_unpickle(maze):
+    """Tests that pickling a maze works"""
+    import pickle
+
+    pickled = pickle.dumps(maze)
+    reconstructed = pickle.loads(pickled)
+
+    for room_pos in maze.room_positions:
+        assert maze[room_pos] == reconstructed[room_pos], \
+            'Rooms at %s were different' % str(room_pos)
 
 
 @maze_test
