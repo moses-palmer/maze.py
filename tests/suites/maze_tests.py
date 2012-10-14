@@ -391,6 +391,22 @@ def Maze_Wall_span(maze):
 
 
 @maze_test
+def Maze_Room_eq(maze):
+    """Tests room1 == room2"""
+    room1 = maze.Room()
+    room2 = maze.Room()
+
+    for wall in maze.Wall.WALLS:
+        assert room1 == room2, \
+            'Equal rooms did not compare equally'
+
+        room1 += wall
+        assert room1 != room2, \
+            'Inequal rooms did not compare inequally'
+        room2 += wall
+
+
+@maze_test
 def Maze_Room_door_functions(maze):
     """Tests that Maze.Room.add_door, remove_door and has_door work"""
     room = maze.Room()

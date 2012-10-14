@@ -194,6 +194,9 @@ class Room(object):
         return bool(self.doors)
     __nonzero__ = __bool__
 
+    def __eq__(self, other):
+        return other.doors == self.doors
+
     def __contains__(self, wall_index):
         return self.has_door(int(wall_index))
 
