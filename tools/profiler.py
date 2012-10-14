@@ -25,8 +25,8 @@ except ImportError:
     else:
         raise
 
-from maze import HexMaze
 from maze.quad import Maze
+from maze.hex import HexMaze
 from maze.randomized_prim import initialize
 
 RAND = 513

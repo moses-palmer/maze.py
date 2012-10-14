@@ -16,6 +16,7 @@ import random
 from tests import *
 from maze import *
 from maze.quad import *
+from maze.hex import *
 
 import maze.randomized_prim as randomized_prim
 
