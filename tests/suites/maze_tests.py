@@ -20,44 +20,6 @@ import maze.randomized_prim as randomized_prim
 
 
 @test
-def Maze_Wall_back():
-    assert Maze.Wall((1, 1), Maze.Wall.LEFT).back \
-            == Maze.Wall((0, 1), Maze.Wall.RIGHT), \
-        'Back of left wall in(1, 1) was incorrect'
-    assert Maze.Wall((1, 1), Maze.Wall.RIGHT).back \
-            == Maze.Wall((2, 1), Maze.Wall.LEFT), \
-        'Back of right wall in(1, 1) was incorrect'
-    assert Maze.Wall((1, 1), Maze.Wall.UP).back == \
-            Maze.Wall((1, 2), Maze.Wall.DOWN), \
-        'Back of up wall in(1, 1) was incorrect'
-    assert Maze.Wall((1, 1), Maze.Wall.DOWN).back \
-            == Maze.Wall((1, 0), Maze.Wall.UP), \
-        'Back of down wall in(1, 1) was incorrect'
-
-
-@test
-def HexMaze_Wall_back():
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.LEFT).back \
-            == HexMaze.Wall((0, 1), HexMaze.Wall.RIGHT), \
-        'Back of left wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.UP_LEFT).back \
-            == HexMaze.Wall((1, 2), HexMaze.Wall.DOWN_RIGHT), \
-        'Back of up-left wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.UP_RIGHT).back \
-            == HexMaze.Wall((2, 2), HexMaze.Wall.DOWN_LEFT), \
-        'Back of up-right wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.RIGHT).back \
-            == HexMaze.Wall((2, 1), HexMaze.Wall.LEFT), \
-        'Back of right wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.DOWN_RIGHT).back \
-            == HexMaze.Wall((2, 0), HexMaze.Wall.UP_LEFT), \
-        'Back of down-right wall in (1, 1) was incorrect'
-    assert HexMaze.Wall((1, 1), HexMaze.Wall.DOWN_LEFT).back \
-            == HexMaze.Wall((1, 0), HexMaze.Wall.UP_RIGHT), \
-        'Back of down-left wall in (1, 1) was incorrect'
-
-
-@test
 def Maze_get_center():
     maze = Maze(10, 20)
 
@@ -385,12 +347,26 @@ def Maze_Wall_direction(maze, data):
         assert_eq(maze.Wall(room_pos, w).direction, direction)
 
 
-@maze_test
-def Maze_Wall_back(maze):
-    for wall in maze.walls((1, 1)):
-        x, y = (p + d for (p, d) in zip(wall.room_pos, wall.direction))
-        w = wall.opposite.wall
-        assert_eq(wall.back, maze.Wall((x, y), w))
+@maze_test(
+    Maze = (
+        (((1, 1), Maze.Wall.LEFT), ((0, 1), Maze.Wall.RIGHT)),
+        (((1, 1), Maze.Wall.RIGHT), ((2, 1), Maze.Wall.LEFT)),
+        (((1, 1), Maze.Wall.UP), ((1, 2), Maze.Wall.DOWN)),
+        (((1, 1), Maze.Wall.DOWN), ((1, 0), Maze.Wall.UP))),
+    HexMaze = (
+        (((1, 1), HexMaze.Wall.LEFT), ((0, 1), HexMaze.Wall.RIGHT)),
+        (((1, 1), HexMaze.Wall.UP_LEFT), ((1, 2), HexMaze.Wall.DOWN_RIGHT)),
+        (((1, 1), HexMaze.Wall.UP_RIGHT), ((2, 2), HexMaze.Wall.DOWN_LEFT)),
+        (((1, 1), HexMaze.Wall.RIGHT), ((2, 1), HexMaze.Wall.LEFT)),
+        (((1, 1), HexMaze.Wall.DOWN_RIGHT), ((2, 0), HexMaze.Wall.UP_LEFT)),
+        (((1, 1), HexMaze.Wall.DOWN_LEFT), ((1, 0), HexMaze.Wall.UP_RIGHT))))
+def Maze_Wall_back(maze, data):
+    for f, b in data:
+        front = maze.Wall(*f)
+        back = maze.Wall(*b)
+        assert_eq(front.back, back)
+        assert_eq(back.back, front)
+
 
 
 @maze_test
