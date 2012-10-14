@@ -457,6 +457,14 @@ def Maze_Room_bool(maze):
 
 
 @maze_test
+def Maze_pickle(maze):
+    """Tests that pickling a maze works"""
+    import pickle
+
+    pickled = pickle.dumps(maze)
+
+
+@maze_test
 def Maze_iter(maze):
     """Tests that for room_pos in maze: works"""
     actual = set()
