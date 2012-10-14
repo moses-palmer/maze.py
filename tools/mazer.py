@@ -1,7 +1,8 @@
 import random
 import re
 
-from maze import Maze, HexMaze
+from maze import HexMaze
+from maze.quad import Maze
 from maze.randomized_prim import initialize
 
 def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
