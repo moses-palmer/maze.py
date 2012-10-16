@@ -791,7 +791,7 @@ def Maze_edge_walls_wide(maze):
         expected.remove(edge_wall)
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_add_door(maze):
     room = maze[4, 4]
 
@@ -820,7 +820,9 @@ def Maze_add_door(maze):
                 'Adding a door between adjacent rooms raised error'
 
     try:
-        maze.add_door((-1, -1), (-1, 0))
+        wall = maze.Wall((-5, -5), 0)
+        maze.add_door(wall.room_pos,
+            tuple(r + d for r, d in zip(wall.room_pos, wall.direction)))
         assert False, \
             'Adding a door outside of the maze did not raise error'
     except IndexError:
