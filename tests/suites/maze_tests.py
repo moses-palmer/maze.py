@@ -939,7 +939,7 @@ def Maze_adjacent(maze):
                 'adjacent' if maze.adjacent((5, 5), (x, y)) else 'non-adjacent')
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_connected(maze):
     for x in (-1, 0, 1):
         for y in (-1, 0, 1):
@@ -951,13 +951,19 @@ def Maze_connected(maze):
                     4 + x,
                     4 + y)
 
-    maze.add_door((3, 4), (4, 4))
-    maze.add_door((4, 4), (5, 4))
+    for wall in maze.doors((3, 4)):
+        if int(wall) % 2:
+            maze.set_door(wall.room_pos, wall, True)
 
     for x in (-1, 0, 1):
         for y in (-1, 0, 1):
+            try:
+                wall = maze.Wall.from_direction((4, 4), (x - 4, y - 4))
+            except ValueError:
+                continue
+
             connected1 = maze.connected((4, 4), (4 + x, 4 + y))
-            connected2 = y == 0 and x != 0
+            connected2 = int(wall) % 2 != 0
             assert connected1 == connected2, \
                 '(4, 4) %s be connected to (%d, %d)' % (
                     'should' if connected2 else 'should not',
