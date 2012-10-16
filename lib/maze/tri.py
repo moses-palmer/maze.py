@@ -86,6 +86,16 @@ class TriWall(BaseMaze.Wall):
         alt = (self.room_pos[0] + self.room_pos[1]) % 2
         return self._DIRECTIONS[self.wall][alt]
 
+    def _get_span(self):
+        """
+        @see Maze.Wall._get_span
+        """
+        alt = (self.room_pos[0] + self.room_pos[1]) % 2
+        start = self._ANGLES[self.wall][alt]
+        end = self._ANGLES[(self.wall + 1) % len(self._ANGLES)][alt]
+
+        return (start, end)
+
 class TriMaze(BaseMaze):
     """
     This is a maze with triangular rooms.

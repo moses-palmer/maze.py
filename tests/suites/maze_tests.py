@@ -414,7 +414,7 @@ def Maze_Wall_back(maze, data):
 
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_Wall_span(maze):
     first_span = maze.Wall((0, 0), maze.Wall.WALLS[0]).span
     first_d = math.sin(first_span[1] - first_span[0])
