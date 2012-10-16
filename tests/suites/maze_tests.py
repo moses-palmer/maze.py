@@ -337,12 +337,24 @@ def Maze_Wall_opposite(maze, data):
 
 
 @maze_test(
-    except_for = TriMaze,
     Maze = (
         ((0, 0), Maze.Wall.LEFT, (-1, 0)),
         ((0, 0), Maze.Wall.UP, (0, 1)),
         ((0, 0), Maze.Wall.RIGHT, (1, 0)),
         ((0, 0), Maze.Wall.DOWN, (0, -1))),
+    TriMaze = (
+        ((0, 0), TriMaze.Wall.DIAGONAL_1, (-1, 0)),
+        ((0, 1), TriMaze.Wall.DIAGONAL_1, (1, 0)),
+        ((1, 0), TriMaze.Wall.DIAGONAL_1, (1, 0)),
+        ((1, 1), TriMaze.Wall.DIAGONAL_1, (-1, 0)),
+        ((0, 0), TriMaze.Wall.HORIZONTAL, (0, -1)),
+        ((0, 1), TriMaze.Wall.HORIZONTAL, (0, 1)),
+        ((1, 0), TriMaze.Wall.HORIZONTAL, (0, 1)),
+        ((1, 1), TriMaze.Wall.HORIZONTAL, (0, -1)),
+        ((0, 0), TriMaze.Wall.DIAGONAL_2, (1, 0)),
+        ((0, 1), TriMaze.Wall.DIAGONAL_2, (-1, 0)),
+        ((1, 0), TriMaze.Wall.DIAGONAL_2, (-1, 0)),
+        ((1, 1), TriMaze.Wall.DIAGONAL_2, (1, 0))),
     HexMaze = (
         ((0, 0), HexMaze.Wall.LEFT, (-1, 0)),
         ((0, 1), HexMaze.Wall.LEFT, (-1, 0)),
@@ -837,7 +849,7 @@ def Maze_get_center(maze):
                         str(other_corner_display))
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_adjacent(maze):
     adjacent = set(tuple(p + d for (p, d) in zip(wall.room_pos, wall.direction))
         for wall in maze.walls((5, 5)))
@@ -874,7 +886,7 @@ def Maze_connected(maze):
                     4 + y)
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_walk_from(maze):
     for x, y in maze.room_positions:
         for wall in maze.walls((x, y)):
@@ -894,7 +906,7 @@ def Maze_walk_from(maze):
                     pass
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_walk_from(maze):
     for x, y in maze.room_positions:
         for wall in maze.walls((x, y)):

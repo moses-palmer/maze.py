@@ -53,6 +53,13 @@ class TriWall(BaseMaze.Wall):
         """
         raise NotImplementedError()
 
+    def _get_direction(self):
+        """
+        @see Maze.Wall._get_direction
+        """
+        alt = (self.room_pos[0] + self.room_pos[1]) % 2
+        return self._DIRECTIONS[self.wall][alt]
+
 class TriMaze(BaseMaze):
     """
     This is a maze with triangular rooms.
