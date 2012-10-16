@@ -32,6 +32,19 @@ class TriWall(BaseMaze.Wall):
         NAMES.append(name.lower())
         WALLS.append(i)
 
+    @classmethod
+    def from_direction(self, room_pos, direction):
+        """
+        @see Maze.Wall.from_direction
+        """
+        alt = (room_pos[0] + room_pos[1]) % 2
+        for i, dirs in enumerate(self._DIRECTIONS):
+            if direction == dirs[alt]:
+                return self(room_pos, i)
+
+        raise ValueError('Invalid direction for %s: %s' % (
+            str(room_pos), str(direction)))
+
 class TriMaze(BaseMaze):
     """
     This is a maze with triangular rooms.
