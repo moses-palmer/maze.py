@@ -45,6 +45,14 @@ class TriWall(BaseMaze.Wall):
         raise ValueError('Invalid direction for %s: %s' % (
             str(room_pos), str(direction)))
 
+    def _get_opposite_index(self):
+        """
+        There is no opposite wall in a triangular room.
+
+        @raise NotImplementedError
+        """
+        raise NotImplementedError()
+
 class TriMaze(BaseMaze):
     """
     This is a maze with triangular rooms.
