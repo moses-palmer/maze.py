@@ -685,14 +685,12 @@ def Maze_index_tuple(maze):
         pass
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_slice(maze):
     """Tests that reading a slice of a maze yields the path between the two
     rooms"""
     for y in xrange(maze.height):
-        row = xrange(maze.width) if y == 0 or y == maze.height - 1 \
-            else (0, maze.width - 1)
-        for x in row:
+        for x in xrange(maze.width):
             for wall in maze.walls((x, y)):
                 if not maze.edge(wall):
                     maze[x, y][wall] = True
