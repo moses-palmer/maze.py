@@ -584,21 +584,26 @@ def Maze_unpickle(maze):
             'Rooms at %s were different' % str(room_pos)
 
 
-@maze_test(except_for = TriMaze)
-def Maze_iter(maze):
+@maze_test(
+    Maze = ((5, 6), (5, 7)),
+    TriMaze = ((2, 1), (2, 2)),
+    HexMaze = ((5, 6), (5, 7)))
+def Maze_iter(maze, data):
     """Tests that for room_pos in maze: works"""
     actual = set()
     for room_pos in maze:
         actual.add(room_pos)
     assert_eq(actual, set())
 
-    maze[(5, 6):(5, 7)] = True
+    room_pos1, room_pos2 = data
+
+    maze[room_pos1:room_pos2] = True
     actual = set()
     for room_pos in maze:
         actual.add(room_pos)
     assert_eq(actual, set((
-        (5, 6),
-        (5, 7))))
+        room_pos1,
+        room_pos2)))
 
 
 @maze_test
