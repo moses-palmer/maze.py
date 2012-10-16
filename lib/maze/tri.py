@@ -53,6 +53,12 @@ class TriWall(BaseMaze.Wall):
         """
         raise NotImplementedError()
 
+    def _get_back_index(self):
+        """
+        @see Maze.Wall._get_back_index
+        """
+        return self.wall
+
     def _get_direction(self):
         """
         @see Maze.Wall._get_direction

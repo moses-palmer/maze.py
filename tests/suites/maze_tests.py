@@ -200,7 +200,7 @@ def Maze_Wall_fields(maze):
         walls.add(w)
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_Wall_eq(maze):
     """Tests wall1 == wall2"""
     assert maze.Wall((1, 1), maze.Wall.WALLS[0]) \
@@ -374,12 +374,18 @@ def Maze_Wall_direction(maze, data):
 
 
 @maze_test(
-    except_for = TriMaze,
     Maze = (
         (((1, 1), Maze.Wall.LEFT), ((0, 1), Maze.Wall.RIGHT)),
         (((1, 1), Maze.Wall.RIGHT), ((2, 1), Maze.Wall.LEFT)),
         (((1, 1), Maze.Wall.UP), ((1, 2), Maze.Wall.DOWN)),
         (((1, 1), Maze.Wall.DOWN), ((1, 0), Maze.Wall.UP))),
+    TriMaze = (
+        (((1, 1), TriMaze.Wall.DIAGONAL_1), ((0, 1), TriMaze.Wall.DIAGONAL_1)),
+        (((1, 2), TriMaze.Wall.DIAGONAL_1), ((2, 2), TriMaze.Wall.DIAGONAL_1)),
+        (((1, 1), TriMaze.Wall.HORIZONTAL), ((1, 0), TriMaze.Wall.HORIZONTAL)),
+        (((1, 2), TriMaze.Wall.HORIZONTAL), ((1, 3), TriMaze.Wall.HORIZONTAL)),
+        (((1, 1), TriMaze.Wall.DIAGONAL_2), ((2, 1), TriMaze.Wall.DIAGONAL_2)),
+        (((1, 2), TriMaze.Wall.DIAGONAL_2), ((0, 2), TriMaze.Wall.DIAGONAL_2))),
     HexMaze = (
         (((1, 1), HexMaze.Wall.LEFT), ((0, 1), HexMaze.Wall.RIGHT)),
         (((1, 1), HexMaze.Wall.UP_LEFT), ((1, 2), HexMaze.Wall.DOWN_RIGHT)),
@@ -671,7 +677,7 @@ def Maze_room_positions(maze):
         room_positions)
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_edge_walls(maze):
     """Tests Maze.edge_wall for a large maze"""
     expected = set()
@@ -686,7 +692,7 @@ def Maze_edge_walls(maze):
         expected.remove(edge_wall)
 
 
-@maze_test(except_for = TriMaze, maze_size = (1, 10))
+@maze_test(maze_size = (1, 10))
 def Maze_edge_walls_tall(maze):
     """Tests Maze.edge_wall for a tall maze"""
     expected = set()
@@ -701,7 +707,7 @@ def Maze_edge_walls_tall(maze):
         expected.remove(edge_wall)
 
 
-@maze_test(except_for = TriMaze, maze_size = (10, 1))
+@maze_test(maze_size = (10, 1))
 def Maze_edge_walls_wide(maze):
     """Tests Maze.edge_wall for a wide maze"""
     expected = set()
@@ -787,7 +793,7 @@ def Maze_remove_door(maze):
         pass
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_set_door(maze):
     room = maze[4, 4]
 
@@ -926,7 +932,7 @@ def Maze_walk_from(maze):
                     pass
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_doors(maze):
     assert_eq(
         list(maze.doors((1, 1))),
@@ -980,7 +986,7 @@ def Maze_walk_path(maze):
         pass
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_walk_path(maze):
     """Tests that walking between adjacent rooms works as expected"""
     maze[(0, 0):(1, 0)] = True
@@ -990,7 +996,7 @@ def Maze_walk_path(maze):
         [(0, 0), (1, 0)])
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_with_randomized_prim(maze):
     """Tests that randomized_prim.initialize creates a valid maze"""
     def rand(m):
