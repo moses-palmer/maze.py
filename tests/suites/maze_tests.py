@@ -613,7 +613,7 @@ def Maze_index_tuple(maze):
         'Maze[x, y] did not yield a Room'
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_index_tuple(maze):
     """Tests that assigning to Maze[(x1, y1):(x2, y2)] works"""
     room = maze[4, 4]
@@ -665,14 +665,20 @@ def Maze_index_tuple(maze):
                 'Removing a door between adjacent rooms raised error'
 
     try:
-        maze[(-1, -1):(-1, 0)] = True
+        wall = maze.Wall((-5, -5), 0)
+        other_room_pos = tuple(r + d
+            for r, d in zip(wall.room_pos, wall.direction))
+        maze[wall.room_pos:other_room_pos] = True
         assert False, \
             'Adding a door outside of the maze did not raise error'
     except IndexError:
         pass
 
     try:
-        maze[(-1, -1):(-1, 0)] = False
+        wall = maze.Wall((-5, -5), 0)
+        other_room_pos = tuple(r + d
+            for r, d in zip(wall.room_pos, wall.direction))
+        maze[wall.room_pos:other_room_pos] = False
         assert False, \
             'Removing a door outside of the maze did not raise error'
     except IndexError:
