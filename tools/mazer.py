@@ -168,7 +168,7 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         # well as long as this is not a wall along the edge of the maze
         maze[wall.room_pos].painted.add(int(wall))
         if not maze.edge(wall):
-            maze[wall.back.room_pos].painted.add(int(wall.opposite))
+            maze[wall.back.room_pos].painted.add(int(wall.back))
 
         # If we have reached a dead end, we need to stroke the line and start
         # over with a wall from the queue
