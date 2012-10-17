@@ -32,6 +32,7 @@ class TriWall(BaseMaze.Wall):
         NAMES.append(name.lower())
         WALLS.append(i)
 
+
     @classmethod
     def from_direction(self, room_pos, direction):
         """
@@ -44,6 +45,25 @@ class TriWall(BaseMaze.Wall):
 
         raise ValueError('Invalid direction for %s: %s' % (
             str(room_pos), str(direction)))
+
+    @classmethod
+    def from_corner(self, room_pos, wall_index):
+        """
+        @see Maze.Wall.from_corner
+        """
+        start_wall = wall = self(room_pos, wall_index)
+
+        while True:
+            yield wall
+
+            back = wall.back
+            next_room_pos = back.room_pos
+            next_wall = (int(back) + 1) % len(self.WALLS)
+            next = self(next_room_pos, next_wall)
+            if next == start_wall:
+                break
+
+            wall = next
 
     def _get_opposite_index(self):
         """

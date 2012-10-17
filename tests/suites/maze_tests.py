@@ -274,7 +274,6 @@ def Maze_Wall_from_direction(maze, data):
 
 
 @maze_test(
-    except_for = TriMaze,
     Maze = {
         ((1, 1), Maze.Wall.UP): (
             ((1, 2), Maze.Wall.LEFT),
@@ -284,6 +283,19 @@ def Maze_Wall_from_direction(maze, data):
             ((0, 1), Maze.Wall.DOWN),
             ((0, 0), Maze.Wall.RIGHT),
             ((1, 1), Maze.Wall.DOWN))},
+    TriMaze = {
+        ((1, 1), TriMaze.Wall.DIAGONAL_2): (
+            ((2, 2), TriMaze.Wall.HORIZONTAL),
+            ((1, 2), TriMaze.Wall.DIAGONAL_1),
+            ((0, 2), TriMaze.Wall.DIAGONAL_2),
+            ((0, 1), TriMaze.Wall.HORIZONTAL),
+            ((1, 1), TriMaze.Wall.DIAGONAL_1)),
+        ((3, 0), TriMaze.Wall.HORIZONTAL): (
+            ((3, 1), TriMaze.Wall.DIAGONAL_1),
+            ((2, 1), TriMaze.Wall.DIAGONAL_2),
+            ((1, 1), TriMaze.Wall.HORIZONTAL),
+            ((1, 0), TriMaze.Wall.DIAGONAL_1),
+            ((2, 0), TriMaze.Wall.DIAGONAL_2))},
     HexMaze = {
         ((1, 1), HexMaze.Wall.UP_LEFT): (
             ((1, 2), HexMaze.Wall.DOWN_LEFT),
