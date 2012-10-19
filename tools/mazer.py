@@ -111,6 +111,8 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     ctx.set_source_rgb(*background_color)
     ctx.paint()
 
+    ctx.translate(wall_width, wall_width)
+
     # Note that we have not yet painted any walls for any rooms
     for room_pos in maze.room_positions:
         maze[room_pos].painted = set()
@@ -160,8 +162,8 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         # Make (0.0, 0.0) the centre of the room
         offset_x, offset_y = maze.get_center(wall.room_pos)
         ctx.translate(
-            offset_x * room_width + wall_width,
-            (max_y - offset_y) * room_height + wall_width)
+            offset_x * room_width,
+            (max_y - offset_y) * room_height)
 
         # If we need to move, we move to the end of the span since
         # maze.Wall.from_corner will yield walls with the start span in the
@@ -201,8 +203,8 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         # Make (0.0, 0.0) the centre of the room
         offset_x, offset_y = maze.get_center((x, y))
         ctx.translate(
-            offset_x * room_width + wall_width,
-            (max_y - offset_y) * room_height + wall_width)
+            offset_x * room_width,
+            (max_y - offset_y) * room_height)
 
         # Draw a line from the centre to the middle of the wall span
         if i == 0:
