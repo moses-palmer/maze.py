@@ -1,13 +1,12 @@
 import random
 import re
+import sys
 
 from maze.quad import Maze
 from maze.hex import HexMaze
 from maze.randomized_prim import initialize
 
 def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
-    import sys
-
     if len(maze.Wall.WALLS) != 4:
         print 'This maze cannot be printed as it is not square'
         return
@@ -85,18 +84,19 @@ def make_image(maze, solution, (room_width, room_height), image_file,
 
     # Calculate the actual size of the image
     max_x, max_y = 0, 0
-    for y in xrange(maze.height):
-        row = (maze.width - 1,) if y < maze.height - 1 else xrange(maze.width)
-        for x in row:
-            cx, cy = maze.get_center((x, y))
-            max_x = max(max_x, cx + 0.5)
-            max_y = max(max_y, cy + 0.5)
+    min_x, min_y = sys.maxint, sys.maxint
+    for wall in maze.edge_walls:
+        a = wall.span[0]
+        cx, cy = maze.get_center(wall.room_pos)
+        px, py = cx + math.cos(a), cy - math.sin(a)
+        max_x, max_y = max(max_x, px), max(max_y, py)
+        min_x, min_y = min(min_x, px), min(min_y, py)
 
     # Create the cairo surface and context
     surface = cairo.ImageSurface(
         cairo.FORMAT_RGB24,
-        int(max_x * room_width) + 2 * wall_width,
-        int(max_y * room_height) + 2 * wall_width)
+        int((max_x - min_x) * room_width) + 2 * wall_width + 1,
+        int((max_y - min_y) * room_height) + 2 * wall_width + 1)
     ctx = cairo.Context(surface)
 
     # Calculate the multiplication factor for the room size
@@ -111,7 +111,9 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     ctx.set_source_rgb(*background_color)
     ctx.paint()
 
-    ctx.translate(wall_width, wall_width)
+    ctx.translate(
+        wall_width - min_x * room_width,
+        wall_width - min_y * room_width)
 
     # Note that we have not yet painted any walls for any rooms
     for room_pos in maze.room_positions:
