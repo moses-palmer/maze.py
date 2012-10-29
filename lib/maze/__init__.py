@@ -346,6 +346,19 @@ class BaseMaze(object):
             for y in xrange(0, self.height):
                 yield (x, y)
 
+    @property
+    def edge_walls(self):
+        """A generator that yields all walls on the edge of the maze; the order
+        is undefined"""
+        for y in xrange(0, self.height):
+            row = (0,) if self.width == 1 \
+                else (0, self.width - 1) if y == 0 or y == self.height - 1 \
+                else xrange(0, self.width)
+            for x in row:
+                for wall in self.walls((x, y)):
+                    if self.edge(wall):
+                        yield wall
+
     def add_door(self, from_pos, to_pos):
         """
         Adds a door between two rooms.

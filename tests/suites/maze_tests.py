@@ -656,6 +656,51 @@ def Maze_room_positions(maze):
 
 
 @maze_test
+def Maze_edge_walls(maze):
+    """Tests Maze.edge_wall for a large maze"""
+    expected = set()
+    for room_pos in maze.room_positions:
+        for wall in maze.walls(room_pos):
+            if maze.edge(wall):
+                expected.add((room_pos, int(wall)))
+    for w in maze.edge_walls:
+        edge_wall = (w.room_pos, int(w))
+        assert edge_wall in expected, \
+            '%s is not on the edge' % str(w)
+        expected.remove(edge_wall)
+
+
+@maze_test(maze_size = (1, 10))
+def Maze_edge_walls_tall(maze):
+    """Tests Maze.edge_wall for a tall maze"""
+    expected = set()
+    for room_pos in maze.room_positions:
+        for wall in maze.walls(room_pos):
+            if maze.edge(wall):
+                expected.add((room_pos, int(wall)))
+    for w in maze.edge_walls:
+        edge_wall = (w.room_pos, int(w))
+        assert edge_wall in expected, \
+            '%s is not on the edge' % str(w)
+        expected.remove(edge_wall)
+
+
+@maze_test(maze_size = (10, 1))
+def Maze_edge_walls_wide(maze):
+    """Tests Maze.edge_wall for a wide maze"""
+    expected = set()
+    for room_pos in maze.room_positions:
+        for wall in maze.walls(room_pos):
+            if maze.edge(wall):
+                expected.add((room_pos, int(wall)))
+    for w in maze.edge_walls:
+        edge_wall = (w.room_pos, int(w))
+        assert edge_wall in expected, \
+            '%s is not on the edge' % str(w)
+        expected.remove(edge_wall)
+
+
+@maze_test
 def Maze_add_door(maze):
     room = maze[4, 4]
 
