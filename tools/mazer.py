@@ -111,13 +111,15 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     ctx.set_source_rgb(*background_color)
     ctx.paint()
 
-    ctx.translate(
-        wall_width - min_x * room_width,
-        wall_width - min_y * room_width)
+    ctx.translate(wall_width, wall_width)
 
     # Note that we have not yet painted any walls for any rooms
     for room_pos in maze.room_positions:
         maze[room_pos].painted = set()
+
+    def align(*coords):
+        return tuple(round(c - o)
+            for c, o in zip(coords, (min_x * room_width, min_y * room_height)))
 
     # Initialise the wall queue
     queue = []
@@ -154,18 +156,16 @@ def make_image(maze, solution, (room_width, room_height), image_file,
 
         start_angle, end_angle = wall.span
 
-        def angle_to_coordinate(angle):
-            return (
-                dx * room_width *  math.cos(angle),
-                -dy * room_height *  math.sin(angle))
-
-        ctx.save()
-
-        # Make (0.0, 0.0) the centre of the room
+        # Make (0.0, 0.0) the centre of the room; this is handled in
+        # angle_to_coordinate
         offset_x, offset_y = maze.get_center(wall.room_pos)
-        ctx.translate(
-            offset_x * room_width,
-            (max_y - offset_y) * room_height)
+
+        def angle_to_coordinate(angle):
+            return align(
+                offset_x * room_width
+                    + dx * room_width *  math.cos(angle),
+                (max_y - offset_y) * room_height
+                    - dy * room_height *  math.sin(angle))
 
         # If we need to move, we move to the end of the span since
         # maze.Wall.from_corner will yield walls with the start span in the
@@ -173,8 +173,6 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         if needs_move:
             ctx.move_to(*angle_to_coordinate(end_angle))
         ctx.line_to(*angle_to_coordinate(start_angle))
-
-        ctx.restore()
 
         # Mark the current wall as painted, and the wall on the other side as
         # well as long as this is not a wall along the edge of the maze
@@ -204,9 +202,9 @@ def make_image(maze, solution, (room_width, room_height), image_file,
 
         # Make (0.0, 0.0) the centre of the room
         offset_x, offset_y = maze.get_center((x, y))
-        ctx.translate(
+        ctx.translate(*align(
             offset_x * room_width,
-            (max_y - offset_y) * room_height)
+            (max_y - offset_y) * room_height))
 
         # Draw a line from the centre to the middle of the wall span
         if i == 0:
