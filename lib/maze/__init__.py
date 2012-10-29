@@ -417,15 +417,16 @@ class BaseMaze(object):
         """
         Returns the physical coordinates of the centre of a room.
 
-        For a maze with square rooms, this will be (0.5, 0.5) for the room at
-        (0, 0).
+        If lines are drawn on a circle with radius 1.0 centered on this point
+        between the angles corresponding to the spans of the walls, the lines o
+        adjacent rooms will cover each other.
 
         @param room_pos
             The position of the room.
         @return the coordinates of the room
         @raise IndexError if a room lies outside of the maze
         """
-        return tuple(d + 0.5 for d in room_pos)
+        raise NotImplementedError()
 
     def adjacent(self, room1_pos, room2_pos):
         """

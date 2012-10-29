@@ -1,3 +1,4 @@
+import math
 import random
 import re
 import sys
@@ -74,8 +75,6 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
 
 def make_image(maze, solution, (room_width, room_height), image_file,
         background_color, wall_color, path_color, wall_width, path_width):
-    import math
-
     try:
         import cairo
     except ImportError:
@@ -98,14 +97,6 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         int((max_x - min_x) * room_width) + 2 * wall_width + 1,
         int((max_y - min_y) * room_height) + 2 * wall_width + 1)
     ctx = cairo.Context(surface)
-
-    # Calculate the multiplication factor for the room size
-    idx, idy = 0.0, 0.0
-    for wall in maze.Wall.from_room_pos((0, 0)):
-        span = wall.span
-        idx = max(idx, abs(math.cos(span[0])))
-        idy = max(idy, abs(math.sin(span[0])))
-    dx, dy = 0.5 / idx, 0.5 / idy
 
     # Clear the background
     ctx.set_source_rgb(*background_color)
@@ -163,9 +154,9 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         def angle_to_coordinate(angle):
             return align(
                 offset_x * room_width
-                    + dx * room_width *  math.cos(angle),
+                    + room_width *  math.cos(angle),
                 (max_y - offset_y) * room_height
-                    - dy * room_height *  math.sin(angle))
+                    - room_height *  math.sin(angle))
 
         # If we need to move, we move to the end of the span since
         # maze.Wall.from_corner will yield walls with the start span in the
@@ -277,7 +268,7 @@ if __name__ == '__main__':
             raise argparse.ArgumentTypeError(
                 'The maze room size in the image must be greater than 0')
         else:
-            return result
+            return int(0.5 * math.sqrt(2.0) * result)
     parser.add_argument('--image-room-size', type = image_room_size, nargs = 2,
         metavar = ('WIDTH', 'HEIGHT'),
         default = (30, 30),

@@ -30,8 +30,18 @@ class QuadWall(BaseWall):
         NAMES.append(name.lower())
         WALLS.append(i)
 
+    MULTIPLICATOR = 2.0 / math.sqrt(2.0)
+
 class Maze(BaseMaze):
     """
     This is a maze with square rooms.
     """
     Wall = QuadWall
+
+    def get_center(self, room_pos):
+        """
+        @see Maze.get_center
+        """
+        return (
+            (room_pos[0] + 0.5) * self.Wall.MULTIPLICATOR,
+            (room_pos[1] + 0.5) * self.Wall.MULTIPLICATOR)
