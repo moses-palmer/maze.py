@@ -142,7 +142,8 @@ def HexMaze_walk_path():
 
 MAZE_TYPES = (Maze, HexMaze)
 
-def maze_test(test_function = None, except_for = [], **kwargs):
+def maze_test(test_function = None, except_for = [], maze_size = (10, 20),
+        **kwargs):
     """
     A decorator used to run a particular test for all types of mazes.
 
@@ -153,11 +154,13 @@ def maze_test(test_function = None, except_for = [], **kwargs):
         A list of maze types for which this test should not be run. This may
         also be a maze type, which it treated as a list containing only that
         type.
+    @param maze_size
+        The size of the maze used in the test.
     @param <maze type name> as data
         Data passed to the test function as the named parameter 'data'. None
     """
     if not test_function:
-        return lambda test: maze_test(test, except_for, **kwargs)
+        return lambda test: maze_test(test, except_for, maze_size, **kwargs)
 
     try:
         except_for = iter(except_for)
@@ -173,7 +176,7 @@ def maze_test(test_function = None, except_for = [], **kwargs):
         for maze_class in maze_classes:
             if maze_class in except_for:
                 continue
-            maze = maze_class(10, 20)
+            maze = maze_class(*maze_size)
             try:
                 if maze.__class__.__name__ in kwargs:
                     test_function(maze, data = kwargs[maze.__class__.__name__])
@@ -187,6 +190,12 @@ def maze_test(test_function = None, except_for = [], **kwargs):
     inner.__name__ = test_function.__name__
 
     return test(inner)
+
+
+@maze_test(maze_size = (12, 34))
+def maze_test_maze_size(maze):
+    assert maze.width == 12 and maze.height == 34, \
+        'Passing maze_size to maze_test did not change the size of the maze'
 
 
 @maze_test
