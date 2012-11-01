@@ -892,7 +892,7 @@ def Maze_set_door(maze):
             'Maze.set_door did not close the door in the second room'
 
 
-@maze_test(except_for = TriMaze)
+@maze_test
 def Maze_get_center(maze):
     for room_pos in maze.room_positions:
         for wall in maze.walls(room_pos):

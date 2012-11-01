@@ -32,6 +32,9 @@ class TriWall(BaseMaze.Wall):
         NAMES.append(name.lower())
         WALLS.append(i)
 
+    HORIZONTAL_MULTIPLICATOR = math.cos(math.pi / 2 + 2 * 2 * math.pi / 3)
+    VERTICAL_MULTIPLICATOR = 2 + math.sin(math.pi / 2 + 2 * math.pi / 3)
+    OFFSET = 0.5 * (1 + math.sin(math.pi / 2 + 2 * math.pi / 3))
 
     @classmethod
     def from_direction(self, room_pos, direction):
@@ -101,3 +104,14 @@ class TriMaze(BaseMaze):
     This is a maze with triangular rooms.
     """
     Wall = TriWall
+
+    def get_center(self, room_pos):
+        """
+        @see Maze.get_center
+        """
+        alt = (room_pos[0] + room_pos[1]) % 2
+        sign = 1 if alt == 1 else -1
+        return (
+            (room_pos[0] + 0.5) * self.Wall.HORIZONTAL_MULTIPLICATOR,
+            (room_pos[1] + 0.5) * self.Wall.VERTICAL_MULTIPLICATOR \
+                + sign * self.Wall.OFFSET)
