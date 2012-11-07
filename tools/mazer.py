@@ -1,13 +1,13 @@
+import math
 import random
 import re
+import sys
 
 from maze.quad import Maze
 from maze.hex import HexMaze
 from maze.randomized_prim import initialize
 
 def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
-    import sys
-
     if len(maze.Wall.WALLS) != 4:
         print 'This maze cannot be printed as it is not square'
         return
@@ -75,8 +75,6 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
 
 def make_image(maze, solution, (room_width, room_height), image_file,
         background_color, wall_color, path_color, wall_width, path_width):
-    import math
-
     try:
         import cairo
     except ImportError:
@@ -85,27 +83,20 @@ def make_image(maze, solution, (room_width, room_height), image_file,
 
     # Calculate the actual size of the image
     max_x, max_y = 0, 0
-    for y in xrange(maze.height):
-        row = (maze.width - 1,) if y < maze.height - 1 else xrange(maze.width)
-        for x in row:
-            cx, cy = maze.get_center((x, y))
-            max_x = max(max_x, cx + 0.5)
-            max_y = max(max_y, cy + 0.5)
+    min_x, min_y = sys.maxint, sys.maxint
+    for wall in maze.edge_walls:
+        a = wall.span[0]
+        cx, cy = maze.get_center(wall.room_pos)
+        px, py = cx + math.cos(a), cy + math.sin(a)
+        max_x, max_y = max(max_x, px), max(max_y, py)
+        min_x, min_y = min(min_x, px), min(min_y, py)
 
     # Create the cairo surface and context
     surface = cairo.ImageSurface(
         cairo.FORMAT_RGB24,
-        int(max_x * room_width) + 2 * wall_width,
-        int(max_y * room_height) + 2 * wall_width)
+        int((max_x - min_x) * room_width) + 2 * wall_width + 1,
+        int((max_y - min_y) * room_height) + 2 * wall_width + 1)
     ctx = cairo.Context(surface)
-
-    # Calculate the multiplication factor for the room size
-    idx, idy = 0.0, 0.0
-    for wall in maze.Wall.from_room_pos((0, 0)):
-        span = wall.span
-        idx = max(idx, abs(math.cos(span[0])))
-        idy = max(idy, abs(math.sin(span[0])))
-    dx, dy = 0.5 / idx, 0.5 / idy
 
     # Clear the background
     ctx.set_source_rgb(*background_color)
@@ -114,6 +105,13 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     # Note that we have not yet painted any walls for any rooms
     for room_pos in maze.room_positions:
         maze[room_pos].painted = set()
+
+    def coords(x, y):
+        return (
+            wall_width + (
+                round((x - min_x) * room_width)),
+            surface.get_height() - wall_width - (
+                round((y - min_y) * room_height)))
 
     # Initialise the wall queue
     queue = []
@@ -150,18 +148,14 @@ def make_image(maze, solution, (room_width, room_height), image_file,
 
         start_angle, end_angle = wall.span
 
-        def angle_to_coordinate(angle):
-            return (
-                dx * room_width *  math.cos(angle),
-                -dy * room_height *  math.sin(angle))
-
-        ctx.save()
-
-        # Make (0.0, 0.0) the centre of the room
+        # Make (0.0, 0.0) the centre of the room; this is handled in
+        # angle_to_coordinate
         offset_x, offset_y = maze.get_center(wall.room_pos)
-        ctx.translate(
-            offset_x * room_width + wall_width,
-            (max_y - offset_y) * room_height + wall_width)
+
+        def angle_to_coordinate(angle):
+            return coords(
+                offset_x + math.cos(angle),
+                offset_y + math.sin(angle))
 
         # If we need to move, we move to the end of the span since
         # maze.Wall.from_corner will yield walls with the start span in the
@@ -169,8 +163,6 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         if needs_move:
             ctx.move_to(*angle_to_coordinate(end_angle))
         ctx.line_to(*angle_to_coordinate(start_angle))
-
-        ctx.restore()
 
         # Mark the current wall as painted, and the wall on the other side as
         # well as long as this is not a wall along the edge of the maze
@@ -195,22 +187,13 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     # Draw the path
     ctx.set_source_rgb(*path_color)
     ctx.set_line_width(path_width)
-    for i, (x, y) in enumerate(solution):
-        ctx.save()
-
-        # Make (0.0, 0.0) the centre of the room
-        offset_x, offset_y = maze.get_center((x, y))
-        ctx.translate(
-            offset_x * room_width + wall_width,
-            (max_y - offset_y) * room_height + wall_width)
-
+    for i, room_pos in enumerate(solution):
         # Draw a line from the centre to the middle of the wall span
+        center = coords(*maze.get_center(room_pos))
         if i == 0:
-            ctx.move_to(0, 0)
+            ctx.move_to(*center)
         else:
-            ctx.line_to(0, 0)
-
-        ctx.restore()
+            ctx.line_to(*center)
 
     ctx.stroke()
 
@@ -275,7 +258,7 @@ if __name__ == '__main__':
             raise argparse.ArgumentTypeError(
                 'The maze room size in the image must be greater than 0')
         else:
-            return result
+            return int(0.5 * math.sqrt(2.0) * result)
     parser.add_argument('--image-room-size', type = image_room_size, nargs = 2,
         metavar = ('WIDTH', 'HEIGHT'),
         default = (30, 30),

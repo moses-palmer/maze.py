@@ -305,7 +305,10 @@ class BaseMaze(object):
         if isinstance(room_pos, slice):
             # A request to set the wall between two rooms
             from_pos, to_pos = room_pos.start, room_pos.stop
-            self._set_door(from_pos, to_pos, value)
+            if value:
+                self.add_door(from_pos, to_pos)
+            else:
+                self.remove_door(from_pos, to_pos)
             return
 
         raise TypeError()
@@ -321,33 +324,6 @@ class BaseMaze(object):
 
     def __iter__(self):
         return (room_pos for room_pos in self.room_positions if self[room_pos])
-
-    def _set_door(self, from_pos, to_pos, has_door):
-        """
-        Adds or removes a door between two rooms.
-
-        @param from_pos, to_pos
-            The coordinates of the rooms.
-        @param has_door
-            True to add the door and False to remove it.
-        @raise IndexError if a room lies outside of the maze
-        @raise ValueError if the rooms are not adjacent
-        """
-        if not from_pos in self and to_pos in self:
-            raise IndexError()
-        if not self.adjacent(from_pos, to_pos):
-            raise ValueError('No wall between %s and %s' % (
-                str(from_pos), str(to_pos)))
-
-        direction = (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1])
-        wall = self.__class__.Wall.from_direction(from_pos, direction)
-
-        from_room = self[from_pos]
-        from_room[wall] = has_door
-
-        if to_pos in self:
-            to_room = self[to_pos]
-            to_room[wall.opposite] = has_door
 
     def __init__(self, width, height):
         """
@@ -370,6 +346,19 @@ class BaseMaze(object):
             for y in xrange(0, self.height):
                 yield (x, y)
 
+    @property
+    def edge_walls(self):
+        """A generator that yields all walls on the edge of the maze; the order
+        is undefined"""
+        for y in xrange(0, self.height):
+            row = (0,) if self.width == 1 \
+                else (0, self.width - 1) if y == 0 or y == self.height - 1 \
+                else xrange(0, self.width)
+            for x in row:
+                for wall in self.walls((x, y)):
+                    if self.edge(wall):
+                        yield wall
+
     def add_door(self, from_pos, to_pos):
         """
         Adds a door between two rooms.
@@ -379,7 +368,10 @@ class BaseMaze(object):
         @raise IndexError if a room lies outside of the maze
         @raise ValueError if the rooms are not adjacent
         """
-        self._set_door(from_pos, to_pos, True)
+        direction = (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1])
+        wall = self.__class__.Wall.from_direction(from_pos, direction)
+
+        self.set_door(from_pos, wall, True)
 
     def remove_door(self, from_pos, to_pos):
         """
@@ -390,7 +382,10 @@ class BaseMaze(object):
         @raise IndexError if a room lies outside of the maze
         @raise ValueError if the rooms are not adjacent
         """
-        return self._set_door(from_pos, to_pos, False)
+        direction = (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1])
+        wall = self.__class__.Wall.from_direction(from_pos, direction)
+
+        return self.set_door(from_pos, wall, False)
 
     def set_door(self, room_pos, wall, has_door):
         """
@@ -402,7 +397,7 @@ class BaseMaze(object):
             The wall to modify.
         @param has_door
             True to add the door and False to remove it.
-        @raise IndexError if a room lies outside of the maze
+        @raise IndexError if room_pos lies outside of the maze
         """
         if not room_pos in self:
             raise IndexError()
@@ -422,15 +417,16 @@ class BaseMaze(object):
         """
         Returns the physical coordinates of the centre of a room.
 
-        For a maze with square rooms, this will be (0.5, 0.5) for the room at
-        (0, 0).
+        If lines are drawn on a circle with radius 1.0 centered on this point
+        between the angles corresponding to the spans of the walls, the lines o
+        adjacent rooms will cover each other.
 
         @param room_pos
             The position of the room.
         @return the coordinates of the room
         @raise IndexError if a room lies outside of the maze
         """
-        return tuple(d + 0.5 for d in room_pos)
+        raise NotImplementedError()
 
     def adjacent(self, room1_pos, room2_pos):
         """

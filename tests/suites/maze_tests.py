@@ -22,24 +22,6 @@ import maze.randomized_prim as randomized_prim
 
 
 @test
-def Maze_get_center():
-    maze = Maze(10, 20)
-
-    assert_eq(maze.get_center((0, 0)), (0.5, 0.5))
-
-
-@test
-def HexMaze_get_center():
-    maze = HexMaze(10, 20)
-
-    assert_eq(maze.get_center((0, 0)), (0.5, 0.5))
-    assert sum(abs(a - b) for a, b in zip(
-            maze.get_center((0, 1)),
-            (1.0, 0.5 + 1.0 - 0.5 * math.sin(5 * math.pi / 6)))) < 0.001, \
-        'The room (0, 1) is incorrectly centered'
-
-
-@test
 def Maze_edge():
     maze = Maze(10, 20)
 
@@ -142,7 +124,8 @@ def HexMaze_walk_path():
 
 MAZE_TYPES = (Maze, HexMaze)
 
-def maze_test(test_function = None, except_for = [], **kwargs):
+def maze_test(test_function = None, except_for = [], maze_size = (10, 20),
+        **kwargs):
     """
     A decorator used to run a particular test for all types of mazes.
 
@@ -153,11 +136,13 @@ def maze_test(test_function = None, except_for = [], **kwargs):
         A list of maze types for which this test should not be run. This may
         also be a maze type, which it treated as a list containing only that
         type.
+    @param maze_size
+        The size of the maze used in the test.
     @param <maze type name> as data
         Data passed to the test function as the named parameter 'data'. None
     """
     if not test_function:
-        return lambda test: maze_test(test, except_for, **kwargs)
+        return lambda test: maze_test(test, except_for, maze_size, **kwargs)
 
     try:
         except_for = iter(except_for)
@@ -173,7 +158,7 @@ def maze_test(test_function = None, except_for = [], **kwargs):
         for maze_class in maze_classes:
             if maze_class in except_for:
                 continue
-            maze = maze_class(10, 20)
+            maze = maze_class(*maze_size)
             try:
                 if maze.__class__.__name__ in kwargs:
                     test_function(maze, data = kwargs[maze.__class__.__name__])
@@ -187,6 +172,12 @@ def maze_test(test_function = None, except_for = [], **kwargs):
     inner.__name__ = test_function.__name__
 
     return test(inner)
+
+
+@maze_test(maze_size = (12, 34))
+def maze_test_maze_size(maze):
+    assert maze.width == 12 and maze.height == 34, \
+        'Passing maze_size to maze_test did not change the size of the maze'
 
 
 @maze_test
@@ -647,6 +638,51 @@ def Maze_room_positions(maze):
 
 
 @maze_test
+def Maze_edge_walls(maze):
+    """Tests Maze.edge_wall for a large maze"""
+    expected = set()
+    for room_pos in maze.room_positions:
+        for wall in maze.walls(room_pos):
+            if maze.edge(wall):
+                expected.add((room_pos, int(wall)))
+    for w in maze.edge_walls:
+        edge_wall = (w.room_pos, int(w))
+        assert edge_wall in expected, \
+            '%s is not on the edge' % str(w)
+        expected.remove(edge_wall)
+
+
+@maze_test(maze_size = (1, 10))
+def Maze_edge_walls_tall(maze):
+    """Tests Maze.edge_wall for a tall maze"""
+    expected = set()
+    for room_pos in maze.room_positions:
+        for wall in maze.walls(room_pos):
+            if maze.edge(wall):
+                expected.add((room_pos, int(wall)))
+    for w in maze.edge_walls:
+        edge_wall = (w.room_pos, int(w))
+        assert edge_wall in expected, \
+            '%s is not on the edge' % str(w)
+        expected.remove(edge_wall)
+
+
+@maze_test(maze_size = (10, 1))
+def Maze_edge_walls_wide(maze):
+    """Tests Maze.edge_wall for a wide maze"""
+    expected = set()
+    for room_pos in maze.room_positions:
+        for wall in maze.walls(room_pos):
+            if maze.edge(wall):
+                expected.add((room_pos, int(wall)))
+    for w in maze.edge_walls:
+        edge_wall = (w.room_pos, int(w))
+        assert edge_wall in expected, \
+            '%s is not on the edge' % str(w)
+        expected.remove(edge_wall)
+
+
+@maze_test
 def Maze_add_door(maze):
     room = maze[4, 4]
 
@@ -741,6 +777,42 @@ def Maze_set_door(maze):
             'Maze.set_door did not close the door in the first room'
         assert not wall.back in other_room, \
             'Maze.set_door did not close the door in the second room'
+
+
+@maze_test
+def Maze_get_center(maze):
+    for room_pos in maze.room_positions:
+        for wall in maze.walls(room_pos):
+            if maze.edge(wall):
+                continue
+
+            center = maze.get_center(room_pos)
+            corners = [(
+                center[0] + math.cos(span),
+                center[1] + math.sin(span)) for span in wall.span]
+
+            other_center = maze.get_center(wall.back.room_pos)
+            other_corners = [(
+                other_center[0] + math.cos(span),
+                other_center[1] + math.sin(span)) for span in wall.back.span]
+            other_corner_display = tuple(other_corners)
+
+            for corner in corners:
+                found = False
+                for other_corner in other_corners:
+                    if math.sqrt(sum((c - oc)**2
+                            for c, oc in zip(corner, other_corner))) < 0.001:
+                        found = True
+                        other_corners.remove(other_corner)
+                        break
+
+                assert found, \
+                    'The corner %s for the wall %s did not meet a corner in ' \
+                    'the back wall %s (with corners at %s)' % (
+                        str(corner),
+                        str(wall),
+                        str(wall.back),
+                        str(other_corner_display))
 
 
 @maze_test
