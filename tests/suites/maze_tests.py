@@ -80,6 +80,32 @@ def HexMaze_edge():
 
 
 @test
+def TriMaze_edge():
+    maze = TriMaze(10, 20)
+
+    for x in xrange(-5, maze.width + 5):
+        for y in xrange(-5, maze.height + 5):
+            for w in maze.Wall.WALLS:
+                expected = (x, y) in maze and (False
+                    or (w == maze.Wall.HORIZONTAL and y == 0 and not x % 2)
+                    or (w == maze.Wall.HORIZONTAL and y == maze.height - 1
+                        and (x + y) % 2)
+                    or (w == maze.Wall.DIAGONAL_1 and x == 0 and not y % 2)
+                    or (w == maze.Wall.DIAGONAL_2 and x == 0 and y % 2)
+                    or (w == maze.Wall.DIAGONAL_1 and x == maze.width - 1
+                        and (x + y) % 2)
+                    or (w == maze.Wall.DIAGONAL_2 and x == maze.width - 1
+                        and not (x + y) % 2))
+
+                actual = maze.edge(maze.Wall((x, y), w))
+                assert expected == actual, \
+                    '((%d, %d), %s)) was incorrectly labelled as %s' % (
+                        x, y,
+                        maze.Wall.NAMES[w],
+                        'edge' if not expected else 'non-edge')
+
+
+@test
 def Maze_walk_path():
     """Tests that the shortest path is selected"""
     maze = Maze(10, 20)
