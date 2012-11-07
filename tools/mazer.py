@@ -4,6 +4,7 @@ import re
 import sys
 
 from maze.quad import Maze
+from maze.tri import TriMaze
 from maze.hex import HexMaze
 from maze.randomized_prim import initialize
 
@@ -219,7 +220,7 @@ if __name__ == '__main__':
         help = 'The size of the maze.')
 
     maze_classes = dict((len(mc.Wall.WALLS), mc) for mc in (
-        Maze, HexMaze))
+        Maze, TriMaze, HexMaze))
     parser.add_argument('--walls', type = int,
         choices = maze_classes.keys(),
         default = 4,
