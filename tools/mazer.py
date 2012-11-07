@@ -187,20 +187,13 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     # Draw the path
     ctx.set_source_rgb(*path_color)
     ctx.set_line_width(path_width)
-    for i, (x, y) in enumerate(solution):
-        ctx.save()
-
-        # Make (0.0, 0.0) the centre of the room
-        offset_x, offset_y = maze.get_center((x, y))
-        ctx.translate(*coords(offset_x, offset_y))
-
+    for i, room_pos in enumerate(solution):
         # Draw a line from the centre to the middle of the wall span
+        center = coords(*maze.get_center(room_pos))
         if i == 0:
-            ctx.move_to(0, 0)
+            ctx.move_to(*center)
         else:
-            ctx.line_to(0, 0)
-
-        ctx.restore()
+            ctx.line_to(*center)
 
     ctx.stroke()
 
