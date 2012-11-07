@@ -26,6 +26,7 @@ except ImportError:
         raise
 
 from maze.quad import Maze
+from maze.tri import TriMaze
 from maze.hex import HexMaze
 from maze.randomized_prim import initialize
 
@@ -50,7 +51,7 @@ def profiler(func):
     be run for every maze type.
     """
     def runner():
-        for maze_type in (Maze, HexMaze):
+        for maze_type in (Maze, TriMaze, HexMaze):
             # Create the maze and initialise it
             maze = maze_type(*getattr(func, 'maze_size', MAZE_SIZE))
             initializer = getattr(func, 'initializer', None)

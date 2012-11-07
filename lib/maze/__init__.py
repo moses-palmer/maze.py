@@ -23,7 +23,7 @@ class BaseWall(object):
             return False
         if self.wall == other.wall and self.room_pos == other.room_pos:
             return True
-        if self.wall == other._get_opposite_index() \
+        if self.wall == other._get_back_index() \
                 and all(s + d == o for s, d, o in zip(
                     self.room_pos,
                     self.direction,
@@ -103,6 +103,14 @@ class BaseWall(object):
         """
         return (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
 
+    def _get_back_index(self):
+        """
+        Returns the index of the wall on the back of this wall.
+
+        @return the back wall
+        """
+        return self._get_opposite_index()
+
     def _get_opposite(self):
         """
         Returns the opposite wall.
@@ -160,7 +168,7 @@ class BaseWall(object):
             (
                 self.room_pos[0] + direction[0],
                 self.room_pos[1] + direction[1]),
-            self._get_opposite_index())
+            self._get_back_index())
 
     @property
     def corner_walls(self):

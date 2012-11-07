@@ -4,6 +4,7 @@ import re
 import sys
 
 from maze.quad import Maze
+from maze.tri import TriMaze
 from maze.hex import HexMaze
 from maze.randomized_prim import initialize
 
@@ -168,7 +169,7 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         # well as long as this is not a wall along the edge of the maze
         maze[wall.room_pos].painted.add(int(wall))
         if not maze.edge(wall):
-            maze[wall.back.room_pos].painted.add(int(wall.opposite))
+            maze[wall.back.room_pos].painted.add(int(wall.back))
 
         # If we have reached a dead end, we need to stroke the line and start
         # over with a wall from the queue
@@ -219,7 +220,7 @@ if __name__ == '__main__':
         help = 'The size of the maze.')
 
     maze_classes = dict((len(mc.Wall.WALLS), mc) for mc in (
-        Maze, HexMaze))
+        Maze, TriMaze, HexMaze))
     parser.add_argument('--walls', type = int,
         choices = maze_classes.keys(),
         default = 4,

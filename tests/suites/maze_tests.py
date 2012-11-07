@@ -16,6 +16,7 @@ import random
 from tests import *
 from maze import *
 from maze.quad import *
+from maze.tri import *
 from maze.hex import *
 
 import maze.randomized_prim as randomized_prim
@@ -79,6 +80,32 @@ def HexMaze_edge():
 
 
 @test
+def TriMaze_edge():
+    maze = TriMaze(10, 20)
+
+    for x in xrange(-5, maze.width + 5):
+        for y in xrange(-5, maze.height + 5):
+            for w in maze.Wall.WALLS:
+                expected = (x, y) in maze and (False
+                    or (w == maze.Wall.HORIZONTAL and y == 0 and not x % 2)
+                    or (w == maze.Wall.HORIZONTAL and y == maze.height - 1
+                        and (x + y) % 2)
+                    or (w == maze.Wall.DIAGONAL_1 and x == 0 and not y % 2)
+                    or (w == maze.Wall.DIAGONAL_2 and x == 0 and y % 2)
+                    or (w == maze.Wall.DIAGONAL_1 and x == maze.width - 1
+                        and (x + y) % 2)
+                    or (w == maze.Wall.DIAGONAL_2 and x == maze.width - 1
+                        and not (x + y) % 2))
+
+                actual = maze.edge(maze.Wall((x, y), w))
+                assert expected == actual, \
+                    '((%d, %d), %s)) was incorrectly labelled as %s' % (
+                        x, y,
+                        maze.Wall.NAMES[w],
+                        'edge' if not expected else 'non-edge')
+
+
+@test
 def Maze_walk_path():
     """Tests that the shortest path is selected"""
     maze = Maze(10, 20)
@@ -122,7 +149,29 @@ def HexMaze_walk_path():
         [(0, 0), (1, 0), (2, 0)])
 
 
-MAZE_TYPES = (Maze, HexMaze)
+@test
+def TriMaze_walk_path():
+    """Tests that the shortest path is selected"""
+    maze = TriMaze(10, 20)
+
+    maze[(1, 0):(1, 1)] = True
+    maze[(1, 1):(2, 1)] = True
+    maze[(2, 1):(3, 1)] = True
+    maze[(3, 1):(3, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((1, 0), (3, 0))),
+        [(1, 0), (1, 1), (2, 1), (3, 1), (3, 0)])
+
+    maze[(1, 0):(2, 0)] = True
+    maze[(2, 0):(3, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((1, 0), (3, 0))),
+        [(1, 0), (2, 0), (3, 0)])
+
+
+MAZE_TYPES = (Maze, TriMaze, HexMaze)
 
 def maze_test(test_function = None, except_for = [], maze_size = (10, 20),
         **kwargs):
@@ -232,6 +281,23 @@ def Maze_Wall_int(maze):
             (0, 1),
             (1, 0),
             (0, -1))},
+    TriMaze = {
+        (0, 0): (
+            (-1, 0),
+            (1, 0),
+            (0, -1)),
+        (0, 1): (
+            (1, 0),
+            (-1, 0),
+            (0, 1)),
+        (1, 0): (
+            (1, 0),
+            (-1, 0),
+            (0, 1)),
+        (0, 0): (
+            (-1, 0),
+            (1, 0),
+            (0, -1))},
     HexMaze = {
         (0, 0): (
             (-1, 0),
@@ -265,6 +331,19 @@ def Maze_Wall_from_direction(maze, data):
             ((0, 1), Maze.Wall.DOWN),
             ((0, 0), Maze.Wall.RIGHT),
             ((1, 1), Maze.Wall.DOWN))},
+    TriMaze = {
+        ((1, 1), TriMaze.Wall.DIAGONAL_2): (
+            ((2, 2), TriMaze.Wall.HORIZONTAL),
+            ((1, 2), TriMaze.Wall.DIAGONAL_1),
+            ((0, 2), TriMaze.Wall.DIAGONAL_2),
+            ((0, 1), TriMaze.Wall.HORIZONTAL),
+            ((1, 1), TriMaze.Wall.DIAGONAL_1)),
+        ((3, 0), TriMaze.Wall.HORIZONTAL): (
+            ((3, 1), TriMaze.Wall.DIAGONAL_1),
+            ((2, 1), TriMaze.Wall.DIAGONAL_2),
+            ((1, 1), TriMaze.Wall.HORIZONTAL),
+            ((1, 0), TriMaze.Wall.DIAGONAL_1),
+            ((2, 0), TriMaze.Wall.DIAGONAL_2))},
     HexMaze = {
         ((1, 1), HexMaze.Wall.UP_LEFT): (
             ((1, 2), HexMaze.Wall.DOWN_LEFT),
@@ -297,6 +376,7 @@ def Maze_Wall_get_walls(maze):
 
 
 @maze_test(
+    except_for = TriMaze,
     Maze = (
         (((0, 0), Maze.Wall.LEFT), ((0, 0), Maze.Wall.RIGHT)),
         (((0, 0), Maze.Wall.UP), ((0, 0), Maze.Wall.DOWN)),
@@ -322,6 +402,19 @@ def Maze_Wall_opposite(maze, data):
         ((0, 0), Maze.Wall.UP, (0, 1)),
         ((0, 0), Maze.Wall.RIGHT, (1, 0)),
         ((0, 0), Maze.Wall.DOWN, (0, -1))),
+    TriMaze = (
+        ((0, 0), TriMaze.Wall.DIAGONAL_1, (-1, 0)),
+        ((0, 1), TriMaze.Wall.DIAGONAL_1, (1, 0)),
+        ((1, 0), TriMaze.Wall.DIAGONAL_1, (1, 0)),
+        ((1, 1), TriMaze.Wall.DIAGONAL_1, (-1, 0)),
+        ((0, 0), TriMaze.Wall.HORIZONTAL, (0, -1)),
+        ((0, 1), TriMaze.Wall.HORIZONTAL, (0, 1)),
+        ((1, 0), TriMaze.Wall.HORIZONTAL, (0, 1)),
+        ((1, 1), TriMaze.Wall.HORIZONTAL, (0, -1)),
+        ((0, 0), TriMaze.Wall.DIAGONAL_2, (1, 0)),
+        ((0, 1), TriMaze.Wall.DIAGONAL_2, (-1, 0)),
+        ((1, 0), TriMaze.Wall.DIAGONAL_2, (-1, 0)),
+        ((1, 1), TriMaze.Wall.DIAGONAL_2, (1, 0))),
     HexMaze = (
         ((0, 0), HexMaze.Wall.LEFT, (-1, 0)),
         ((0, 1), HexMaze.Wall.LEFT, (-1, 0)),
@@ -346,6 +439,13 @@ def Maze_Wall_direction(maze, data):
         (((1, 1), Maze.Wall.RIGHT), ((2, 1), Maze.Wall.LEFT)),
         (((1, 1), Maze.Wall.UP), ((1, 2), Maze.Wall.DOWN)),
         (((1, 1), Maze.Wall.DOWN), ((1, 0), Maze.Wall.UP))),
+    TriMaze = (
+        (((1, 1), TriMaze.Wall.DIAGONAL_1), ((0, 1), TriMaze.Wall.DIAGONAL_1)),
+        (((1, 2), TriMaze.Wall.DIAGONAL_1), ((2, 2), TriMaze.Wall.DIAGONAL_1)),
+        (((1, 1), TriMaze.Wall.HORIZONTAL), ((1, 0), TriMaze.Wall.HORIZONTAL)),
+        (((1, 2), TriMaze.Wall.HORIZONTAL), ((1, 3), TriMaze.Wall.HORIZONTAL)),
+        (((1, 1), TriMaze.Wall.DIAGONAL_2), ((2, 1), TriMaze.Wall.DIAGONAL_2)),
+        (((1, 2), TriMaze.Wall.DIAGONAL_2), ((0, 2), TriMaze.Wall.DIAGONAL_2))),
     HexMaze = (
         (((1, 1), HexMaze.Wall.LEFT), ((0, 1), HexMaze.Wall.RIGHT)),
         (((1, 1), HexMaze.Wall.UP_LEFT), ((1, 2), HexMaze.Wall.DOWN_RIGHT)),
@@ -484,21 +584,26 @@ def Maze_unpickle(maze):
             'Rooms at %s were different' % str(room_pos)
 
 
-@maze_test
-def Maze_iter(maze):
+@maze_test(
+    Maze = ((5, 6), (5, 7)),
+    TriMaze = ((2, 1), (2, 2)),
+    HexMaze = ((5, 6), (5, 7)))
+def Maze_iter(maze, data):
     """Tests that for room_pos in maze: works"""
     actual = set()
     for room_pos in maze:
         actual.add(room_pos)
     assert_eq(actual, set())
 
-    maze[(5, 6):(5, 7)] = True
+    room_pos1, room_pos2 = data
+
+    maze[room_pos1:room_pos2] = True
     actual = set()
     for room_pos in maze:
         actual.add(room_pos)
     assert_eq(actual, set((
-        (5, 6),
-        (5, 7))))
+        room_pos1,
+        room_pos2)))
 
 
 @maze_test
@@ -560,14 +665,20 @@ def Maze_index_tuple(maze):
                 'Removing a door between adjacent rooms raised error'
 
     try:
-        maze[(-1, -1):(-1, 0)] = True
+        wall = maze.Wall((-5, -5), 0)
+        other_room_pos = tuple(r + d
+            for r, d in zip(wall.room_pos, wall.direction))
+        maze[wall.room_pos:other_room_pos] = True
         assert False, \
             'Adding a door outside of the maze did not raise error'
     except IndexError:
         pass
 
     try:
-        maze[(-1, -1):(-1, 0)] = False
+        wall = maze.Wall((-5, -5), 0)
+        other_room_pos = tuple(r + d
+            for r, d in zip(wall.room_pos, wall.direction))
+        maze[wall.room_pos:other_room_pos] = False
         assert False, \
             'Removing a door outside of the maze did not raise error'
     except IndexError:
@@ -579,9 +690,7 @@ def Maze_slice(maze):
     """Tests that reading a slice of a maze yields the path between the two
     rooms"""
     for y in xrange(maze.height):
-        row = xrange(maze.width) if y == 0 or y == maze.height - 1 \
-            else (0, maze.width - 1)
-        for x in row:
+        for x in xrange(maze.width):
             for wall in maze.walls((x, y)):
                 if not maze.edge(wall):
                     maze[x, y][wall] = True
@@ -711,7 +820,9 @@ def Maze_add_door(maze):
                 'Adding a door between adjacent rooms raised error'
 
     try:
-        maze.add_door((-1, -1), (-1, 0))
+        wall = maze.Wall((-5, -5), 0)
+        maze.add_door(wall.room_pos,
+            tuple(r + d for r, d in zip(wall.room_pos, wall.direction)))
         assert False, \
             'Adding a door outside of the maze did not raise error'
     except IndexError:
@@ -746,7 +857,9 @@ def Maze_remove_door(maze):
                 'Removing a door between adjacent rooms raised error'
 
     try:
-        maze.add_door((-1, -1), (-1, 0))
+        wall = maze.Wall((-5, -5), 0)
+        maze.remove_door(wall.room_pos,
+            tuple(r + d for r, d in zip(wall.room_pos, wall.direction)))
         assert False, \
             'Removing a door outside of the maze did not raise error'
     except IndexError:
@@ -838,13 +951,19 @@ def Maze_connected(maze):
                     4 + x,
                     4 + y)
 
-    maze.add_door((3, 4), (4, 4))
-    maze.add_door((4, 4), (5, 4))
+    for wall in maze.doors((3, 4)):
+        if int(wall) % 2:
+            maze.set_door(wall.room_pos, wall, True)
 
     for x in (-1, 0, 1):
         for y in (-1, 0, 1):
+            try:
+                wall = maze.Wall.from_direction((4, 4), (x - 4, y - 4))
+            except ValueError:
+                continue
+
             connected1 = maze.connected((4, 4), (4 + x, 4 + y))
-            connected2 = y == 0 and x != 0
+            connected2 = int(wall) % 2 != 0
             assert connected1 == connected2, \
                 '(4, 4) %s be connected to (%d, %d)' % (
                     'should' if connected2 else 'should not',
