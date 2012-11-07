@@ -87,7 +87,7 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     for wall in maze.edge_walls:
         a = wall.span[0]
         cx, cy = maze.get_center(wall.room_pos)
-        px, py = cx + math.cos(a), cy - math.sin(a)
+        px, py = cx + math.cos(a), cy + math.sin(a)
         max_x, max_y = max(max_x, px), max(max_y, py)
         min_x, min_y = min(min_x, px), min(min_y, py)
 
@@ -102,15 +102,16 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     ctx.set_source_rgb(*background_color)
     ctx.paint()
 
-    ctx.translate(wall_width, wall_width)
-
     # Note that we have not yet painted any walls for any rooms
     for room_pos in maze.room_positions:
         maze[room_pos].painted = set()
 
-    def align(*coords):
-        return tuple(round(c - o)
-            for c, o in zip(coords, (min_x * room_width, min_y * room_height)))
+    def coords(x, y):
+        return (
+            wall_width + (
+                round((x - min_x) * room_width)),
+            surface.get_height() - wall_width - (
+                round((y - min_y) * room_height)))
 
     # Initialise the wall queue
     queue = []
@@ -152,11 +153,9 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         offset_x, offset_y = maze.get_center(wall.room_pos)
 
         def angle_to_coordinate(angle):
-            return align(
-                offset_x * room_width
-                    + room_width *  math.cos(angle),
-                (max_y - offset_y) * room_height
-                    - room_height *  math.sin(angle))
+            return coords(
+                offset_x + math.cos(angle),
+                offset_y + math.sin(angle))
 
         # If we need to move, we move to the end of the span since
         # maze.Wall.from_corner will yield walls with the start span in the
@@ -193,9 +192,7 @@ def make_image(maze, solution, (room_width, room_height), image_file,
 
         # Make (0.0, 0.0) the centre of the room
         offset_x, offset_y = maze.get_center((x, y))
-        ctx.translate(*align(
-            offset_x * room_width,
-            (max_y - offset_y) * room_height))
+        ctx.translate(*coords(offset_x, offset_y))
 
         # Draw a line from the centre to the middle of the wall span
         if i == 0:
