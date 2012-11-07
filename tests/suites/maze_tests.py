@@ -149,6 +149,28 @@ def HexMaze_walk_path():
         [(0, 0), (1, 0), (2, 0)])
 
 
+@test
+def TriMaze_walk_path():
+    """Tests that the shortest path is selected"""
+    maze = TriMaze(10, 20)
+
+    maze[(1, 0):(1, 1)] = True
+    maze[(1, 1):(2, 1)] = True
+    maze[(2, 1):(3, 1)] = True
+    maze[(3, 1):(3, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((1, 0), (3, 0))),
+        [(1, 0), (1, 1), (2, 1), (3, 1), (3, 0)])
+
+    maze[(1, 0):(2, 0)] = True
+    maze[(2, 0):(3, 0)] = True
+
+    assert_eq(
+        list(maze.walk_path((1, 0), (3, 0))),
+        [(1, 0), (2, 0), (3, 0)])
+
+
 MAZE_TYPES = (Maze, TriMaze, HexMaze)
 
 def maze_test(test_function = None, except_for = [], maze_size = (10, 20),
