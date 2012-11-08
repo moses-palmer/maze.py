@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# The name of the test runner script
+RUNNER_PY="`dirname $0`/runner.py"
+AMAZE_PY="`dirname $0`/../tools/amaze"
+PROFILER_PY="`dirname $0`/../tools/profiler.py"
+
+export PYTHONPATH="`dirname $0`/../lib:`dirname $0`/../app"
+
+# Run tests for Python 2
+if which python2; then
+    echo "Running tests for Python 2..."
+    python2 "$RUNNER_PY"
+    python2 "$AMAZE_PY"
+    python2 "$PROFILER_PY"
+else
+    echo "Python 2 not found"
+fi
+
+# Run tests for Python 3
+if which python3; then
+    echo "Running tests for Python 3..."
+    python3 "$RUNNER_PY"
+    python3 "$AMAZE_PY"
+    python3 "$PROFILER_PY"
+else
+    echo "Python 3 not found"
+fi
