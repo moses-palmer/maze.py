@@ -107,7 +107,7 @@ def make_image(maze, solution, (room_width, room_height),
     ctx.set_line_join(cairo.LINE_JOIN_ROUND)
 
     # Clear the background
-    ctx.set_source_rgb(*background_color)
+    ctx.set_source_rgba(*background_color)
     ctx.paint()
 
     # Note that we have not yet painted any walls for any rooms
@@ -135,7 +135,7 @@ def make_image(maze, solution, (room_width, room_height),
     extend_queue()
 
     # Draw the walls
-    ctx.set_source_rgb(*wall_color)
+    ctx.set_source_rgba(*wall_color)
     ctx.set_line_width(wall_width)
     needs_move = True
     while queue:
@@ -193,7 +193,7 @@ def make_image(maze, solution, (room_width, room_height),
     ctx.stroke()
 
     # Draw the path
-    ctx.set_source_rgb(*path_color)
+    ctx.set_source_rgba(*path_color)
     ctx.set_line_width(path_width)
     for i, room_pos in enumerate(solution):
         # Draw a line from the centre to the middle of the wall span
@@ -277,7 +277,7 @@ if __name__ == '__main__':
             lambda f, w, h: cairo.PDFSurface(f, w, h),
             lambda f, surface: None),
         'png': (
-            lambda f, w, h: cairo.ImageSurface(cairo.FORMAT_RGB24, w, h),
+            lambda f, w, h: cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h),
             lambda f, surface: surface.write_to_png(f)),
         'ps': (
             lambda f, w, h: cairo.PSSurface(f, w, h),
@@ -306,42 +306,75 @@ if __name__ == '__main__':
         help = ('The name of the image file to create. Valid types are %s.') % (
             ', '.join(surface_types.keys())))
 
-    def color(s):
-        result = None
-        m = re.match(r'''(?x)
-            \#(?P<red>[0-9A-Fa-f]{2})
-             (?P<green>[0-9A-Fa-f]{2})
-             (?P<blue>[0-9A-Fa-f]{2})''', s)
-        if not m is None:
-            result = tuple(float(int(d, 16)) / 255 for d in m.groups())
-        else:
+    def color(allow_rgba):
+        def rgb(s):
+            result = None
             m = re.match(r'''(?x)
-                rgb\(
-                    \s*(?P<red>\d{1,3}%?)\s*,
-                    \s*(?P<green>\d{1,3}%?)\s*,
-                    \s*(?P<blue>\d{1,3}%?)\s*\)''', s)
+                \#(?P<red>[0-9A-Fa-f]{2})
+                 (?P<green>[0-9A-Fa-f]{2})
+                 (?P<blue>[0-9A-Fa-f]{2})''', s)
             if not m is None:
-                result = tuple(float(d) / 255 if d[-1].isdigit()
-                    else float(d[:-1]) / 100 for d in m.groups())
-        if result is None or any(r < 0 or r > 1.0 for r in result):
-            raise argparse.ArgumentTypeError(
-                '"%s" is not a valid colour.' % s)
-        return result
-    parser.add_argument('--image-background-color', type = color,
+                result = tuple(float(int(d, 16)) / 255 for d in m.groups())
+            else:
+                m = re.match(r'''(?x)
+                    rgb\(
+                        \s*(?P<red>\d{1,3}%?)\s*,
+                        \s*(?P<green>\d{1,3}%?)\s*,
+                        \s*(?P<blue>\d{1,3}%?)\s*\)''', s)
+                if not m is None:
+                    result = tuple(float(d) / 255 if d[-1].isdigit()
+                        else float(d[:-1]) / 100 for d in m.groups())
+            if result is None or any(r < 0 or r > 1.0 for r in result):
+                raise argparse.ArgumentTypeError(
+                    '"%s" is not a valid colour.' % s)
+            return result + (1.0,)
+        def rgba(s):
+            result = None
+            m = re.match(r'''(?x)
+                \#(?P<alpha>[0-9A-Fa-f]{2})
+                 (?P<red>[0-9A-Fa-f]{2})
+                 (?P<green>[0-9A-Fa-f]{2})
+                 (?P<blue>[0-9A-Fa-f]{2})''', s)
+            if not m is None:
+                result = tuple(float(int(d, 16)) / 255
+                    for d in m.groups()[1:] + (m.group(1),))
+            else:
+                m = re.match(r'''(?x)
+                    rgba\(
+                        \s*(?P<red>\d{1,3}%?)\s*,
+                        \s*(?P<green>\d{1,3}%?)\s*,
+                        \s*(?P<blue>\d{1,3}%?)\s*\,
+                        \s*(?P<alpha>\d{1,3}%?)\s*\)''', s)
+                if not m is None:
+                    result = tuple(float(d) / 255 if d[-1].isdigit()
+                        else float(d[:-1]) / 100 for d in m.groups())
+            if result is None:
+                return rgb(s)
+            elif any(r < 0 or r > 1.0 for r in result):
+                raise argparse.ArgumentTypeError(
+                    '"%s" is not a valid colour.' % s)
+            return result
+        if allow_rgba:
+            return rgba
+        else:
+            return rgb
+    parser.add_argument('--image-background-color', type = color(True),
         metavar = 'COLOUR',
         default = (0.0, 0.0, 0.0),
         help = 'The background colour of the image. This must be specified as '
-            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
-    parser.add_argument('--image-wall-color', type = color,
+            'an HTML colour on the form #RRGGBB or rgb(r, g, b), or #AARRGGBB '
+            'or rgba(r, g, b, a).')
+    parser.add_argument('--image-wall-color', type = color(False),
         metavar = 'COLOUR',
         default = (1.0, 1.0, 1.0),
         help = 'The colour of the wall in the image. This must be specified as '
             'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
-    parser.add_argument('--image-path-color', type = color,
+    parser.add_argument('--image-path-color', type = color(True),
         metavar = 'COLOUR',
         default = (0.8, 0.4, 0.2),
         help = 'The colour of the path in the image. This must be specified as '
-            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+            'an HTML colour on the form #RRGGBB or rgb(r, g, b), or #AARRGGBB '
+            'or rgba(r, g, b, a).')
 
     def line_width(s):
         result = int(s)
