@@ -101,6 +101,10 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         int((max_y - min_y) * room_height) + 2 * wall_width + 1)
     ctx = cairo.Context(surface)
 
+    # Make line caps and line joins round
+    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+    ctx.set_line_join(cairo.LINE_JOIN_ROUND)
+
     # Clear the background
     ctx.set_source_rgb(*background_color)
     ctx.paint()
