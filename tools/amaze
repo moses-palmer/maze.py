@@ -279,6 +279,9 @@ if __name__ == '__main__':
         'png': (
             lambda f, w, h: cairo.ImageSurface(cairo.FORMAT_RGB24, w, h),
             lambda f, surface: surface.write_to_png(f)),
+        'ps': (
+            lambda f, w, h: cairo.PSSurface(f, w, h),
+            lambda f, surface: None),
         'svg': (
             lambda f, w, h: cairo.SVGSurface(f, w, h),
             lambda f, surface: None)}
