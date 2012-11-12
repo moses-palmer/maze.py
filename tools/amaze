@@ -5,6 +5,12 @@ import random
 import re
 import sys
 
+try:
+    import cairo
+except ImportError:
+    print 'This program requires cairo'
+    sys.exit(1)
+
 from maze.quad import Maze
 from maze.tri import TriMaze
 from maze.hex import HexMaze
@@ -78,12 +84,6 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
 
 def make_image(maze, solution, (room_width, room_height), image_file,
         background_color, wall_color, path_color, wall_width, path_width):
-    try:
-        import cairo
-    except ImportError:
-        print 'cairo is not installed, not generating image'
-        return
-
     # Calculate the actual size of the image
     max_x, max_y = 0, 0
     min_x, min_y = sys.maxint, sys.maxint
