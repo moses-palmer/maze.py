@@ -198,6 +198,40 @@ def draw_walls(maze, ctx, coords):
     for room_pos in maze.room_positions:
         del maze[room_pos].painted
 
+def draw_path_smooth(maze, ctx, coords, solution):
+    """
+    Draws the solution path using a smooth bezier curve.
+
+    @param maze
+        The maze whose solution to draw.
+    @param ctx
+        The cairo context to use for drawing.
+    @param coords
+        A callable that transforms its parameters (maze_x, maze_y) to
+        coordinates in the cairo context.
+    @param solution
+        The solution. This must be a list of all rooms to traverse.
+    """
+    room_positions = ((solution[i - 1], solution[i], solution[i + 1])
+        for i in xrange(1, len(solution) - 1))
+    ctx.move_to(*coords(*maze.get_center(solution[0])))
+    for (previous_pos, current_pos, next_pos) in room_positions:
+        # Draw a bezier curve from the wall to the previous room to the wall
+        # to the next room
+        previous_center = coords(*maze.get_center(previous_pos))
+        current_center = coords(*maze.get_center(current_pos))
+        next_center = coords(*maze.get_center(next_pos))
+        d = 0.3
+        ctx.curve_to(
+            d * previous_center[0] + (1.0 - d) * current_center[0],
+            d * previous_center[1] + (1.0 - d) * current_center[1],
+            d * next_center[0] + (1.0 - d) * current_center[0],
+            d * next_center[1] + (1.0 - d) * current_center[1],
+            0.5 * (current_center[0] + next_center[0]),
+            0.5 * (current_center[1] + next_center[1]))
+    ctx.line_to(*coords(*maze.get_center(solution[-1])))
+    ctx.stroke()
+
 def draw_path(maze, ctx, coords, solution):
     """
     Draws the solution path using straight lines.
@@ -222,7 +256,7 @@ def draw_path(maze, ctx, coords, solution):
     ctx.stroke()
 
 def make_image(maze, solution, room_size, output, background_color, wall_color,
-        path_color, wall_width, path_width):
+        path_color, wall_width, path_width, path_smooth):
     room_width, room_height = room_size
     image_create, image_write = output
 
@@ -269,7 +303,10 @@ def make_image(maze, solution, room_size, output, background_color, wall_color,
     # Draw the path
     ctx.set_source_rgba(*path_color)
     ctx.set_line_width(path_width)
-    draw_path(maze, ctx, coords, solution)
+    if path_smooth:
+        draw_path_smooth(maze, ctx, coords, solution)
+    else:
+        draw_path(maze, ctx, coords, solution)
 
     image_write(surface)
 
@@ -460,6 +497,12 @@ if __name__ == '__main__':
         metavar = 'WIDTH',
         default = 2,
         help = 'The width of the maze path lines.')
+
+    parser.add_argument('--image-path-smooth',
+        action = 'store_true',
+        default = False,
+        help = 'Whether the path should be painted as a smooth curve instead '
+            'of a sharp line.')
 
     namespace = parser.parse_args()
 
