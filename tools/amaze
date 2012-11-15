@@ -101,36 +101,21 @@ def calculate_bounds(maze):
         min_x, min_y = min(min_x, px), min(min_y, py)
     return (min_x, min_y, max_x, max_y)
 
-def make_image(maze, solution, (room_width, room_height),
-        (image_create, image_write), background_color, wall_color, path_color,
-        wall_width, path_width):
-    # Calculate the actual size of the image
-    min_x, min_y, max_x, max_y = calculate_bounds(maze)
+def draw_walls(maze, ctx, coords):
+    """
+    Draws the walls of a maze.
 
-    # Create the cairo surface and context
-    width = int((max_x - min_x) * room_width) + 2 * wall_width + 1
-    height = int((max_y - min_y) * room_height) + 2 * wall_width + 1
-    surface = image_create(width, height)
-    ctx = cairo.Context(surface)
-
-    # Make line caps and line joins round
-    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
-    ctx.set_line_join(cairo.LINE_JOIN_ROUND)
-
-    # Clear the background
-    ctx.set_source_rgba(*background_color)
-    ctx.paint()
-
+    @param maze
+        The maze whose walls to draw.
+    @param ctx
+        The cairo context to use for drawing.
+    @param coords
+        A callable that transforms its parameters (maze_x, maze_y) to
+        coordinates in the cairo context.
+    """
     # Note that we have not yet painted any walls for any rooms
     for room_pos in maze.room_positions:
         maze[room_pos].painted = set()
-
-    def coords(x, y):
-        return (
-            wall_width + (
-                round((x - min_x) * room_width)),
-            height - wall_width - (
-                round((y - min_y) * room_height)))
 
     # Initialise the wall queue
     queue = []
@@ -146,8 +131,6 @@ def make_image(maze, solution, (room_width, room_height),
     extend_queue()
 
     # Draw the walls
-    ctx.set_source_rgba(*wall_color)
-    ctx.set_line_width(wall_width)
     needs_move = True
     while queue:
         # Get the last wall from the queue and retrieve all remaining walls in
@@ -172,6 +155,14 @@ def make_image(maze, solution, (room_width, room_height),
         offset_x, offset_y = maze.get_center(wall.room_pos)
 
         def angle_to_coordinate(angle):
+            """
+            Converts an angle from a wall span in the current room to a
+            coordinate.
+
+            @param angle
+                The angle to convert.
+            @return the tuple (x, y)
+            """
             return coords(
                 offset_x + math.cos(angle),
                 offset_y + math.sin(angle))
@@ -202,6 +193,53 @@ def make_image(maze, solution, (room_width, room_height),
             extend_queue()
 
     ctx.stroke()
+
+    # Remove the temporary attribute
+    for room_pos in maze.room_positions:
+        del maze[room_pos].painted
+
+def make_image(maze, solution, (room_width, room_height),
+        (image_create, image_write), background_color, wall_color, path_color,
+        wall_width, path_width):
+    # Calculate the actual size of the image
+    min_x, min_y, max_x, max_y = calculate_bounds(maze)
+
+    # Create the cairo surface and context
+    width = int((max_x - min_x) * room_width) + 2 * wall_width + 1
+    height = int((max_y - min_y) * room_height) + 2 * wall_width + 1
+    surface = image_create(width, height)
+    ctx = cairo.Context(surface)
+
+    # Make line caps and line joins round
+    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+    ctx.set_line_join(cairo.LINE_JOIN_ROUND)
+
+    # Clear the background
+    ctx.set_source_rgba(*background_color)
+    ctx.paint()
+
+    def coords(x, y):
+        """
+        Converts coordinates from maze coordinates to context coordinates.
+
+        The coordinates are scaled according to the room dimesions and offset
+        with the minimum coordinates in the respective dimension and then
+        rounded to make the lines sharp when drawing.
+
+        @param x, y
+            The maze coordinates to convert.
+        @return coordinates to use for drawing
+        """
+        return (
+            wall_width + (
+                round((x - min_x) * room_width)),
+            height - wall_width - (
+                round((y - min_y) * room_height)))
+
+    # Draw the walls
+    ctx.set_source_rgba(*wall_color)
+    ctx.set_line_width(wall_width)
+    draw_walls(maze, ctx, coords)
 
     # Draw the path
     ctx.set_source_rgba(*path_color)
