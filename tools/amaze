@@ -83,10 +83,14 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
             output('\n')
 
 
-def make_image(maze, solution, (room_width, room_height),
-        (image_create, image_write), background_color, wall_color, path_color,
-        wall_width, path_width):
-    # Calculate the actual size of the image
+def calculate_bounds(maze):
+    """
+    Calculates the bounds of the walls of a maze.
+
+    @param maze
+        The maze whose bounds to calculate
+    @return the tuple (min_x, min_y, max_x, max_y)
+    """
     max_x, max_y = 0, 0
     min_x, min_y = sys.maxint, sys.maxint
     for wall in maze.edge_walls:
@@ -95,6 +99,13 @@ def make_image(maze, solution, (room_width, room_height),
         px, py = cx + math.cos(a), cy + math.sin(a)
         max_x, max_y = max(max_x, px), max(max_y, py)
         min_x, min_y = min(min_x, px), min(min_y, py)
+    return (min_x, min_y, max_x, max_y)
+
+def make_image(maze, solution, (room_width, room_height),
+        (image_create, image_write), background_color, wall_color, path_color,
+        wall_width, path_width):
+    # Calculate the actual size of the image
+    min_x, min_y, max_x, max_y = calculate_bounds(maze)
 
     # Create the cairo surface and context
     width = int((max_x - min_x) * room_width) + 2 * wall_width + 1
