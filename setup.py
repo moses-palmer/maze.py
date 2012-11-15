@@ -6,6 +6,10 @@ DESCRIPTION = 'A library to generate and display mazes'
 VERSION = '0.1'
 PACKAGES = [
     'maze']
+SCRIPTS = [
+    'tools/amaze']
+REQUIRES = [
+    'cairo']
 
 from distutils.core import setup
 
@@ -18,4 +22,6 @@ setup(
     url = 'https://github.com/moses-palmer/maze.py/',
 
     package_dir = {'': 'lib'},
-    packages = PACKAGES)
+    packages = PACKAGES,
+    scripts = SCRIPTS,
+    requires = REQUIRES)
