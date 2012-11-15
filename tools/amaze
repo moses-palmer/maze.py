@@ -198,6 +198,29 @@ def draw_walls(maze, ctx, coords):
     for room_pos in maze.room_positions:
         del maze[room_pos].painted
 
+def draw_path(maze, ctx, coords, solution):
+    """
+    Draws the solution path using straight lines.
+
+    @param maze
+        The maze whose solution to draw.
+    @param ctx
+        The cairo context to use for drawing.
+    @param coords
+        A callable that transforms its parameters (maze_x, maze_y) to
+        coordinates in the cairo context.
+    @param solution
+        The solution. This must be a list of all rooms to traverse.
+    """
+    for i, room_pos in enumerate(solution):
+        # Draw a line from the centre to the middle of the wall span
+        center = coords(*maze.get_center(room_pos))
+        if i == 0:
+            ctx.move_to(*center)
+        else:
+            ctx.line_to(*center)
+    ctx.stroke()
+
 def make_image(maze, solution, (room_width, room_height),
         (image_create, image_write), background_color, wall_color, path_color,
         wall_width, path_width):
@@ -244,15 +267,7 @@ def make_image(maze, solution, (room_width, room_height),
     # Draw the path
     ctx.set_source_rgba(*path_color)
     ctx.set_line_width(path_width)
-    for i, room_pos in enumerate(solution):
-        # Draw a line from the centre to the middle of the wall span
-        center = coords(*maze.get_center(room_pos))
-        if i == 0:
-            ctx.move_to(*center)
-        else:
-            ctx.line_to(*center)
-
-    ctx.stroke()
+    draw_path(maze, ctx, coords, solution)
 
     image_write(surface)
 
