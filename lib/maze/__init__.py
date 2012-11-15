@@ -7,11 +7,28 @@ class BaseWall(object):
     """
     A reference to the wall of a room.
 
-    A wall has an index, a direction and a span.
-      * The index is its position in the list (LEFT, UP, RIGHT, DOWN).
+    A wall has an index, a direction, a span and a position.
+      * The index is its position in the list of walls. This corresponds to its
+        symbolic name.
       * The direction is a direction vector for the wall; up and right are
-        positive directions.
+        positive directions. The direction is the movement vector in the maze
+        room matrix and not necessarily an actual physical direction.
       * The span is the physical start and end angle of the wall.
+      * The position is the coordinates of the room to which the wall belongs in
+        the maze room matrix.
+
+    Furthermore, walls know their back and opposite.
+      * The back is the same wall in the room on the other side of a wall. A
+        wall will compare equally with its back.
+      * The opposite is the wall opposing a wall in the same room. Depending on
+        the layout of a room, there may be no opposite wall. Triangular mazes do
+        not have opposite walls.
+
+    Walls have factory methods.
+      * from_direction will create a wall when the room and the direction is
+        known. The direction must be the direction vector of the room.
+      * from_room_pos will create all walls for a room.
+      * from_corner will create all walls that meet in a corner.
     """
 
     __slots__ = (
@@ -138,8 +155,8 @@ class BaseWall(object):
         The start of the wall is defined as the most counter-clockwise edge
         of the wall and the end as the start of the next wall.
 
-        The origin of the coordinate system is the center of the room; thus
-        points to the left of the center of room will have negative
+        The origin of the coordinate system is the centre of the room; thus
+        points to the left of the centre of room will have negative
         x-coordinates and points below the center of the room negative
         y-coordinates.
 
