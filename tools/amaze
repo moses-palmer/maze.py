@@ -25,8 +25,8 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
     def output(s):
         sys.stdout.write(s)
 
-    # Iterate over all rows and make sure to start with the last to maintain the
-    # orientation of the maze
+    # Iterate over all rows and make sure to start with the last one to maintain
+    # the orientation of the maze
     for y in reversed(xrange(maze.height)):
         # Print one line for each height unit of a room
         for line in xrange(room_size[1]):
@@ -88,7 +88,7 @@ def calculate_bounds(maze):
     Calculates the bounds of the walls of a maze.
 
     @param maze
-        The maze whose bounds to calculate
+        The maze whose bounds to calculate.
     @return the tuple (min_x, min_y, max_x, max_y)
     """
     max_x, max_y = 0, 0
@@ -120,6 +120,10 @@ def draw_walls(maze, ctx, coords):
     # Initialise the wall queue
     queue = []
     def extend_queue():
+        """
+        Finds a room with walls that have not yet been painted and adds them to
+        queue.
+        """
         for room_pos in maze.room_positions:
             remaining = [w
                 for w in maze.walls(room_pos)
@@ -149,9 +153,6 @@ def draw_walls(maze, ctx, coords):
         queue.extend(remaining)
 
         start_angle, end_angle = wall.span
-
-        # Make (0.0, 0.0) the centre of the room; this is handled in
-        # angle_to_coordinate
         offset_x, offset_y = maze.get_center(wall.room_pos)
 
         def angle_to_coordinate(angle):
@@ -247,7 +248,7 @@ def draw_path(maze, ctx, coords, solution):
         The solution. This must be a list of all rooms to traverse.
     """
     for i, room_pos in enumerate(solution):
-        # Draw a line from the centre to the middle of the wall span
+        # Draw a line to the centre of the room
         center = coords(*maze.get_center(room_pos))
         if i == 0:
             ctx.move_to(*center)
@@ -355,7 +356,7 @@ if __name__ == '__main__':
         result = int(s)
         if result < 3:
             raise argparse.ArgumentTypeError(
-                'The room size must be greater than 3')
+                'The room size must be greater than or equal to 3')
         else:
             return result
     parser.add_argument('--print-room-size', type = print_room_size,
@@ -471,7 +472,7 @@ if __name__ == '__main__':
         metavar = 'COLOUR',
         default = (1.0, 1.0, 1.0),
         help = 'The colour of the wall in the image. This must be specified as '
-            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+            'an HTML colour on the form #RRGGBB or rgb(r, g, b).')
     parser.add_argument('--image-path-color', type = color(True),
         metavar = 'COLOUR',
         default = (0.8, 0.4, 0.2),
@@ -483,10 +484,10 @@ if __name__ == '__main__':
         result = int(s)
         if result < 2:
             raise argparse.ArgumentTypeError(
-                'The maze size must be greater than 1')
+                'Line widths must be greater than 1')
         elif result & 1:
             raise argparse.ArgumentTypeError(
-                'The maze size must be an even number')
+                'Line widths must be an even number')
         else:
             return result
     parser.add_argument('--image-wall-width', type = line_width,
