@@ -203,14 +203,13 @@ class Room(object):
     """
     A room is a part of the maze.
 
-    A room has all walls defined in Wall, and a concept of doors on the
-    walls.
+    A room has a set of walls. Walls in the set are considered to have doors.
 
-    In addition to the methods defined for Room, the following constructs
-    are allowed:
+    In addition to the methods defined, the following constructs are allowed:
+        if room: => if bool(room.doors):
         if wall in room: => if wall.has_door(wall):
         if room[Wall.LEFT]: => if room.has_door(wall):
-        room[Wall.LEFT] = True => room.set_door(Wall.LEFT, True)
+        room[Wall.LEFT] = bool => room.set_door(Wall.LEFT, bool)
         room += Wall.LEFT => room.add_door(Wall.LEFT)
         room -= Wall.LEFT => room_remove_door(Wall.LEFT)
     """
@@ -241,7 +240,7 @@ class Room(object):
 
     def __init__(self):
         """
-        Creates a new room.
+        Creates a new room with no doors.
         """
         self.doors = set()
 
