@@ -3,12 +3,27 @@ import math
 from . import BaseWall, BaseMaze
 
 class HexWall(BaseMaze.Wall):
-    # Define the walls; this will also add the class variables
-    # mapping wall name to its value
+    # The angles for each corner; this is a list of the tuple (angle, alt_angle)
+    # where alt_angle is used for the room at x, y when x + y is odd
     _ANGLES = []
+
+    # The directions for each wall; this is a list of the tuple (dir, alt_dir)
+    # where alt_dir is used for the room at x, y when x + y is odd
     _DIRECTIONS = []
+
+    # The names of the walls
     NAMES = []
+
+    # The list of walls; this is the list [0, 1, 2... N]
     WALLS = []
+
+    # The horizontal scale factor when converting maze coordinates to physical
+    # coordinates
+    HORIZONTAL_MULTIPLICATOR = 2.0 * math.cos(math.pi / 6)
+
+    # The vertical scale factor when converting maze coordinates to physical
+    # coordinates
+    VERTICAL_MULTIPLICATOR = 2.0 - math.sin(math.pi / 6)
 
     __slots__ = tuple()
 
@@ -22,18 +37,17 @@ class HexWall(BaseMaze.Wall):
         ('DOWN_LEFT', (-1, -1), (0, -1)))
     for i, (name, dir1, dir2) in enumerate(data):
         locals()[name] = i
+
         next_angle = _ANGLES[-1] - 2 * math.pi / len(data) \
             if _ANGLES else start_angle
-
         while next_angle < 0.0:
             next_angle += 2 * math.pi
         _ANGLES.append(next_angle)
+
         _DIRECTIONS.append((dir1, dir2))
+
         NAMES.append(name.lower())
         WALLS.append(i)
-
-    HORIZONTAL_MULTIPLICATOR = 2.0 * math.cos(math.pi / 6)
-    VERTICAL_MULTIPLICATOR = 2.0 - math.sin(math.pi / 6)
 
     @classmethod
     def from_direction(self, room_pos, direction):
@@ -60,6 +74,10 @@ class HexWall(BaseMaze.Wall):
 class HexMaze(BaseMaze):
     """
     This is a maze with hexagonal rooms.
+
+    The rooms are laid out in rows, where every odd row is moved a half room in
+    the positive horizontal direction; the appearance of the maze is that of a
+    honey comb.
     """
     Wall = HexWall
 
