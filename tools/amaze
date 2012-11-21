@@ -468,17 +468,12 @@ if __name__ == '__main__':
     initialize(maze, lambda max: random.randint(0, max - 1))
     solution = list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1)))
 
-    print_maze(maze, solution,
-        namespace.print_wall_char,
-        namespace.print_path_char,
-        namespace.print_floor_char,
-        namespace.print_room_size)
-    make_image(maze, solution,
-        namespace.image_room_size,
-        namespace.image_output,
-        namespace.image_background_color,
-        namespace.image_wall_color,
-        namespace.image_path_color,
-        namespace.image_wall_width,
-        namespace.image_path_width)
+    print_maze(maze, solution, **dict(
+            (name.split('_', 1)[1], value)
+                for name, value in vars(namespace).items()
+                if name.startswith('print_')))
+    make_image(maze, solution, **dict(
+            (name.split('_', 1)[1], value)
+                for name, value in vars(namespace).items()
+                if name.startswith('image_')))
 
