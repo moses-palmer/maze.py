@@ -221,9 +221,11 @@ def draw_path(maze, ctx, coords, solution):
             ctx.line_to(*center)
     ctx.stroke()
 
-def make_image(maze, solution, (room_width, room_height),
-        (image_create, image_write), background_color, wall_color, path_color,
-        wall_width, path_width):
+def make_image(maze, solution, room_size, output, background_color, wall_color,
+        path_color, wall_width, path_width):
+    room_width, room_height = room_size
+    image_create, image_write = output
+
     # Calculate the actual size of the image
     min_x, min_y, max_x, max_y = calculate_bounds(maze)
 
