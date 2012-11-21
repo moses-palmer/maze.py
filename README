@@ -1,0 +1,16 @@
+Amaze
+=====
+
+Amaze is a tool to  generate mazes with triangular rooms, ordinary square rooms
+and hexagonal rooms.
+
+It consists of the command line tool amaze and the support module maze.
+
+
+The amaze command line tool
+---------------------------
+
+The amaze command line tool will generate mazes of different sizes and room
+layouts. The results can be saved as PDF, PNG, PS and SVG.
+
+For a further description, run amaze --help.
