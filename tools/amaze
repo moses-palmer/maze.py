@@ -278,7 +278,7 @@ if __name__ == '__main__':
     class default:
         def write(*args, **kwargs):
             pass
-    parser.add_argument('--image-file', type = surface,
+    parser.add_argument('--image-output', type = surface,
         metavar = 'FILENAME',
         required = True,
         help = 'The name of the PNG file to create.')
@@ -353,7 +353,7 @@ if __name__ == '__main__':
         namespace.print_room_size)
     make_image(maze, solution,
         namespace.image_room_size,
-        namespace.image_file,
+        namespace.image_output,
         namespace.image_background_color,
         namespace.image_wall_color,
         namespace.image_path_color,
