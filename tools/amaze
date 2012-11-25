@@ -1,7 +1,16 @@
+#!/usr/bin/env python
+
 import math
+import os
 import random
 import re
 import sys
+
+try:
+    import cairo
+except ImportError:
+    print 'This program requires cairo'
+    sys.exit(1)
 
 from maze.quad import Maze
 from maze.tri import TriMaze
@@ -74,15 +83,14 @@ def print_maze(maze, solution, wall_char, path_char, floor_char, room_size):
             output('\n')
 
 
-def make_image(maze, solution, (room_width, room_height), image_file,
-        background_color, wall_color, path_color, wall_width, path_width):
-    try:
-        import cairo
-    except ImportError:
-        print 'cairo is not installed, not generating image'
-        return
+def calculate_bounds(maze):
+    """
+    Calculates the bounds of the walls of a maze.
 
-    # Calculate the actual size of the image
+    @param maze
+        The maze whose bounds to calculate
+    @return the tuple (min_x, min_y, max_x, max_y)
+    """
     max_x, max_y = 0, 0
     min_x, min_y = sys.maxint, sys.maxint
     for wall in maze.edge_walls:
@@ -91,28 +99,23 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         px, py = cx + math.cos(a), cy + math.sin(a)
         max_x, max_y = max(max_x, px), max(max_y, py)
         min_x, min_y = min(min_x, px), min(min_y, py)
+    return (min_x, min_y, max_x, max_y)
 
-    # Create the cairo surface and context
-    surface = cairo.ImageSurface(
-        cairo.FORMAT_RGB24,
-        int((max_x - min_x) * room_width) + 2 * wall_width + 1,
-        int((max_y - min_y) * room_height) + 2 * wall_width + 1)
-    ctx = cairo.Context(surface)
+def draw_walls(maze, ctx, coords):
+    """
+    Draws the walls of a maze.
 
-    # Clear the background
-    ctx.set_source_rgb(*background_color)
-    ctx.paint()
-
+    @param maze
+        The maze whose walls to draw.
+    @param ctx
+        The cairo context to use for drawing.
+    @param coords
+        A callable that transforms its parameters (maze_x, maze_y) to
+        coordinates in the cairo context.
+    """
     # Note that we have not yet painted any walls for any rooms
     for room_pos in maze.room_positions:
         maze[room_pos].painted = set()
-
-    def coords(x, y):
-        return (
-            wall_width + (
-                round((x - min_x) * room_width)),
-            surface.get_height() - wall_width - (
-                round((y - min_y) * room_height)))
 
     # Initialise the wall queue
     queue = []
@@ -128,8 +131,6 @@ def make_image(maze, solution, (room_width, room_height), image_file,
     extend_queue()
 
     # Draw the walls
-    ctx.set_source_rgb(*wall_color)
-    ctx.set_line_width(wall_width)
     needs_move = True
     while queue:
         # Get the last wall from the queue and retrieve all remaining walls in
@@ -154,6 +155,14 @@ def make_image(maze, solution, (room_width, room_height), image_file,
         offset_x, offset_y = maze.get_center(wall.room_pos)
 
         def angle_to_coordinate(angle):
+            """
+            Converts an angle from a wall span in the current room to a
+            coordinate.
+
+            @param angle
+                The angle to convert.
+            @return the tuple (x, y)
+            """
             return coords(
                 offset_x + math.cos(angle),
                 offset_y + math.sin(angle))
@@ -185,9 +194,58 @@ def make_image(maze, solution, (room_width, room_height), image_file,
 
     ctx.stroke()
 
-    # Draw the path
-    ctx.set_source_rgb(*path_color)
-    ctx.set_line_width(path_width)
+    # Remove the temporary attribute
+    for room_pos in maze.room_positions:
+        del maze[room_pos].painted
+
+def draw_path_smooth(maze, ctx, coords, solution):
+    """
+    Draws the solution path using a smooth bezier curve.
+
+    @param maze
+        The maze whose solution to draw.
+    @param ctx
+        The cairo context to use for drawing.
+    @param coords
+        A callable that transforms its parameters (maze_x, maze_y) to
+        coordinates in the cairo context.
+    @param solution
+        The solution. This must be a list of all rooms to traverse.
+    """
+    room_positions = ((solution[i - 1], solution[i], solution[i + 1])
+        for i in xrange(1, len(solution) - 1))
+    ctx.move_to(*coords(*maze.get_center(solution[0])))
+    for (previous_pos, current_pos, next_pos) in room_positions:
+        # Draw a bezier curve from the wall to the previous room to the wall
+        # to the next room
+        previous_center = coords(*maze.get_center(previous_pos))
+        current_center = coords(*maze.get_center(current_pos))
+        next_center = coords(*maze.get_center(next_pos))
+        d = 0.3
+        ctx.curve_to(
+            d * previous_center[0] + (1.0 - d) * current_center[0],
+            d * previous_center[1] + (1.0 - d) * current_center[1],
+            d * next_center[0] + (1.0 - d) * current_center[0],
+            d * next_center[1] + (1.0 - d) * current_center[1],
+            0.5 * (current_center[0] + next_center[0]),
+            0.5 * (current_center[1] + next_center[1]))
+    ctx.line_to(*coords(*maze.get_center(solution[-1])))
+    ctx.stroke()
+
+def draw_path(maze, ctx, coords, solution):
+    """
+    Draws the solution path using straight lines.
+
+    @param maze
+        The maze whose solution to draw.
+    @param ctx
+        The cairo context to use for drawing.
+    @param coords
+        A callable that transforms its parameters (maze_x, maze_y) to
+        coordinates in the cairo context.
+    @param solution
+        The solution. This must be a list of all rooms to traverse.
+    """
     for i, room_pos in enumerate(solution):
         # Draw a line from the centre to the middle of the wall span
         center = coords(*maze.get_center(room_pos))
@@ -195,10 +253,62 @@ def make_image(maze, solution, (room_width, room_height), image_file,
             ctx.move_to(*center)
         else:
             ctx.line_to(*center)
-
     ctx.stroke()
 
-    surface.write_to_png(image_file)
+def make_image(maze, solution, room_size, output, background_color, wall_color,
+        path_color, wall_width, path_width, path_smooth):
+    room_width, room_height = room_size
+    image_create, image_write = output
+
+    # Calculate the actual size of the image
+    min_x, min_y, max_x, max_y = calculate_bounds(maze)
+
+    # Create the cairo surface and context
+    width = int((max_x - min_x) * room_width) + 2 * wall_width + 1
+    height = int((max_y - min_y) * room_height) + 2 * wall_width + 1
+    surface = image_create(width, height)
+    ctx = cairo.Context(surface)
+
+    # Make line caps and line joins round
+    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+    ctx.set_line_join(cairo.LINE_JOIN_ROUND)
+
+    # Clear the background
+    ctx.set_source_rgba(*background_color)
+    ctx.paint()
+
+    def coords(x, y):
+        """
+        Converts coordinates from maze coordinates to context coordinates.
+
+        The coordinates are scaled according to the room dimesions and offset
+        with the minimum coordinates in the respective dimension and then
+        rounded to make the lines sharp when drawing.
+
+        @param x, y
+            The maze coordinates to convert.
+        @return coordinates to use for drawing
+        """
+        return (
+            wall_width + (
+                round((x - min_x) * room_width)),
+            height - wall_width - (
+                round((y - min_y) * room_height)))
+
+    # Draw the walls
+    ctx.set_source_rgba(*wall_color)
+    ctx.set_line_width(wall_width)
+    draw_walls(maze, ctx, coords)
+
+    # Draw the path
+    ctx.set_source_rgba(*path_color)
+    ctx.set_line_width(path_width)
+    if path_smooth:
+        draw_path_smooth(maze, ctx, coords, solution)
+    else:
+        draw_path(maze, ctx, coords, solution)
+
+    image_write(surface)
 
 
 if __name__ == '__main__':
@@ -265,50 +375,109 @@ if __name__ == '__main__':
         default = (30, 30),
         help = 'The size of the rooms in the maze image.')
 
+    surface_types = {
+        'pdf': (
+            lambda f, w, h: cairo.PDFSurface(f, w, h),
+            lambda f, surface: None),
+        'png': (
+            lambda f, w, h: cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h),
+            lambda f, surface: surface.write_to_png(f)),
+        'ps': (
+            lambda f, w, h: cairo.PSSurface(f, w, h),
+            lambda f, surface: None),
+        'svg': (
+            lambda f, w, h: cairo.SVGSurface(f, w, h),
+            lambda f, surface: None)}
+    def surface(s):
+        try:
+            ext = s.rsplit(os.path.extsep, 1)[1]
+            return (
+                lambda w, h: surface_types[ext][0](s, w, h),
+                lambda surface: surface_types[ext][1](s, surface))
+        except KeyError as e:
+            argparse.ArgumentTypeError(
+                '"%s" is not a valid file extension' % e.args[0])
+        except IndexError:
+            argparse.ArgumentTypeError(
+                'The image file must have a valid extension')
     class default:
         def write(*args, **kwargs):
             pass
-    parser.add_argument('--image-file', type = argparse.FileType('w'),
+    parser.add_argument('--image-output', type = surface,
         metavar = 'FILENAME',
-        default = default(),
-        help = 'The name of the PNG file to create.')
+        required = True,
+        help = ('The name of the image file to create. Valid types are %s.') % (
+            ', '.join(surface_types.keys())))
 
-    def color(s):
-        result = None
-        m = re.match(r'''(?x)
-            \#(?P<red>[0-9A-Fa-f]{2})
-             (?P<green>[0-9A-Fa-f]{2})
-             (?P<blue>[0-9A-Fa-f]{2})''', s)
-        if not m is None:
-            result = tuple(float(int(d, 16)) / 255 for d in m.groups())
-        else:
+    def color(allow_rgba):
+        def rgb(s):
+            result = None
             m = re.match(r'''(?x)
-                rgb\(
-                    \s*(?P<red>\d{1,3}%?)\s*,
-                    \s*(?P<green>\d{1,3}%?)\s*,
-                    \s*(?P<blue>\d{1,3}%?)\s*\)''', s)
+                \#(?P<red>[0-9A-Fa-f]{2})
+                 (?P<green>[0-9A-Fa-f]{2})
+                 (?P<blue>[0-9A-Fa-f]{2})''', s)
             if not m is None:
-                result = tuple(float(d) / 255 if d[-1].isdigit()
-                    else float(d[:-1]) / 100 for d in m.groups())
-        if result is None or any(r < 0 or r > 1.0 for r in result):
-            raise argparse.ArgumentTypeError(
-                '"%s" is not a valid colour.' % s)
-        return result
-    parser.add_argument('--image-background-color', type = color,
+                result = tuple(float(int(d, 16)) / 255 for d in m.groups())
+            else:
+                m = re.match(r'''(?x)
+                    rgb\(
+                        \s*(?P<red>\d{1,3}%?)\s*,
+                        \s*(?P<green>\d{1,3}%?)\s*,
+                        \s*(?P<blue>\d{1,3}%?)\s*\)''', s)
+                if not m is None:
+                    result = tuple(float(d) / 255 if d[-1].isdigit()
+                        else float(d[:-1]) / 100 for d in m.groups())
+            if result is None or any(r < 0 or r > 1.0 for r in result):
+                raise argparse.ArgumentTypeError(
+                    '"%s" is not a valid colour.' % s)
+            return result + (1.0,)
+        def rgba(s):
+            result = None
+            m = re.match(r'''(?x)
+                \#(?P<alpha>[0-9A-Fa-f]{2})
+                 (?P<red>[0-9A-Fa-f]{2})
+                 (?P<green>[0-9A-Fa-f]{2})
+                 (?P<blue>[0-9A-Fa-f]{2})''', s)
+            if not m is None:
+                result = tuple(float(int(d, 16)) / 255
+                    for d in m.groups()[1:] + (m.group(1),))
+            else:
+                m = re.match(r'''(?x)
+                    rgba\(
+                        \s*(?P<red>\d{1,3}%?)\s*,
+                        \s*(?P<green>\d{1,3}%?)\s*,
+                        \s*(?P<blue>\d{1,3}%?)\s*\,
+                        \s*(?P<alpha>\d{1,3}%?)\s*\)''', s)
+                if not m is None:
+                    result = tuple(float(d) / 255 if d[-1].isdigit()
+                        else float(d[:-1]) / 100 for d in m.groups())
+            if result is None:
+                return rgb(s)
+            elif any(r < 0 or r > 1.0 for r in result):
+                raise argparse.ArgumentTypeError(
+                    '"%s" is not a valid colour.' % s)
+            return result
+        if allow_rgba:
+            return rgba
+        else:
+            return rgb
+    parser.add_argument('--image-background-color', type = color(True),
         metavar = 'COLOUR',
         default = (0.0, 0.0, 0.0),
         help = 'The background colour of the image. This must be specified as '
-            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
-    parser.add_argument('--image-wall-color', type = color,
+            'an HTML colour on the form #RRGGBB or rgb(r, g, b), or #AARRGGBB '
+            'or rgba(r, g, b, a).')
+    parser.add_argument('--image-wall-color', type = color(False),
         metavar = 'COLOUR',
         default = (1.0, 1.0, 1.0),
         help = 'The colour of the wall in the image. This must be specified as '
             'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
-    parser.add_argument('--image-path-color', type = color,
+    parser.add_argument('--image-path-color', type = color(True),
         metavar = 'COLOUR',
         default = (0.8, 0.4, 0.2),
         help = 'The colour of the path in the image. This must be specified as '
-            'a HTML colour on the form #RRGGBB or rgb(r, g, b).')
+            'an HTML colour on the form #RRGGBB or rgb(r, g, b), or #AARRGGBB '
+            'or rgba(r, g, b, a).')
 
     def line_width(s):
         result = int(s)
@@ -329,6 +498,12 @@ if __name__ == '__main__':
         default = 2,
         help = 'The width of the maze path lines.')
 
+    parser.add_argument('--image-path-smooth',
+        action = 'store_true',
+        default = False,
+        help = 'Whether the path should be painted as a smooth curve instead '
+            'of a sharp line.')
+
     namespace = parser.parse_args()
 
     # Create and initialise the maze
@@ -336,17 +511,12 @@ if __name__ == '__main__':
     initialize(maze, lambda max: random.randint(0, max - 1))
     solution = list(maze.walk_path((0, 0), (maze.width - 1, maze.height - 1)))
 
-    print_maze(maze, solution,
-        namespace.print_wall_char,
-        namespace.print_path_char,
-        namespace.print_floor_char,
-        namespace.print_room_size)
-    make_image(maze, solution,
-        namespace.image_room_size,
-        namespace.image_file,
-        namespace.image_background_color,
-        namespace.image_wall_color,
-        namespace.image_path_color,
-        namespace.image_wall_width,
-        namespace.image_path_width)
+    print_maze(maze, solution, **dict(
+            (name.split('_', 1)[1], value)
+                for name, value in vars(namespace).items()
+                if name.startswith('print_')))
+    make_image(maze, solution, **dict(
+            (name.split('_', 1)[1], value)
+                for name, value in vars(namespace).items()
+                if name.startswith('image_')))
 
