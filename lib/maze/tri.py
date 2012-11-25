@@ -3,12 +3,31 @@ import math
 from . import BaseWall, BaseMaze
 
 class TriWall(BaseMaze.Wall):
-    # Define the walls; this will also add the class variables
-    # mapping wall name to its value
+    # The angles for each corner; this is a list of the tuple (angle, alt_angle)
+    # where alt_angle is used for the room at x, y when x + y is odd
     _ANGLES = []
+
+    # The directions for each wall; this is a list of the tuple (dir, alt_dir)
+    # where alt_dir is used for the room at x, y when x + y is odd
     _DIRECTIONS = []
+
+    # The names of the walls
     NAMES = []
+
+    # The list of walls; this is the list [0, 1, 2... N]
     WALLS = []
+
+    # The horizontal scale factor when converting maze coordinates to physical
+    # coordinates
+    HORIZONTAL_MULTIPLICATOR = math.cos(math.pi / 2 + 2 * 2 * math.pi / 3)
+
+    # The vertical scale factor when converting maze coordinates to physical
+    # coordinates
+    VERTICAL_MULTIPLICATOR = 2 + math.sin(math.pi / 2 + 2 * math.pi / 3)
+
+    # The vertical offset added or removed when converting maze coordinates to
+    # physical coordinates; it is added if x + y is odd
+    OFFSET = 0.5 * (1 + math.sin(math.pi / 2 + 2 * math.pi / 3))
 
     __slots__ = tuple()
 
@@ -19,22 +38,20 @@ class TriWall(BaseMaze.Wall):
         ('HORIZONTAL', (0, -1), (0, 1)))
     for i, (name, dir1, dir2) in enumerate(data):
         locals()[name] = i
+
         next_angle = _ANGLES[-1][0] - 2 * math.pi / len(data) \
             if _ANGLES else start_angle
-
         while next_angle < 0.0:
             next_angle += 2 * math.pi
         alt_angle = next_angle - math.pi
         while alt_angle < 0.0:
             alt_angle += 2 * math.pi
         _ANGLES.append((next_angle, alt_angle))
+
         _DIRECTIONS.append((dir1, dir2))
+
         NAMES.append(name.lower())
         WALLS.append(i)
-
-    HORIZONTAL_MULTIPLICATOR = math.cos(math.pi / 2 + 2 * 2 * math.pi / 3)
-    VERTICAL_MULTIPLICATOR = 2 + math.sin(math.pi / 2 + 2 * math.pi / 3)
-    OFFSET = 0.5 * (1 + math.sin(math.pi / 2 + 2 * math.pi / 3))
 
     @classmethod
     def from_direction(self, room_pos, direction):
@@ -102,6 +119,12 @@ class TriWall(BaseMaze.Wall):
 class TriMaze(BaseMaze):
     """
     This is a maze with triangular rooms.
+
+    The rooms alternate between having a wall facing downwards and a corner
+    facing downwards. The room at x, y will have a corner facing downwards if
+    x + y is odd.
+
+    Walls in a triangular maze do not have an opposite wall.
     """
     Wall = TriWall
 

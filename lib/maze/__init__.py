@@ -7,11 +7,28 @@ class BaseWall(object):
     """
     A reference to the wall of a room.
 
-    A wall has an index, a direction and a span.
-      * The index is its position in the list (LEFT, UP, RIGHT, DOWN).
+    A wall has an index, a direction, a span and a position.
+      * The index is its position in the list of walls. This corresponds to its
+        symbolic name.
       * The direction is a direction vector for the wall; up and right are
-        positive directions.
+        positive directions. The direction is the movement vector in the maze
+        room matrix and not necessarily an actual physical direction.
       * The span is the physical start and end angle of the wall.
+      * The position is the coordinates of the room to which the wall belongs in
+        the maze room matrix.
+
+    Furthermore, walls know their back and opposite.
+      * The back is the same wall in the room on the other side of a wall. A
+        wall will compare equally with its back.
+      * The opposite is the wall opposing a wall in the same room. Depending on
+        the layout of a room, there may be no opposite wall. Triangular mazes do
+        not have opposite walls.
+
+    Walls have factory methods.
+      * from_direction will create a wall when the room and the direction is
+        known. The direction must be the direction vector of the room.
+      * from_room_pos will create all walls for a room.
+      * from_corner will create all walls that meet in a corner.
     """
 
     __slots__ = (
@@ -138,8 +155,8 @@ class BaseWall(object):
         The start of the wall is defined as the most counter-clockwise edge
         of the wall and the end as the start of the next wall.
 
-        The origin of the coordinate system is the center of the room; thus
-        points to the left of the center of room will have negative
+        The origin of the coordinate system is the centre of the room; thus
+        points to the left of the centre of room will have negative
         x-coordinates and points below the center of the room negative
         y-coordinates.
 
@@ -186,14 +203,13 @@ class Room(object):
     """
     A room is a part of the maze.
 
-    A room has all walls defined in Wall, and a concept of doors on the
-    walls.
+    A room has a set of walls. Walls in the set are considered to have doors.
 
-    In addition to the methods defined for Room, the following constructs
-    are allowed:
+    In addition to the methods defined, the following constructs are allowed:
+        if room: => if bool(room.doors):
         if wall in room: => if wall.has_door(wall):
         if room[Wall.LEFT]: => if room.has_door(wall):
-        room[Wall.LEFT] = True => room.set_door(Wall.LEFT, True)
+        room[Wall.LEFT] = bool => room.set_door(Wall.LEFT, bool)
         room += Wall.LEFT => room.add_door(Wall.LEFT)
         room -= Wall.LEFT => room_remove_door(Wall.LEFT)
     """
@@ -224,7 +240,7 @@ class Room(object):
 
     def __init__(self):
         """
-        Creates a new room.
+        Creates a new room with no doors.
         """
         self.doors = set()
 
@@ -279,8 +295,7 @@ class BaseMaze(object):
     """
     A maze is a grid of rooms.
 
-    In addition to the methods defined for Room, the following constructs are
-    allowed:
+    In addition to the methods defined, the following constructs are allowed:
         maze[room_pos] => maze.rooms[room_pos[1]][room_pos[0]]
         if room_pos in maze: => if room_pos[0] >= 0 and room_pos[1] >= 0 \
             and room_pos[0] < maze.width and room_pos[1] < maze.height
@@ -425,8 +440,8 @@ class BaseMaze(object):
         """
         Returns the physical coordinates of the centre of a room.
 
-        If lines are drawn on a circle with radius 1.0 centered on this point
-        between the angles corresponding to the spans of the walls, the lines o
+        If lines are drawn on a circle with radius 1.0 centred on this point
+        between the angles corresponding to the spans of the walls, the lines of
         adjacent rooms will cover each other.
 
         @param room_pos
@@ -524,8 +539,7 @@ class BaseMaze(object):
         @param wall
             The wall to walk through.
         @param require_door
-            Whether to require a door in the specified direction. If this
-            parameter is True,
+            Whether to require a door in the specified direction.
         @return the destination coordinates
         @raise ValueError if require_door is True and there is no door on the
             wall
@@ -551,8 +565,7 @@ class BaseMaze(object):
         @param wall
             The wall to walk through.
         @param require_door
-            Whether to require a door in the specified direction. If this
-            parameter is True,
+            Whether to require a door in the specified direction.
         @return the destination coordinates
         @raise ValueError if require_door is True and there is no door on the
             wall
