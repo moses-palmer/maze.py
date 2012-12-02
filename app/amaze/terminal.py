@@ -20,7 +20,7 @@ def print_maze(maze, solution, wall_char = '@', path_char = '.',
     @return True if the maze could be printed and False otherwise
     """
     if len(maze.Wall.WALLS) != 4:
-        print 'This maze cannot be printed as it is not square'
+        print('This maze cannot be printed as it is not square')
         return False
 
     def output(s):

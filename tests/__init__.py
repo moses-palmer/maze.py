@@ -5,7 +5,7 @@ _indent = 0
 
 def printf(format, *args):
     global _indent
-    print '\t' * _indent + format % args
+    print('\t' * _indent + format % args)
 
 
 def assert_eq(v1, v2):

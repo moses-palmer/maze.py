@@ -7,7 +7,7 @@ import sys
 try:
     import cairo
 except ImportError:
-    print 'This program requires cairo'
+    print('This program requires cairo')
     sys.exit(1)
 
 from maze.quad import Maze
