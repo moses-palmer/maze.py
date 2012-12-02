@@ -10,8 +10,12 @@ def calculate_bounds(maze):
         The maze whose bounds to calculate.
     @return the tuple (min_x, min_y, max_x, max_y)
     """
+    class infinity(object):
+        def __cmp__(self, other):
+            if isinstance(other, type(self)): return 0
+            else: return 1
     max_x, max_y = 0, 0
-    min_x, min_y = sys.maxint, sys.maxint
+    min_x, min_y = infinity(), infinity()
     for wall in maze.edge_walls:
         a = wall.span[0]
         cx, cy = maze.get_center(wall.room_pos)

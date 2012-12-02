@@ -599,7 +599,11 @@ class BaseMaze(object):
         closed_set = []
 
         # The rooms pending evaluation; this list is sorted on cost
-        open_set = [(sys.maxint, from_pos)]
+        class infinity(object):
+            def __cmp__(self, other):
+                if isinstance(other, type(self)): return 0
+                else: return 1
+        open_set = [(infinity(), from_pos)]
 
         # The cost from from_pos to the room along the best known path
         g_score = {}
