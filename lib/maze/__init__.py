@@ -118,7 +118,7 @@ class BaseWall(object):
 
         @return the opposite wall
         """
-        return (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
+        return (self.wall + len(self.WALLS) // 2) % len(self.WALLS)
 
     def _get_back_index(self):
         """
