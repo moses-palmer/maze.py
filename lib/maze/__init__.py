@@ -118,7 +118,7 @@ class BaseWall(object):
 
         @return the opposite wall
         """
-        return (self.wall + len(self.WALLS) / 2) % len(self.WALLS)
+        return (self.wall + len(self.WALLS) // 2) % len(self.WALLS)
 
     def _get_back_index(self):
         """
@@ -357,26 +357,26 @@ class BaseMaze(object):
         @param height
             The height of the maze.
         """
-        self.rooms = [[self.__class__.Room() for x in xrange(width)]
-            for y in xrange(height)]
+        self.rooms = [[self.__class__.Room() for x in range(width)]
+            for y in range(height)]
         self.width = width
         self.height = height
 
     @property
     def room_positions(self):
         """A generator that yields the positions of all rooms"""
-        for x in xrange(0, self.width):
-            for y in xrange(0, self.height):
+        for x in range(0, self.width):
+            for y in range(0, self.height):
                 yield (x, y)
 
     @property
     def edge_walls(self):
         """A generator that yields all walls on the edge of the maze; the order
         is undefined"""
-        for y in xrange(0, self.height):
+        for y in range(0, self.height):
             row = (0,) if self.width == 1 \
                 else (0, self.width - 1) if y == 0 or y == self.height - 1 \
-                else xrange(0, self.width)
+                else range(0, self.width)
             for x in row:
                 for wall in self.walls((x, y)):
                     if self.edge(wall):
@@ -599,7 +599,11 @@ class BaseMaze(object):
         closed_set = []
 
         # The rooms pending evaluation; this list is sorted on cost
-        open_set = [(sys.maxint, from_pos)]
+        class infinity(object):
+            def __cmp__(self, other):
+                if isinstance(other, type(self)): return 0
+                else: return 1
+        open_set = [(infinity(), from_pos)]
 
         # The cost from from_pos to the room along the best known path
         g_score = {}

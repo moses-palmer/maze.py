@@ -3,7 +3,7 @@
 try:
     import cProfile as profile
 except ImportError:
-    print 'cProfile is not available, falling back on profile...'
+    print('cProfile is not available, falling back on profile...')
     import profile
 import os
 import tempfile
@@ -56,16 +56,16 @@ def profiler(func):
             maze = maze_type(*getattr(func, 'maze_size', MAZE_SIZE))
             initializer = getattr(func, 'initializer', None)
             if initializer:
-                print 'Running initialiser for %s for %s...' % (
-                    func.__name__, maze_type.__name__)
+                print('Running initialiser for %s for %s...' % (
+                    func.__name__, maze_type.__name__))
                 initializer(maze)
 
             # Create a temporary file, run the profiling and write the result to
             # the temporary file to be able to create a Stats object
             fd, filename = tempfile.mkstemp()
             try:
-                print 'Profiling %s for %s...' % (
-                    func.__name__, maze_type.__name__)
+                print('Profiling %s for %s...' % (
+                    func.__name__, maze_type.__name__))
                 profile.runctx('func(maze)',
                     globals(), locals(), filename)
                 Stats(filename).strip_dirs().sort_stats('time').print_stats(10)
@@ -93,8 +93,8 @@ Maze_walk_path.initializer = lambda maze: initialize(maze, rand)
 
 def Maze_walk_path_open_initialize(maze):
     initialize(maze, rand)
-    for x in xrange(3, maze.width - 3):
-        for y in xrange(3, maze.height - 3):
+    for x in range(3, maze.width - 3):
+        for y in range(3, maze.height - 3):
             for w in maze.walls((x, y)):
                 maze[(x, y):w.back.room_pos] = True
 
