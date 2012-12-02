@@ -93,8 +93,8 @@ Maze_walk_path.initializer = lambda maze: initialize(maze, rand)
 
 def Maze_walk_path_open_initialize(maze):
     initialize(maze, rand)
-    for x in xrange(3, maze.width - 3):
-        for y in xrange(3, maze.height - 3):
+    for x in range(3, maze.width - 3):
+        for y in range(3, maze.height - 3):
             for w in maze.walls((x, y)):
                 maze[(x, y):w.back.room_pos] = True
 

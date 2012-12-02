@@ -28,12 +28,12 @@ def print_maze(maze, solution, wall_char = '@', path_char = '.',
 
     # Iterate over all rows and make sure to start with the last one to maintain
     # the orientation of the maze
-    for y in reversed(xrange(maze.height)):
+    for y in reversed(range(maze.height)):
         # Print one line for each height unit of a room
-        for line in xrange(room_size[1]):
+        for line in range(room_size[1]):
             # Calculate the vertical offset of the neighbouring room
             dy = 1 if not line else -1 if line == room_size[1] - 1 else 0
-            for x in xrange(maze.width):
+            for x in range(maze.width):
                 # Print one line of the current room for every room in the
                 # current row
                 if line == 0 or line == room_size[1] - 1:

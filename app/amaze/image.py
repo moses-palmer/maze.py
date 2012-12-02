@@ -133,7 +133,7 @@ def draw_path_smooth(maze, ctx, coords, solution):
         The solution. This must be a list of all rooms to traverse.
     """
     room_positions = ((solution[i - 1], solution[i], solution[i + 1])
-        for i in xrange(1, len(solution) - 1))
+        for i in range(1, len(solution) - 1))
     ctx.move_to(*coords(*maze.get_center(solution[0])))
     for (previous_pos, current_pos, next_pos) in room_positions:
         # Draw a bezier curve from the wall to the previous room to the wall

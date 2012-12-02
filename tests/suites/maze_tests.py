@@ -26,8 +26,8 @@ import maze.randomized_prim as randomized_prim
 def Maze_edge():
     maze = Maze(10, 20)
 
-    for x in xrange(-5, maze.width + 5):
-        for y in xrange(-5, maze.height + 5):
+    for x in range(-5, maze.width + 5):
+        for y in range(-5, maze.height + 5):
             for w in maze.Wall.WALLS:
                 expected = False
                 if w == maze.Wall.LEFT and x == 0 \
@@ -54,8 +54,8 @@ def Maze_edge():
 def HexMaze_edge():
     maze = HexMaze(10, 20)
 
-    for x in xrange(-5, maze.width + 5):
-        for y in xrange(-5, maze.height + 5):
+    for x in range(-5, maze.width + 5):
+        for y in range(-5, maze.height + 5):
             for w in maze.Wall.WALLS:
                 expected = (x, y) in maze and (False
                     or (w == maze.Wall.LEFT and x == 0)
@@ -83,8 +83,8 @@ def HexMaze_edge():
 def TriMaze_edge():
     maze = TriMaze(10, 20)
 
-    for x in xrange(-5, maze.width + 5):
-        for y in xrange(-5, maze.height + 5):
+    for x in range(-5, maze.width + 5):
+        for y in range(-5, maze.height + 5):
             for w in maze.Wall.WALLS:
                 expected = (x, y) in maze and (False
                     or (w == maze.Wall.HORIZONTAL and y == 0 and not x % 2)
@@ -689,8 +689,8 @@ def Maze_index_tuple(maze):
 def Maze_slice(maze):
     """Tests that reading a slice of a maze yields the path between the two
     rooms"""
-    for y in xrange(maze.height):
-        for x in xrange(maze.width):
+    for y in range(maze.height):
+        for x in range(maze.width):
             for wall in maze.walls((x, y)):
                 if not maze.edge(wall):
                     maze[x, y][wall] = True
@@ -703,8 +703,8 @@ def Maze_slice(maze):
 @maze_test
 def Maze_contains(maze):
     """Tests that room_pos in maze works"""
-    for x in xrange(-5, maze.width + 5):
-        for y in xrange(-5, maze.height + 5):
+    for x in range(-5, maze.width + 5):
+        for y in range(-5, maze.height + 5):
             expected = x >= 0 and x < maze.width and y >= 0 and y < maze.height
             actual = (x, y) in maze
             assert expected == actual, \
@@ -714,8 +714,8 @@ def Maze_contains(maze):
 @maze_test
 def Maze_contains(maze):
     """Tests that wall in maze works"""
-    for x in xrange(-5, maze.width + 5):
-        for y in xrange(-5, maze.height + 5):
+    for x in range(-5, maze.width + 5):
+        for y in range(-5, maze.height + 5):
             expected = x >= 0 and x < maze.width and y >= 0 and y < maze.height
             actual = maze.Wall((x, y), 0) in maze
             assert expected == actual, \
@@ -737,8 +737,8 @@ def Maze_width_and_height(maze):
 @maze_test
 def Maze_room_positions(maze):
     room_positions = set()
-    for x in xrange(maze.width):
-        for y in xrange(maze.height):
+    for x in range(maze.width):
+        for y in range(maze.height):
             room_positions.add((x, y))
 
     assert_eq(
@@ -1083,7 +1083,7 @@ def Maze_with_randomized_prim(maze):
 
     randomized_prim.initialize(maze, rand)
 
-    for x in xrange(0, maze.width):
-        for y in xrange(0, maze.height):
+    for x in range(0, maze.width):
+        for y in range(0, maze.height):
             assert len(list(maze[(0, 0):(x, y)])) > 0, \
                 'Could not walk from (%d, %d) to (0, 0)' % (x, y)

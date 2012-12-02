@@ -357,26 +357,26 @@ class BaseMaze(object):
         @param height
             The height of the maze.
         """
-        self.rooms = [[self.__class__.Room() for x in xrange(width)]
-            for y in xrange(height)]
+        self.rooms = [[self.__class__.Room() for x in range(width)]
+            for y in range(height)]
         self.width = width
         self.height = height
 
     @property
     def room_positions(self):
         """A generator that yields the positions of all rooms"""
-        for x in xrange(0, self.width):
-            for y in xrange(0, self.height):
+        for x in range(0, self.width):
+            for y in range(0, self.height):
                 yield (x, y)
 
     @property
     def edge_walls(self):
         """A generator that yields all walls on the edge of the maze; the order
         is undefined"""
-        for y in xrange(0, self.height):
+        for y in range(0, self.height):
             row = (0,) if self.width == 1 \
                 else (0, self.width - 1) if y == 0 or y == self.height - 1 \
-                else xrange(0, self.width)
+                else range(0, self.width)
             for x in row:
                 for wall in self.walls((x, y)):
                     if self.edge(wall):
