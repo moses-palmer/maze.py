@@ -14,7 +14,7 @@ def assert_eq(v1, v2):
 
     @raise AssertionError if not (v1 == v2)
     """
-    if isinstance(v1, basestring) and isinstance(v1, basestring):
+    if isinstance(v1, str) and isinstance(v1, str):
         # Handle string comparison specially
         if v1 != v2:
             for i, (v1l, v2l) in enumerate(zip(
