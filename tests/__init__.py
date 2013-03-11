@@ -8,6 +8,20 @@ def printf(format, *args):
     print('\t' * _indent + format % args)
 
 
+class assert_exception(object):
+    def __init__(self, *exceptions):
+        self.exceptions = exceptions
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        assert exc_type in self.exceptions, \
+            'None of exceptions [%s] were thrown' % (', '.join(
+                e.__name__ for e in self.exceptions))
+        return True
+
+
 def assert_eq(v1, v2):
     """
     Asserts that v1 == v2.

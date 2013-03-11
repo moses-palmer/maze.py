@@ -573,7 +573,7 @@ class BaseMaze(object):
         """
         return self.walk_from(wall.room_pos, int(wall), require_door)
 
-    def walk_path(self, from_pos, to_pos):
+    def walk_path(self, from_pos, to_pos, visitor = lambda room_pos: None):
         """
         Generates all rooms on the shortest path between two rooms.
 
@@ -581,10 +581,14 @@ class BaseMaze(object):
             The room in which to start. This room is included.
         @param to_pos
             The last room to visit.
+        @param visitor
+            A callback to call for every room encountered. This callback may
+            raise StopIteration to cancel the walking.
         @raise ValueError if there is no path between the rooms
         """
         # Handle walking to the same room efficiently
         if from_pos == to_pos:
+            visitor(from_pos)
             yield from_pos
             return
 
@@ -619,6 +623,9 @@ class BaseMaze(object):
         while open_set:
             # Get the node in open_set having the lowest f_score value
             cost, current = open_set.pop(0)
+
+            # Visit the room first
+            visitor(current)
 
             # Have we reached the goal?
             if current == to_pos:
