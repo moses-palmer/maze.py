@@ -1052,6 +1052,19 @@ def Maze_walk_path(maze):
 
 
 @maze_test
+def Maze_walk_path(maze):
+    """Tests that passing a callback that immediately raises StopIteration
+    causes Maze.walk_path to stop"""
+    maze[(0, 0):(1, 0)] = True
+
+    def visitor(room_pos):
+        raise Exception()
+
+    with assert_exception(Exception):
+        list(maze.walk_path((0, 0), (1, 0), visitor))
+
+
+@maze_test
 def Maze_with_randomized_prim(maze):
     """Tests that randomized_prim.initialize creates a valid maze"""
     def rand(m):
