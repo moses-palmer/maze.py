@@ -664,25 +664,17 @@ def Maze_index_tuple(maze):
             assert failure_required, \
                 'Removing a door between adjacent rooms raised error'
 
-    try:
+    with assert_exception(IndexError):
         wall = maze.Wall((-5, -5), 0)
         other_room_pos = tuple(r + d
             for r, d in zip(wall.room_pos, wall.direction))
         maze[wall.room_pos:other_room_pos] = True
-        assert False, \
-            'Adding a door outside of the maze did not raise error'
-    except IndexError:
-        pass
 
-    try:
+    with assert_exception(IndexError):
         wall = maze.Wall((-5, -5), 0)
         other_room_pos = tuple(r + d
             for r, d in zip(wall.room_pos, wall.direction))
         maze[wall.room_pos:other_room_pos] = False
-        assert False, \
-            'Removing a door outside of the maze did not raise error'
-    except IndexError:
-        pass
 
 
 @maze_test
@@ -819,14 +811,10 @@ def Maze_add_door(maze):
             assert failure_required, \
                 'Adding a door between adjacent rooms raised error'
 
-    try:
+    with assert_exception(IndexError):
         wall = maze.Wall((-5, -5), 0)
         maze.add_door(wall.room_pos,
             tuple(r + d for r, d in zip(wall.room_pos, wall.direction)))
-        assert False, \
-            'Adding a door outside of the maze did not raise error'
-    except IndexError:
-        pass
 
 
 @maze_test
@@ -856,14 +844,10 @@ def Maze_remove_door(maze):
             assert failure_required, \
                 'Removing a door between adjacent rooms raised error'
 
-    try:
+    with assert_exception(IndexError):
         wall = maze.Wall((-5, -5), 0)
         maze.remove_door(wall.room_pos,
             tuple(r + d for r, d in zip(wall.room_pos, wall.direction)))
-        assert False, \
-            'Removing a door outside of the maze did not raise error'
-    except IndexError:
-        pass
 
 
 @maze_test
@@ -1046,23 +1030,15 @@ def Maze_walk_path(maze):
 @maze_test
 def Maze_walk_path(maze):
     """Tests that walking from a room outside of the maze raises ValueError"""
-    try:
+    with assert_exception(ValueError):
         list(maze.walk_path((-1, -1), (0, 0)))
-        assert False, \
-            'Managed to walk from (-1, -1)'
-    except ValueError:
-        pass
 
 
 @maze_test
 def Maze_walk_path(maze):
     """Tests that walking between non-connected rooms raises ValueError"""
-    try:
+    with assert_exception(ValueError):
         list(maze.walk_path((0, 0), (2, 0)))
-        assert False, \
-            'Managed to walk between non-connected rooms'
-    except ValueError:
-        pass
 
 
 @maze_test
