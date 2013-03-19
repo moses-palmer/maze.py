@@ -502,8 +502,8 @@ class BaseMaze(object):
         # Make sure the wall has a door
         try:
             direction = (
-                room1_pos[0] - room2_pos[0],
-                room1_pos[1] - room2_pos[1])
+                room2_pos[0] - room1_pos[0],
+                room2_pos[1] - room1_pos[1])
             wall_index = int(self.__class__.Wall.from_direction(
                 room1_pos, direction))
             return wall_index in self[room1_pos]
