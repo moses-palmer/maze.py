@@ -59,8 +59,7 @@ class QuadWall(BaseWall):
         WALLS.append(i)
 
 class Maze(BaseMaze):
-    """
-    This is a maze with square rooms.
+    """A maze with square rooms.
 
     This is the traditional maze. Maze coordinates correspond to physical
     coordinates after a simple scale operation.
@@ -68,9 +67,6 @@ class Maze(BaseMaze):
     Wall = QuadWall
 
     def get_center(self, room_pos):
-        """
-        @see Maze.get_center
-        """
         return (
             (room_pos[0] + 0.5) * self.Wall.MULTIPLICATOR,
             (room_pos[1] + 0.5) * self.Wall.MULTIPLICATOR)

@@ -135,8 +135,7 @@ class TriWall(BaseMaze.Wall):
         return (start, end)
 
 class TriMaze(BaseMaze):
-    """
-    This is a maze with triangular rooms.
+    """A maze with triangular rooms.
 
     The rooms alternate between having a wall facing downwards and a corner
     facing downwards. The room at x, y will have a corner facing downwards if
@@ -147,9 +146,6 @@ class TriMaze(BaseMaze):
     Wall = TriWall
 
     def get_center(self, room_pos):
-        """
-        @see Maze.get_center
-        """
         alt = (room_pos[0] + room_pos[1]) % 2
         sign = 1 if alt == 1 else -1
         return (
