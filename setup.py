@@ -22,7 +22,7 @@ setup(
     author_email = 'mosespalmer@gmail.com',
     url = 'https://github.com/moses-palmer/maze.py/',
 
-    package_dir = {'': 'lib', 'amaze': 'app/amaze'},
+    package_dir = {'': 'lib/'},
     packages = PACKAGES,
     scripts = SCRIPTS,
     requires = REQUIRES)

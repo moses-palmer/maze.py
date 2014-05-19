@@ -7,7 +7,7 @@ RUNNER_PY="-m tests"
 AMAZE_PY="$ROOT_DIR/tools/amaze"
 PROFILER_PY="$ROOT_DIR/tools/profiler.py"
 
-export PYTHONPATH="$ROOT_DIR/lib:$ROOT_DIR/app"
+export PYTHONPATH="$ROOT_DIR/lib"
 
 # Run tests for Python 2
 if which python2; then
