@@ -2,8 +2,6 @@
 
 ROOT_DIR="`dirname $0`/.."
 
-# The name of the test runner script
-RUNNER_PY="-m tests"
 AMAZE_PY="$ROOT_DIR/tools/amaze"
 PROFILER_PY="$ROOT_DIR/tools/profiler.py"
 
@@ -12,7 +10,7 @@ export PYTHONPATH="$ROOT_DIR/lib"
 # Run tests for Python 2
 if which python2; then
     echo "Running tests for Python 2..."
-    python2 "$RUNNER_PY"
+    python2 -m tests
     python2 "$AMAZE_PY"
     python2 "$PROFILER_PY"
 else
@@ -22,7 +20,7 @@ fi
 # Run tests for Python 3
 if which python3; then
     echo "Running tests for Python 3..."
-    python3 "$RUNNER_PY"
+    python3 -m tests
     python3 "$AMAZE_PY"
     python3 "$PROFILER_PY"
 else
