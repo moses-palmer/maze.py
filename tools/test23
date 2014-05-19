@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ROOT_DIR="`dirname $0`/../.."
+ROOT_DIR="`dirname $0`/.."
 
 # The name of the test runner script
 RUNNER_PY="-m tests"
