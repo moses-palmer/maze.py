@@ -7,22 +7,14 @@ PROFILER_PY="$ROOT_DIR/tools/profiler.py"
 
 export PYTHONPATH="$ROOT_DIR/lib"
 
-# Run tests for Python 2
-if which python2; then
-    echo "Running tests for Python 2..."
-    python2 -m tests
-    python2 "$AMAZE_PY"
-    python2 "$PROFILER_PY"
-else
-    echo "Python 2 not found"
-fi
-
-# Run tests for Python 3
-if which python3; then
-    echo "Running tests for Python 3..."
-    python3 -m tests
-    python3 "$AMAZE_PY"
-    python3 "$PROFILER_PY"
-else
-    echo "Python 3 not found"
-fi
+# Run tests for all Python version
+for python in python2 python3; do
+    if which $python; then
+        echo "Running tests for $python..."
+        $python -m tests
+        $python "$AMAZE_PY"
+        $python "$PROFILER_PY"
+    else
+        echo "$python not found"
+    fi
+done
