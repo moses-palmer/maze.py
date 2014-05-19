@@ -3,9 +3,6 @@
 import os
 import sys
 
-# Make sure import _tests works
-sys.path.append(
-    os.path.join(os.path.dirname(__file__), os.pardir))
 import tests
 from tests.suites import *
 

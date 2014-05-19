@@ -1,11 +1,13 @@
 #!/bin/sh
 
-# The name of the test runner script
-RUNNER_PY="`dirname $0`/runner.py"
-AMAZE_PY="`dirname $0`/../tools/amaze"
-PROFILER_PY="`dirname $0`/../tools/profiler.py"
+ROOT_DIR="`dirname $0`/../.."
 
-export PYTHONPATH="`dirname $0`/../lib:`dirname $0`/../app"
+# The name of the test runner script
+RUNNER_PY="-m tests"
+AMAZE_PY="$ROOT_DIR/tools/amaze"
+PROFILER_PY="$ROOT_DIR/tools/profiler.py"
+
+export PYTHONPATH="$ROOT_DIR/lib:$ROOT_DIR/app"
 
 # Run tests for Python 2
 if which python2; then
