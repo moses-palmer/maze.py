@@ -2,6 +2,8 @@ import bisect
 import math
 import sys
 
+from . import _info
+
 
 class BaseWall(object):
     """
