@@ -925,6 +925,9 @@ def Maze_adjacent(maze):
 
 @maze_test
 def Maze_connected(maze):
+    maze[(0, 0)][int(maze.__class__.Wall.from_direction((0, 0), (1, 0)))] = True
+    assert maze.connected((0, 0), (1, 0))
+
     for x in (-1, 0, 1):
         for y in (-1, 0, 1):
             connected1 = maze.connected((4, 4), (4 + x, 4 + y))

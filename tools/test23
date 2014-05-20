@@ -1,0 +1,20 @@
+#!/bin/sh
+
+ROOT_DIR="`dirname $0`/.."
+
+AMAZE_PY="$ROOT_DIR/tools/amaze"
+PROFILER_PY="$ROOT_DIR/tools/profiler.py"
+
+export PYTHONPATH="$ROOT_DIR/lib"
+
+# Run tests for all Python version
+for python in python2 python3; do
+    if which $python; then
+        echo "Running tests for $python..."
+        $python -m tests
+        $python "$AMAZE_PY"
+        $python "$PROFILER_PY"
+    else
+        echo "$python not found"
+    fi
+done
