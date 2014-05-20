@@ -90,8 +90,7 @@ class HexWall(BaseMaze.Wall):
             return self._DIRECTIONS[self.wall][0]
 
 class HexMaze(BaseMaze):
-    """
-    This is a maze with hexagonal rooms.
+    """A maze with hexagonal rooms.
 
     The rooms are laid out in rows, where every odd row is moved a half room in
     the positive horizontal direction; the appearance of the maze is that of a
@@ -100,9 +99,6 @@ class HexMaze(BaseMaze):
     Wall = HexWall
 
     def get_center(self, room_pos):
-        """
-        @see Maze.get_center
-        """
         return (
             (room_pos[0] + (1.0 if room_pos[1] % 2 == 1 else 0.5))
                 * self.Wall.HORIZONTAL_MULTIPLICATOR,
