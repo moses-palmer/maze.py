@@ -2,6 +2,11 @@ Release notes
 =============
 
 
+v1.2.1 - Corrected dependencies
+-------------------------------
+* Depend on ``pycairo`` instead of ``cairo``.
+
+
 v1.2 - Added documentation
 -------------------------
 * This package now has browsable documentation
