@@ -30,7 +30,7 @@ def setup(**kwargs):
         long_description = README + '\n\n' + CHANGES,
 
         install_requires = [
-            'cairo >=1.8'],
+            'pycairo >=1.8'],
         setup_requires = [],
 
         author = INFO['author'],
