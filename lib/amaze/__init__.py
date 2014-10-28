@@ -23,10 +23,13 @@ import re
 import sys
 
 try:
-    import cairo
+    import cairocffi as cairo
 except ImportError:
-    print('This program requires cairo')
-    sys.exit(1)
+    try:
+        import cairo
+    except ImportError:
+        print('This program requires cairo')
+        sys.exit(1)
 
 from maze.quad import Maze
 from maze.tri import TriMaze
