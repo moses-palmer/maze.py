@@ -2,6 +2,11 @@ Release notes
 =============
 
 
+v1.2.2 - Changed dependencies
+-----------------------------
+* Depend on ``cairocffi`` instead of ``pycairo``.
+
+
 v1.2.1 - Corrected dependencies
 -------------------------------
 * Depend on ``pycairo`` instead of ``cairo``.
@@ -10,6 +15,7 @@ v1.2.1 - Corrected dependencies
 v1.2 - Added documentation
 -------------------------
 * This package now has browsable documentation
+
 
 v1.1 - Python 3 support
 ----------------------
