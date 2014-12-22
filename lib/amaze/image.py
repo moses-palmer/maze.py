@@ -1,20 +1,18 @@
 # coding=utf-8
-'''
-pymaze
-Copyright (C) 2012-2014 Moses Palmér
-
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with
-this program. If not, see <http://www.gnu.org/licenses/>.
-'''
+# pymaze
+# Copyright (C) 2012-2014 Moses Palmér
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program. If not, see <http://www.gnu.org/licenses/>.
 
 try:
     import cairocffi as cairo
@@ -23,13 +21,14 @@ except ImportError:
 import math
 import sys
 
-def calculate_bounds(maze):
-    """
-    Calculates the bounds of the walls of a maze.
 
-    @param maze
-        The maze whose bounds to calculate.
-    @return the tuple (min_x, min_y, max_x, max_y)
+def calculate_bounds(maze):
+    """Calculates the bounds of the walls of a maze.
+
+    :param maze.BaseMaze maze: The maze whose bounds to calculate.
+
+    :return: the tuple ``(min_x, min_y, max_x, max_y)``
+    :rtype: (int, int)
     """
     class infinity(object):
         def __cmp__(self, other):
@@ -46,16 +45,14 @@ def calculate_bounds(maze):
     return (min_x, min_y, max_x, max_y)
 
 def draw_walls(maze, ctx, coords):
-    """
-    Draws the walls of a maze.
+    """Draws the walls of a maze.
 
-    @param maze
-        The maze whose walls to draw.
-    @param ctx
-        The cairo context to use for drawing.
-    @param coords
-        A callable that transforms its parameters (maze_x, maze_y) to
-        coordinates in the cairo context.
+    :param maze.BaseMaze maze: The maze whose walls to draw.
+
+    :param ctx: The cairo context to use for drawing.
+
+    :param coords: A callable that transforms its parameters
+        ``(maze_x, maze_y)`` to coordinates in the cairo context.
     """
     # Note that we have not yet painted any walls for any rooms
     for room_pos in maze.room_positions:
@@ -64,9 +61,8 @@ def draw_walls(maze, ctx, coords):
     # Initialise the wall queue
     queue = []
     def extend_queue():
-        """
-        Finds a room with walls that have not yet been painted and adds them to
-        queue.
+        """Finds a room with walls that have not yet been painted and adds them
+        to queue.
         """
         for room_pos in maze.room_positions:
             remaining = [w
@@ -100,13 +96,13 @@ def draw_walls(maze, ctx, coords):
         offset_x, offset_y = maze.get_center(wall.room_pos)
 
         def angle_to_coordinate(angle):
-            """
-            Converts an angle from a wall span in the current room to a
+            """Converts an angle from a wall span in the current room to a
             coordinate.
 
-            @param angle
-                The angle to convert.
-            @return the tuple (x, y)
+            :param float angle: The angle to convert.
+
+            :return: the tuple ``(x, y)``
+            :rtype: (int, int)
             """
             return coords(
                 offset_x + math.cos(angle),
@@ -144,18 +140,17 @@ def draw_walls(maze, ctx, coords):
         del maze[room_pos].painted
 
 def draw_path_smooth(maze, ctx, coords, solution):
-    """
-    Draws the solution path using a smooth bezier curve.
+    """Draws the solution path using a smooth *bezier* curve.
 
-    @param maze
-        The maze whose solution to draw.
-    @param ctx
-        The cairo context to use for drawing.
-    @param coords
-        A callable that transforms its parameters (maze_x, maze_y) to
-        coordinates in the cairo context.
-    @param solution
-        The solution. This must be a list of all rooms to traverse.
+    :param maze.BaseMaze maze: The maze whose solution to draw.
+
+    :param ctx: The cairo context to use for drawing.
+
+    :param coords: A callable that transforms its parameters
+        ``(maze_x, maze_y)`` to coordinates in the cairo context.
+
+    :param solution: The solution. This must be a list of all rooms to traverse.
+    :type solution: [(int, int)]
     """
     room_positions = ((solution[i - 1], solution[i], solution[i + 1])
         for i in range(1, len(solution) - 1))
@@ -178,18 +173,17 @@ def draw_path_smooth(maze, ctx, coords, solution):
     ctx.stroke()
 
 def draw_path(maze, ctx, coords, solution):
-    """
-    Draws the solution path using straight lines.
+    """Draws the solution path using straight lines.
 
-    @param maze
-        The maze whose solution to draw.
-    @param ctx
-        The cairo context to use for drawing.
-    @param coords
-        A callable that transforms its parameters (maze_x, maze_y) to
-        coordinates in the cairo context.
-    @param solution
-        The solution. This must be a list of all rooms to traverse.
+    :param maze.BaseMaze maze: The maze whose solution to draw.
+
+    :param ctx: The cairo context to use for drawing.
+
+    :param coords: A callable that transforms its parameters
+        ``(maze_x, maze_y)`` to coordinates in the cairo context.
+
+    :param solution: The solution. This must be a list of all rooms to traverse.
+    :type solution: [(int int)]
     """
     for i, room_pos in enumerate(solution):
         # Draw a line to the centre of the room
