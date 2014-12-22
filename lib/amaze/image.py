@@ -21,6 +21,7 @@ except ImportError:
 import math
 import sys
 
+
 def calculate_bounds(maze):
     """
     Calculates the bounds of the walls of a maze.

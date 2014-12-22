@@ -16,6 +16,7 @@
 
 import sys
 
+
 def print_maze(maze, solution, wall_char = '@', path_char = '.',
         floor_char = ' ', room_size = (5, 4)):
     """

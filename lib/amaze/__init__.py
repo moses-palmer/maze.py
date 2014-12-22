@@ -37,6 +37,7 @@ from maze.randomized_prim import initialize
 from .terminal import print_maze
 from .image import make_image
 
+
 def main():
     import argparse
 
@@ -245,4 +246,3 @@ def main():
             (name.split('_', 1)[1], value)
                 for name, value in vars(namespace).items()
                 if name.startswith('image_')))
-

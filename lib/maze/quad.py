@@ -18,6 +18,7 @@ import math
 
 from . import BaseWall, BaseMaze
 
+
 class QuadWall(BaseWall):
     # The angles for each corner
     _ANGLES = []

@@ -699,4 +699,3 @@ class BaseMaze(object):
                         bisect.insort(open_set, (f, next))
 
         raise ValueError()
-

@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
+
 def initialize(maze, randomizer):
     """
     A function that initialises a maze with the randomised prim algorithm.
@@ -53,4 +54,3 @@ def initialize(maze, randomizer):
                         walls.append(w)
                 except IndexError:
                     pass
-

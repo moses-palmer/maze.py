@@ -18,6 +18,7 @@ import math
 
 from . import BaseWall, BaseMaze
 
+
 class TriWall(BaseMaze.Wall):
     # The angles for each corner; this is a list of the tuple (angle, alt_angle)
     # where alt_angle is used for the room at x, y when x + y is odd
