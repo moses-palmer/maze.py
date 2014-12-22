@@ -16,17 +16,15 @@
 
 
 def initialize(maze, randomizer):
-    """
-    A function that initialises a maze with the randomised prim algorithm.
+    """A function that initialises a maze with the randomised prim algorithm.
 
-    See http://en.wikipedia.org/wiki/Maze_generation_algorithm
+    See `here <http://en.wikipedia.org/wiki/Maze_generation_algorithm>`_.
 
-    @param maze
-        The maze to initialise.
-    @param randomizer
-        The function used as a source of randomness. It will be called with an
-        argument describing the maximum value to return. It may return any
-        integers between 0 and the non-inclusive maximum value.
+    :param maze.BaseMaze maze: The maze to initialise.
+
+    :param randomizer: The function used as a source of randomness. It will be
+        called with an argument describing the maximum value to return. It may
+        return any integers between ``0`` and the non-inclusive maximum value.
     """
     # Start with a random room and add all its walls except those on the edge
     start_x, start_y = randomizer(maze.width), randomizer(maze.height)
