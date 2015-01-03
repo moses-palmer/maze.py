@@ -2,6 +2,11 @@ Release notes
 =============
 
 
+v1.2.3 - Bug fixes
+------------------
+* Corrected maze walker algorithm to always pick shortest path.
+
+
 v1.2.2 - Changed dependencies
 -----------------------------
 * Depend on ``cairocffi`` instead of ``pycairo``.
