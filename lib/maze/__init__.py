@@ -659,6 +659,7 @@ class BaseMaze(object):
         while open_set:
             # Get the node in open_set having the lowest f_score value
             cost, current = open_set.pop(0)
+            g_current = g_score[current]
 
             # Visit the room first
             visitor(current)
@@ -681,7 +682,7 @@ class BaseMaze(object):
 
                 # The cost to get to this room is one more that the room from
                 # which we came
-                g = g_score[current] + 1
+                g = g_current + 1
 
                 # Is this a new room, or has the score improved since last?
                 if not next in open_set or g < g_score[next]:
