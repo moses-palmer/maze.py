@@ -644,6 +644,14 @@ class BaseMaze(object):
 
         # The rooms pending evaluation; this list is sorted on cost
         open_set = [(float('inf'), from_pos)]
+        def is_in_open_set(f, room_pos):
+            """Whether a room is in the open set"""
+            for f_open_set, room_pos_open_set in open_set:
+                if room_pos_open_set == room_pos:
+                    return True
+                elif f_open_set > f:
+                    return False
+            return False
 
         # The cost from from_pos to the room along the best known path
         g_score = {}
@@ -683,16 +691,17 @@ class BaseMaze(object):
                 # The cost to get to this room is one more that the room from
                 # which we came
                 g = g_current + 1
+                f = g + h(next)
+                current_is_in_open_set = is_in_open_set(f, next)
 
                 # Is this a new room, or has the score improved since last?
-                if not next in open_set or g < g_score[next]:
+                if not current_is_in_open_set or g < g_score[next]:
                     came_from[next] = current
                     g_score[next] = g
-                    f = g + h(next)
                     f_score[next] = f
 
                     # Insert the next room while keeping open_set sorted
-                    if not next in open_set:
+                    if not current_is_in_open_set:
                         bisect.insort(open_set, (f, next))
 
         raise ValueError()
