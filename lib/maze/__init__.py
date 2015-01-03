@@ -640,7 +640,7 @@ class BaseMaze(object):
             return sum(abs(t - f) for f, t in zip(room_pos, to_pos))
 
         # The rooms already evaluated
-        closed_set = []
+        closed_set = set()
 
         # The rooms pending evaluation; this list is sorted on cost
         class infinity(object):
@@ -675,7 +675,7 @@ class BaseMaze(object):
                 yield from_pos
                 return
 
-            closed_set.append(current)
+            closed_set.add(current)
             for wall in self.doors(current):
                 next = wall.back.room_pos
 
