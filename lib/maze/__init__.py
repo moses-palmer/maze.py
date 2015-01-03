@@ -637,17 +637,21 @@ class BaseMaze(object):
 
         def h(room_pos):
             """The heuristic for a room"""
-            return sum((t - f)**2 for f, t in zip(room_pos, to_pos))
+            return sum(abs(t - f) for f, t in zip(room_pos, to_pos))
 
         # The rooms already evaluated
-        closed_set = []
+        closed_set = set()
 
         # The rooms pending evaluation; this list is sorted on cost
-        class infinity(object):
-            def __cmp__(self, other):
-                if isinstance(other, type(self)): return 0
-                else: return 1
-        open_set = [(infinity(), from_pos)]
+        open_set = [(float('inf'), from_pos)]
+        def is_in_open_set(f, room_pos):
+            """Whether a room is in the open set"""
+            for f_open_set, room_pos_open_set in open_set:
+                if room_pos_open_set == room_pos:
+                    return True
+                elif f_open_set > f:
+                    return False
+            return False
 
         # The cost from from_pos to the room along the best known path
         g_score = {}
@@ -663,6 +667,7 @@ class BaseMaze(object):
         while open_set:
             # Get the node in open_set having the lowest f_score value
             cost, current = open_set.pop(0)
+            g_current = g_score[current]
 
             # Visit the room first
             visitor(current)
@@ -675,7 +680,7 @@ class BaseMaze(object):
                 yield from_pos
                 return
 
-            closed_set.append(current)
+            closed_set.add(current)
             for wall in self.doors(current):
                 next = wall.back.room_pos
 
@@ -685,17 +690,18 @@ class BaseMaze(object):
 
                 # The cost to get to this room is one more that the room from
                 # which we came
-                g = g_score[current] + 1
+                g = g_current + 1
+                f = g + h(next)
+                current_is_in_open_set = is_in_open_set(f, next)
 
                 # Is this a new room, or has the score improved since last?
-                if not next in open_set or g < g_score[next]:
+                if not current_is_in_open_set or g < g_score[next]:
                     came_from[next] = current
                     g_score[next] = g
-                    f = g + h(next)
                     f_score[next] = f
 
                     # Insert the next room while keeping open_set sorted
-                    if not next in open_set:
+                    if not current_is_in_open_set:
                         bisect.insort(open_set, (f, next))
 
         raise ValueError()
