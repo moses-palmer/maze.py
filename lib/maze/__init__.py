@@ -637,7 +637,7 @@ class BaseMaze(object):
 
         def h(room_pos):
             """The heuristic for a room"""
-            return sum((t - f)**2 for f, t in zip(room_pos, to_pos))
+            return sum(abs(t - f) for f, t in zip(room_pos, to_pos))
 
         # The rooms already evaluated
         closed_set = []
